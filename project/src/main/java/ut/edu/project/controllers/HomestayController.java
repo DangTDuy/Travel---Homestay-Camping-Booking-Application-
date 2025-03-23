@@ -16,7 +16,7 @@ public class HomestayController {
     public HomestayController(HomestayService homestayService) {
         this.homestayService = homestayService;
     }
-`
+
     @GetMapping
     public List<Homestay> getAllHomestays() {
         return homestayService.getAllHomestays();
