@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/homestays")
+@RequestMapping("/homestays")
 public class HomestayController {
 
     private final HomestayService homestayService;
@@ -16,7 +16,7 @@ public class HomestayController {
     public HomestayController(HomestayService homestayService) {
         this.homestayService = homestayService;
     }
-
+`
     @GetMapping
     public List<Homestay> getAllHomestays() {
         return homestayService.getAllHomestays();
