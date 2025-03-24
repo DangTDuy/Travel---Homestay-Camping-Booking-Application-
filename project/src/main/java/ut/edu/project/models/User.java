@@ -16,7 +16,7 @@ public class User {
     @JsonIgnore // Ẩn password khi trả về JSON
     private String password;
 
-    private String role; // CUSTOMER, OWNER, ADMIN
+    private String role; // USER, OWNER, ADMIN
 
     // Getter, Setter
     public Long getId() { return id; }
