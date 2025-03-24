@@ -1,10 +1,8 @@
-package ut.edu.project.services.impl;
+package ut.edu.project.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ut.edu.project.models.Homestay;
 import ut.edu.project.repositories.HomestayRepository;
-import ut.edu.project.services.HomestayService;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +10,12 @@ import java.util.Optional;
 @Service
 public class HomestayServiceImpl implements HomestayService {
 
-    @Autowired
-    private HomestayRepository homestayRepository;
+    private final HomestayRepository homestayRepository;
+
+    // Constructor Injection
+    public HomestayServiceImpl(HomestayRepository homestayRepository) {
+        this.homestayRepository = homestayRepository;
+    }
 
     @Override
     public List<Homestay> getAllHomestays() {
