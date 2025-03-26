@@ -10,13 +10,28 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     @JsonIgnore // Ẩn password khi trả về JSON
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String role; // USER, OWNER, ADMIN
+
+    // Constructor
+    public User() {}
+
+    public User(String name, String email, String password, String role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     // Getter, Setter
     public Long getId() { return id; }
