@@ -1,6 +1,6 @@
 package ut.edu.project.repositories;
 
-public class Camping {
+public class    Camping {
     private String id;
     private String name;
     private String location;
