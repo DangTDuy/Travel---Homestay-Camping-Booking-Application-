@@ -2,8 +2,8 @@ package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ut.edu.project.repositories.ReviewRepository; // Thêm dòng này để import ReviewRepository
-import ut.edu.project.models.Review; // Thêm dòng này nếu chưa có (do Review cũng được sử dụng)
+import ut.edu.project.repositories.ReviewRepository;
+import ut.edu.project.models.Review;
 
 import java.util.List;
 import java.util.Optional;
