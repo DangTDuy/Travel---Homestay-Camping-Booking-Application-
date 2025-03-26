@@ -2,29 +2,30 @@ package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ut.edu.project.repositories.ReviewRepository; // Thêm dòng này để import ReviewRepository
+import ut.edu.project.models.Review; // Thêm dòng này nếu chưa có (do Review cũng được sử dụng)
 
 import java.util.List;
 import java.util.Optional;
 
-@Service // Đánh dấu đây là một lớp Service trong Spring
+@Service
 public class ReviewServiceImpl implements ReviewService {
 
-    @Autowired // Tiêm ReviewRepository tự động
+    @Autowired
     private ReviewRepository reviewRepository;
 
     @Override
-    public List<Review> getAllReviews() { // Lấy tất cả đánh giá
+    public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
 
     @Override
-    public Optional<Review> getReviewById(Long id) { // Lấy đánh giá theo ID
+    public Optional<Review> getReviewById(Long id) {
         return reviewRepository.findById(id);
     }
 
     @Override
-    public Review saveReview(Review review) { // Lưu đánh giá (tạo mới hoặc cập nhật)
-        // Kiểm tra giá trị rating hợp lệ (1-5)
+    public Review saveReview(Review review) {
         if (review.getRating() < 1 || review.getRating() > 5) {
             throw new IllegalArgumentException("Số sao phải nằm trong khoảng từ 1 đến 5");
         }
@@ -32,17 +33,17 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReview(Long id) { // Xóa đánh giá theo ID
+    public void deleteReview(Long id) {
         reviewRepository.deleteById(id);
     }
 
     @Override
-    public List<Review> getReviewsByService(String serviceType, Long serviceId) { // Lấy đánh giá theo loại dịch vụ và ID
+    public List<Review> getReviewsByService(String serviceType, Long serviceId) {
         return reviewRepository.findByServiceTypeAndServiceId(serviceType, serviceId);
     }
 
     @Override
-    public List<Review> getReviewsByUser(Long userId) { // Lấy đánh giá của một người dùng
+    public List<Review> getReviewsByUser(Long userId) {
         return reviewRepository.findByUserId(userId);
     }
 }
