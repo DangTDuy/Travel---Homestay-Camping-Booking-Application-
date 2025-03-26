@@ -12,6 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Homestay {
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,4 +31,12 @@ public class Homestay {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner; // Chủ homestay
+
+
+
+
+
+
+
+
 }
