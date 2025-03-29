@@ -1,27 +1,211 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<!-- th:include="master/_layout" -->
-<div th:replace="master/head :: head"></div>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Travel-Homestay-Camping - Discover unique homestays, camping experiences, and travel adventures.">
+    <meta name="keywords" content="Travel, Homestay, Camping, Adventure, Explore">
+    <title>Travel-Homestay-Camping</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-gray-100">
+<!-- Header -->
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+    <div class="flex items-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="w-10 h-10 mr-2"/>
+        <span class="text-xl font-bold">Travel-Homestay-Camping</span>
+    </div>
+    <nav class="space-x-4">
+        <a href="#" class="hover:text-gray-200">Hỗ trợ</a>
+        <a href="#" class="hover:text-gray-200">Hợp tác với chúng tôi</a>
+        <a href="#" class="hover:text-gray-200">Đặt chỗ của tôi</a>
+        <a href="#" class="hover:text-gray-200">Đăng Nhập</a>
+        <a href="#" class="hover:text-gray-200">Đăng Ký</a>
+    </nav>
+</header>
 
-<body>
-<div class="layout-wrapper layout-content-navbar">
-    <div class="layout-container">
-        <div th:replace="master/_layoutmenu::layout-menu"></div>
-        <div class="layout-page">
-            <div th:replace="master/_layoutnavbar::layout-navbar"></div>
+<!-- Khoảng cách giữa header và sidebar -->
+<div class="h-4 bg-blue-600"></div>
 
-            <div class="content-wrapper">
-                <div class="container-xxl flex-grow-1 container-p-y">
-                    <th:block th:fragment="content">
-                        <h2> nội dung trang web </h2>
-                    </th:block>
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <div class="sidebar p-6 flex flex-col">
+        <nav class="flex-grow">
+            <ul>
+                <!-- Camping -->
+                <li class="mb-4">
+                    <a href="#" class="font-bold flex items-center">
+                        <img src="https://cdn-icons-png.flaticon.com/128/4469/4469267.png" alt="Camping Icon" class="w-6 h-6 mr-2"/>
+                        Camping
+                    </a>
+                    <ul class="ml-4 mt-2 space-y-2">
+                        <li><a href="#">Địa điểm cắm trại</a></li>
+                        <li><a href="#">Chuẩn bị đồ dùng</a></li>
+                        <li><a href="#">Kinh nghiệm sinh tồn</a></li>
+                        <li><a href="#">Hoạt động ngoài trời</a></li>
+                        <li><a href="#">Lưu ý về an toàn</a></li>
+                    </ul>
+                </li>
+
+                <!-- Homestay -->
+                <li class="mb-4">
+                    <a href="#" class="font-bold flex items-center">
+                        <img src="https://cdn-icons-png.flaticon.com/128/18610/18610661.png" alt="Homestay Icon" class="w-6 h-6 mr-2"/>
+                        Homestay
+                    </a>
+                    <ul class="ml-4 mt-2 space-y-2">
+                        <li><a href="#">Homestay nổi bật</a></li>
+                        <li><a href="#">Kinh nghiệm đặt phòng</a></li>
+                        <li><a href="#">Tiện nghi & dịch vụ</a></li>
+                        <li><a href="#">Review khách hàng</a></li>
+                        <li><a href="#">Ưu đãi & giảm giá</a></li>
+                    </ul>
+                </li>
+
+                <!-- Travel -->
+                <li class="mb-4">
+                    <a href="#" class="font-bold flex items-center">
+                        <img src="https://cdn-icons-png.flaticon.com/128/854/854996.png" alt="Travel Icon" class="w-6 h-6 mr-2"/>
+                        Travel
+                    </a>
+                    <ul class="ml-4 mt-2 space-y-2">
+                        <li><a href="#">Điểm đến nổi bật</a></li>
+                        <li><a href="#">Hướng dẫn di chuyển</a></li>
+                        <li><a href="#">Kinh nghiệm du lịch</a></li>
+                        <li><a href="#">Địa điểm ăn uống</a></li>
+                        <li><a href="#">Mẹo du lịch tiết kiệm</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8">
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <h2 class="search-title">Tìm Kiếm Dịch Vụ</h2>
+                <div class="search-input-group">
+                    <input type="text" placeholder="Nhập từ khóa..." class="search-input"/>
+                    <button class="search-button">Tìm</button>
                 </div>
             </div>
-
-<!--            <div th:replace="master/_layoutfooter::layout-footer"></div>-->
+        </div>
+        <!-- Services Section -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold mb-4">Dịch vụ của chúng tôi</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="assets/img/camping/camping.png" alt="Camping Image" class="w-full h-48 object-cover"/>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Camping</h3>
+                        <p>Trải nghiệm cắm trại hoang dã, hòa mình vào thiên nhiên. Tận hưởng không gian yên tĩnh, khám phá cảnh đẹp tuyệt vời và thư giãn cùng gia đình, bạn bè. Cắm trại giúp bạn thoát khỏi nhịp sống hối hả, tìm lại sự cân bằng.</p>
+                    </div>
+                </div>
+                <!-- Service 2 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="assets/img/travel/travel.png" alt="Travel Image" class="w-full h-48 object-cover"/>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Travel</h3>
+                        <p>Khám phá những địa điểm du lịch tuyệt đẹp, từ những bãi biển thơ mộng đến các thành phố sôi động. Trải nghiệm nền văn hóa đa dạng, ẩm thực phong phú và những hoạt động thú vị. Travel không chỉ là một chuyến đi, mà là một hành trình khám phá.</p>
+                    </div>
+                </div>
+                <!-- Service 3 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="assets/img/homestay/homestay.png" alt="Homestay Image" class="w-full h-48 object-cover"/>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Homestay</h3>
+                        <p>Trải nghiệm homestay độc đáo, tận hưởng không gian ấm cúng như ở nhà. Kết nối với người bản địa, khám phá văn hóa địa phương và thưởng thức những bữa ăn truyền thống. Homestay mang đến sự thoải mái và trải nghiệm chân thực.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Suggested Places Section -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold mb-4">Gợi ý các địa điểm nổi tiếng</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Place 1 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="https://excursionvietnam.com/wp-content/uploads/2024/05/Sapa.png" alt="Sapa Image" class="w-full h-48 object-cover"/>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Sapa</h3>
+                        <p>Mô tả ngắn về Sapa. Đây là một nơi tuyệt vời để tham quan và khám phá.</p>
+                        <button class="bg-blue-600 text-white p-2 mt-2 rounded">Chi tiết</button>
+                    </div>
+                </div>
+                <!-- Place 2 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="https://honthom.sunworld.vn/wp-content/uploads/2020/04/nam-dao-phu-quoc.png" alt="Phú Quốc Image" class="w-full h-48 object-cover"/>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Phú Quốc</h3>
+                        <p>Mô tả ngắn về Phú Quốc. Đây là một nơi tuyệt vời để tham quan và khám phá.</p>
+                        <button class="bg-blue-600 text-white p-2 mt-2 rounded">Chi tiết</button>
+                    </div>
+                </div>
+                <!-- Place 3 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="https://vpdt.vietrantour.com.vn/data/upload/2024/0130/vietrantour-65b86f84cb9bfdu-lich-da-lat-4-ngay-3-dem.png" alt="Đà Lạt Image" class="w-full h-48 object-cover"/>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Đà Lạt</h3>
+                        <p>Mô tả ngắn về Đà Lạt. Đây là một nơi tuyệt vời để tham quan và khám phá.</p>
+                        <button class="bg-blue-600 text-white p-2 mt-2 rounded">Chi tiết</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Comments Section -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold mb-4">Bình luận của người dùng</h2>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-4">
+                    <textarea class="w-full p-2 border border-gray-300 rounded" placeholder="Viết bình luận..."></textarea>
+                    <button class="bg-blue-600 text-white p-2 mt-2 rounded">Gửi</button>
+                </div>
+                <div class="space-y-4">
+                    <!-- Comment 1 -->
+                    <div class="bg-gray-100 p-4 rounded-lg shadow flex items-start">
+                        <img src="https://cdn-icons-png.flaticon.com/128/4140/4140048.png" alt="ChisTrung Avatar" class="w-10 h-10 rounded-full mr-4"/>
+                        <p><strong>ChisTrung:</strong> Dịch vụ rất tốt, tôi rất hài lòng!</p>
+                    </div>
+                    <!-- Comment 2 -->
+                    <div class="bg-gray-100 p-4 rounded-lg shadow flex items-start">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2922/2922565.png" alt="ThanhDuy Avatar" class="w-10 h-10 rounded-full mr-4"/>
+                        <p><strong>ThanhDuy:</strong> Trải nghiệm tuyệt vời, sẽ quay lại lần sau.</p>
+                    </div>
+                    <!-- Comment 3 -->
+                    <div class="bg-gray-100 p-4 rounded-lg shadow flex items-start">
+                        <img src="https://cdn-icons-png.flaticon.com/128/599/599305.png" alt="MinhNhut Avatar" class="w-10 h-10 rounded-full mr-4"/>
+                        <p><strong>MinhNhut:</strong> Homestay rất ấm cúng và thoải mái.</p>
+                    </div>
+                    <!-- Comment 4 -->
+                    <div class="bg-gray-100 p-4 rounded-lg shadow flex items-start">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2922/2922565.png" alt="KhanhKiet Avatar" class="w-10 h-10 rounded-full mr-4"/>
+                        <p><strong>KhanhKiet:</strong> Dịch vụ rất tốt, tôi rất hài lòng!</p>
+                    </div>
+                    <!-- Comment 5 -->
+                    <div class="bg-gray-100 p-4 rounded-lg shadow flex items-start">
+                        <img src="https://cdn-icons-png.flaticon.com/128/706/706830.png" alt="ChuDon Avatar" class="w-10 h-10 rounded-full mr-4"/>
+                        <p><strong>ChuDon:</strong> Trải nghiệm tuyệt vời, sẽ quay lại lần sau.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<!-- Footer -->
+<footer class="bg-blue-600 text-white p-4 mt-8">
+    <div class="container mx-auto text-center">
+        <p class="mb-2">© 2023 Travel-Homestay-Camping. All rights reserved.</p>
+        <div class="flex justify-center space-x-4">
+            <a href="#" class="hover:text-gray-200">Chính sách bảo mật</a>
+            <a href="#" class="hover:text-gray-200">Điều khoản sử dụng</a>
+            <a href="#" class="hover:text-gray-200">Liên hệ</a>
+        </div>
+    </div>
+</footer>
 </body>
-
 </html>

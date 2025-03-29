@@ -1,0 +1,151 @@
+/* Reset một số kiểu mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Cài đặt font chữ cho toàn bộ trang */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+/* Định dạng cho header */
+header {
+    background-color: #2563eb;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky; /* Keep header at the top */
+    top: 0;
+    z-index: 1000; /* Ensure it stays above other content */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+
+/* Định dạng cho sidebar */
+
+.sidebar a:hover {
+    color: #4CAF50; /* Màu chữ khi di chuột vào (màu xanh lá cây) */
+}
+
+
+
+
+/* Định dạng cho các nút */
+button {
+    background-color: #1E3A8A; /* Màu xanh đậm */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem; /* Bo góc */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s; /* Thêm hiệu ứng transform */
+}
+
+button:hover {
+    background-color: #2563EB; /* Màu xanh sáng hơn khi hover */
+    transform: scale(1.05); /* Tăng kích thước nút khi hover */
+}
+
+/* Định dạng cho các thẻ h2 */
+h2 {
+    color: #1E3A8A; /* Màu xanh đậm */
+}
+
+/* Định dạng cho các thẻ h3 */
+h3 {
+    color: #1E3A8A; /* Màu xanh đậm */
+}
+
+/* Định dạng cho các thẻ p */
+p {
+    color: #4B5563; /* Màu xám */
+}
+
+/* Định dạng cho các thẻ bình luận */
+.comment {
+    background-color: #F3F4F6; /* Màu xám nhạt */
+    padding: 1rem;
+    border-radius: 0.375rem; /* Bo góc */
+    margin-bottom: 1rem;
+}
+
+/* Định dạng cho các hình ảnh */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Định dạng cho các thẻ textarea */
+textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #D1D5DB; /* Màu xám nhạt */
+    border-radius: 0.375rem; /* Bo góc */
+    transition: border-color 0.3s; /* Thêm hiệu ứng border */
+}
+
+textarea:focus {
+    border-color: #2563EB; /* Thay đổi màu border khi focus */
+    outline: none; /* Bỏ outline mặc định */
+}
+
+footer {
+    background-color: #1E3A8A; /* Màu xanh đậm */
+    text-align: center;
+    padding: 1rem;
+    margin-top: 0; /* Đảm bảo không có margin trên */
+}
+
+.search-section {
+    background-image: url('https://images.pexels.com/photos/31300634/pexels-photo-31300634/free-photo-of-hoang-hon-mua-dong-ben-song-rhine-cologne.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+    background-size: cover;
+    background-position: center;
+    height: 16rem; /* 64px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem; /* Bo góc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+}
+
+.search-container {
+    background-color: rgba(255, 255, 255, 0.5); /* Nền trắng với độ trong suốt */
+    padding: 1.5rem; /* Padding */
+    border-radius: 0.5rem; /* Bo góc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+}
+
+.search-title {
+    font-size: 1.5rem; /* Kích thước chữ */
+    font-weight: bold; /* Chữ đậm */
+    margin-bottom: 1rem; /* Khoảng cách dưới tiêu đề */
+}
+
+.search-input-group {
+    display: flex; /* Để căn chỉnh input và button */
+}
+
+.search-input {
+    padding: 0.5rem; /* Padding cho input */
+    border: 1px solid #d1d5db; /* Đường viền xám */
+    border-radius: 0.5rem 0 0 0.5rem; /* Bo góc cho input */
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+}
+
+.search-button {
+    background-color: #3b82f6; /* Màu nền cho button */
+    color: white; /* Màu chữ trắng */
+    padding: 0.5rem; /* Padding cho button */
+    border-radius: 0 0.5rem 0.5rem 0; /* Bo góc cho button */
+    border: none; /* Không có đường viền */
+    cursor: pointer; /* Con trỏ khi di chuột */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+.search-button:hover {
+    background-color: #2563eb; /* Màu nền khi di chuột */
+}
