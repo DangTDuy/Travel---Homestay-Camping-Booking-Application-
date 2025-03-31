@@ -4,107 +4,394 @@
     padding: 0;
     box-sizing: border-box;
 }
+.flex-1 {
+    background-color: #F0F0F0;
+}
+
+
+/* Biến CSS cho màu sắc */
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #3498db;
+    --hover-color: #2980b9;
+    --text-color: #333;
+    --background-color: #f9f9f9;
+    --white: #fff;
+    --black: #000;
+}
 
 /* Cài đặt font chữ cho toàn bộ trang */
 body {
-    font-family: 'Arial', sans-serif;
+    margin: 0; /* Đảm bảo không có margin mặc định */
+    font-family: 'Arial', sans-serif; /* Font chữ mặc định */
 }
 
 /* Định dạng cho header */
 header {
-    background-color: #2563eb;
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky; /* Keep header at the top */
-    top: 0;
-    z-index: 1000; /* Ensure it stays above other content */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    background-color: var(--primary-color); /* Màu nền */
+    color: var(--white); /* Màu chữ */
+    padding: 15px 20px; /* Khoảng cách bên trong */
+    display: flex; /* Sử dụng Flexbox */
+    justify-content: space-between; /* Căn giữa các phần tử */
+    align-items: center; /* Căn giữa theo chiều dọc */
 }
 
+.header-content {
+    display: flex; /* Sử dụng Flexbox cho logo và tên */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.logo {
+    width: 60px; /* Chiều rộng logo */
+    height: 60px; /* Chiều cao logo */
+    margin-right: 10px; /* Khoảng cách bên phải logo */
+}
+
+.site-title {
+    font-size: 2.5rem; /* Kích thước chữ cho tiêu đề */
+    font-weight: bold; /* Đậm chữ */
+    font-family: "Bungee Tint", sans-serif;
+}
+
+.nav-menu {
+    display: flex; /* Sử dụng Flexbox cho menu */
+    font-size: 1.2rem;
+}
+
+.highlight-box {
+    background-color: rgba(255, 255, 255, 0.1); /* Màu nền cho ô chứa */
+    padding: 10px; /* Khoảng cách bên trong ô chứa */
+    border-radius: 5px; /* Bo góc cho ô chứa */
+}
+
+.highlight-box a {
+    color: var(--white); /* Màu chữ cho liên kết */
+    text-decoration: none; /* Bỏ gạch chân */
+    margin-left: 20px; /* Khoảng cách giữa các liên kết */
+    transition: color 0.3s; /* Hiệu ứng chuyển tiếp mượt mà khi hover */
+}
+
+.highlight-box a:hover {
+    color: red; /* Thay đổi màu khi hover */
+}
 
 /* Định dạng cho sidebar */
-
 .sidebar a:hover {
     color: #4CAF50; /* Màu chữ khi di chuột vào (màu xanh lá cây) */
 }
 
+/* Phần dịch vụ */
+.services {
+    padding: 2rem; /* Padding cho phần dịch vụ */
+    background-color: #F5F5F5;
 
-
-
-/* Định dạng cho các nút */
-button {
-    background-color: #1E3A8A; /* Màu xanh đậm */
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem; /* Bo góc */
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; /* Thêm hiệu ứng transform */
 }
 
-button:hover {
-    background-color: #2563EB; /* Màu xanh sáng hơn khi hover */
-    transform: scale(1.05); /* Tăng kích thước nút khi hover */
+.section-title {
+    font-size: 2.5rem; /* Tăng kích thước chữ cho tiêu đề */
+    font-weight: bold; /* Chữ đậm */
+    margin-bottom: 1rem; /* Khoảng cách dưới tiêu đề */
+    text-align: center; /* Căn giữa tiêu đề */
+    color: var(--primary-color); /* Màu chữ */
+    text-transform: uppercase; /* Chữ in hoa */
+    letter-spacing: 1.5px; /* Khoảng cách giữa các chữ cái */
+    position: relative; /* Để tạo hiệu ứng cho đường gạch dưới */
+    font-family: "Playfair Display", serif;
 }
 
-/* Định dạng cho các thẻ h2 */
-h2 {
-    color: #1E3A8A; /* Màu xanh đậm */
+/* Đường gạch dưới cho tiêu đề */
+.section-title::after {
+    content: ""; /* Tạo một phần tử giả */
+    display: block; /* Hiển thị như một khối */
+    width: 50%; /* Chiều rộng của đường gạch dưới */
+    height: 4px; /* Chiều cao của đường gạch dưới */
+    background-color: var(--black); /* Màu sắc cho đường gạch dưới */
+    margin: 0.5rem auto; /* Căn giữa đường gạch dưới */
+    border-radius: 2px; /* Bo góc cho đường gạch dưới */
 }
 
-/* Định dạng cho các thẻ h3 */
-h3 {
-    color: #1E3A8A; /* Màu xanh đậm */
+/* Container cho các dịch vụ */
+.service-container {
+    display: grid; /* Sử dụng Grid Layout */
+    grid-template-columns: repeat(1, 1fr); /* 1 cột cho màn hình nhỏ */
+    gap: 2rem; /* Khoảng cách giữa các phần tử */
 }
 
-/* Định dạng cho các thẻ p */
-p {
-    color: #4B5563; /* Màu xám */
+/* Responsive cho các dịch vụ */
+@media (min-width: 768px) {
+    .service-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 cột cho màn hình vừa */
+    }
 }
 
-/* Định dạng cho các thẻ bình luận */
-.comment {
-    background-color: #F3F4F6; /* Màu xám nhạt */
-    padding: 1rem;
-    border-radius: 0.375rem; /* Bo góc */
+@media (min-width: 1024px) {
+    .service-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 cột cho màn hình lớn */
+    }
+}
+
+/* Thẻ dịch vụ */
+.service-box {
+    background-color: var(--white); /* Màu nền trắng */
+    border-radius: 0.5rem; /* Bo góc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    overflow: hidden; /* Ẩn phần nội dung tràn */
+    transition: transform 0.3s ease; /* Hiệu ứng chuyển tiếp */
+}
+
+.service-box:hover {
+    transform: scale(1.05); /* Phóng to khi hover */
+}
+
+/* Hình ảnh dịch vụ */
+.service-image {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    height: 200px; /* Chiều cao cố định */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+}
+
+/* Nội dung dịch vụ */
+.service-content {
+    padding: 1.5rem; /* Padding cho nội dung */
+    text-align: justify; /* Căn đều hai bên cho nội dung văn bản */
+}
+
+.service-content h3 {
+    font-family: "Dancing Script", cursive;
+    font-size: 2.5rem; /* Kích thước chữ cho tiêu đề dịch vụ */
+    font-weight: bold; /* Chữ đậm */
+    margin-bottom: 0.5rem; /* Khoảng cách dưới tiêu đề */
+    text-align: left; /* Căn trái cho tiêu đề */
+}
+
+.service-content p {
+    font-size: 1rem; /* Kích thước chữ cho đoạn văn */
+    line-height: 1.5; /* Khoảng cách giữa các dòng */
+    margin: 0; /* Bỏ margin để căn chỉnh tốt hơn */
+}
+
+/* suggest */
+.container {
+    padding: 2rem; /* Padding cho phần gợi ý địa điểm */
+    background-color: #F5F5F5;
+}
+
+.container h2 {
+    font-size: 2.5rem; /* Kích thước chữ cho tiêu đề */
     margin-bottom: 1rem;
-}
-
-/* Định dạng cho các hình ảnh */
-img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Định dạng cho các thẻ textarea */
-textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #D1D5DB; /* Màu xám nhạt */
-    border-radius: 0.375rem; /* Bo góc */
-    transition: border-color 0.3s; /* Thêm hiệu ứng border */
-}
-
-textarea:focus {
-    border-color: #2563EB; /* Thay đổi màu border khi focus */
-    outline: none; /* Bỏ outline mặc định */
-}
-
-footer {
-    background-color: #1E3A8A; /* Màu xanh đậm */
     text-align: center;
-    padding: 1rem;
-    margin-top: 0; /* Đảm bảo không có margin trên */
+    font-weight: bold;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    font-family: "Playfair Display", serif;
 }
 
+/* Đường gạch dưới cho tiêu đề */
+.container h2::after {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 4px;
+    background-color: var(--black);
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.card {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Đảm bảo chiều cao các card = nhau */
+}
+
+.card img {
+    width: 100%;
+    height: 200px; /* Giữ chiều cao cố định cho hình ảnh */
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Mở rộng nội dung để có chiều cao đồng đều */
+}
+
+.card-content h3 {
+    font-family: "Dancing Script", cursive;
+    font-size: 2rem; /* Kích thước chữ cho tiêu đề dịch vụ */
+    font-weight: bold; /* Chữ đậm */
+    margin-bottom: 0.5rem; /* Khoảng cách dưới tiêu đề */
+    text-align: left; /* Căn trái cho tiêu đề */
+}
+
+.card-content p {
+    font-size: 1em; /* Kích thước chữ cho đoạn văn */
+    color: #7f8c8d; /* Màu chữ cho đoạn văn */
+    line-height: 1.5; /* Khoảng cách giữa các dòng */
+    flex-grow: 1; /* Đẩy nội dung lên trên để nút button luôn ở dưới */
+}
+
+/* Định vị các nút ở góc dưới phải */
+.button-container {
+    display: flex;
+    gap: 5px;
+    margin-top: auto; /* Đẩy nút xuống đáy */
+    justify-content: flex-end;
+}
+
+.button {
+    padding: 10px 15px;
+    background-color: var(--secondary-color); /* Màu nền cho button */
+    color: var(--white); /* Màu chữ trắng */
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.button:hover {
+    background-color: var(--hover-color); /* Màu nền khi hover */
+}
+
+/* Định dạng cho phần bình luận */
+.comments-container {
+    padding: 2rem; /* Padding cho phần bình luận */
+    background-color: var(--background-color); /* Màu nền cho phần bình luận */
+    border-radius: 8px; /* Bo góc cho container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng cho container */
+}
+
+/* Tiêu đề phần bình luận */
+.comments-title {
+    font-size: 2rem; /* Kích thước chữ cho tiêu đề */
+    font-weight: bold; /* Chữ đậm */
+    margin-bottom: 1rem; /* Khoảng cách dưới tiêu đề */
+    text-align: left; /* Căn trái tiêu đề */
+    color: var(--text-color); /* Màu chữ */
+}
+
+/* Khung nhập bình luận */
+.comment-box {
+    display: flex; /* Sử dụng Flexbox để sắp xếp */
+    margin-bottom: 1rem; /* Khoảng cách dưới khung nhập bình luận */
+}
+
+/* Textarea cho bình luận */
+.comment-input {
+    flex: 1; /* Chiếm không gian còn lại */
+    padding: 10px; /* Padding cho textarea */
+    border: 1px solid #ccc; /* Đường viền cho textarea */
+    border-radius: 5px; /* Bo góc cho textarea */
+    resize: none; /* Không cho phép thay đổi kích thước */
+}
+
+/* Nút gửi bình luận */
+.comment-button {
+    padding: 10px 15px; /* Padding cho nút */
+    background-color: var(--secondary-color); /* Màu nền cho nút */
+    color: var(--white); /* Màu chữ */
+    border: none; /* Không có đường viền */
+    border-radius: 5px; /* Bo góc cho nút */
+    cursor: pointer; /* Con trỏ chuột khi hover */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+.comment-button:hover {
+    background-color: var(--hover-color); /* Màu nền khi hover */
+}
+
+/* Danh sách bình luận */
+.comments-list {
+    margin-top: 1rem; /* Khoảng cách trên danh sách bình luận */
+}
+
+/* Mỗi bình luận */
+.comment {
+    display: flex; /* Sử dụng Flexbox để sắp xếp */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 1rem; /* Khoảng cách dưới mỗi bình luận */
+}
+
+/* Avatar của người dùng */
+.avatar {
+    width: 40px; /* Chiều rộng của avatar */
+    height: 40px; /* Chiều cao của avatar */
+    border-radius: 50%; /* Bo tròn cho avatar */
+    margin-right: 10px; /* Khoảng cách bên phải avatar */
+}
+
+/* Nội dung bình luận */
+.comment p {
+    margin: 0; /* Không có khoảng cách */
+    color: var(--text-color); /* Màu chữ cho nội dung bình luận */
+}
+
+/* Định dạng cho footer */
+.footer {
+    background-color: var(--primary-color); /* Màu nền cho footer */
+    color: var(--white); /* Màu chữ */
+    padding: 1rem 0; /* Padding cho footer */
+    text-align: center; /* Căn giữa nội dung */
+}
+
+.f-container {
+    max-width: 1200px; /* Chiều rộng tối đa cho container */
+    margin: 0 auto; /* Căn giữa container */
+    padding: 0 1rem; /* Padding bên trái và bên phải */
+}
+
+.footer p {
+    margin: 0; /* Không có khoảng cách */
+    font-size: 1rem; /* Kích thước chữ cho nội dung */
+}
+
+.footer-links {
+    margin-top: 0.5rem; /* Khoảng cách trên các liên kết */
+}
+
+.footer-links a {
+    color: var(--white); /* Màu chữ cho liên kết */
+    text-decoration: none; /* Không có gạch chân */
+    margin: 0 10px; /* Khoảng cách giữa các liên kết */
+    transition: color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+.footer-links a:hover {
+    color: #ffeb3b; /* Màu chữ khi hover */
+}
+
+/* Định dạng cho phần tìm kiếm */
 .search-section {
     background-image: url('https://images.pexels.com/photos/31300634/pexels-photo-31300634/free-photo-of-hoang-hon-mua-dong-ben-song-rhine-cologne.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
     background-size: cover;
     background-position: center;
-    height: 16rem; /* 64px */
+    height: 20rem; /* Chiều cao của phần tìm kiếm */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,39 +400,44 @@ footer {
 }
 
 .search-container {
-    background-color: rgba(255, 255, 255, 0.5); /* Nền trắng với độ trong suốt */
+    background-color: rgba(0, 0, 0, 0.35); /* Nền với độ trong suốt */
     padding: 1.5rem; /* Padding */
     border-radius: 0.5rem; /* Bo góc */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    text-align: center; /* Căn giữa nội dung */
+    width: 600px; /* Đặt chiều rộng cụ thể */
+    margin: 0 auto; /* Căn giữa trong container */
 }
 
 .search-title {
-    font-size: 1.5rem; /* Kích thước chữ */
+    font-size: 2.5rem; /* Kích thước chữ */
     font-weight: bold; /* Chữ đậm */
     margin-bottom: 1rem; /* Khoảng cách dưới tiêu đề */
+    color: var(--white); /* Màu chữ */
+    font-family: "Playfair Display", serif;
 }
 
 .search-input-group {
     display: flex; /* Để căn chỉnh input và button */
+    max-width: 400px; /* Đặt chiều rộng tối đa cho nhóm input và button */
+    margin: 0 auto; /* Căn giữa nhóm trong container */
 }
 
 .search-input {
     padding: 0.5rem; /* Padding cho input */
     border: 1px solid #d1d5db; /* Đường viền xám */
     border-radius: 0.5rem 0 0 0.5rem; /* Bo góc cho input */
-    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    width: 70%; /* Chiếm 70% chiều rộng của nhóm */
 }
 
 .search-button {
-    background-color: #3b82f6; /* Màu nền cho button */
-    color: white; /* Màu chữ trắng */
+    background-color: var(--primary-color); /* Màu nền cho button */
+    color: var(--white); /* Màu chữ trắng */
     padding: 0.5rem; /* Padding cho button */
     border-radius: 0 0.5rem 0.5rem 0; /* Bo góc cho button */
     border: none; /* Không có đường viền */
     cursor: pointer; /* Con trỏ khi di chuột */
     transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+    width: 30%; /* Chiếm 30% chiều rộng của nhóm */
 }
 
-.search-button:hover {
-    background-color: #2563eb; /* Màu nền khi di chuột */
-}
