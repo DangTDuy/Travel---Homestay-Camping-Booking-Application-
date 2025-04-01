@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="THC@localhost" uuid="03a9a39b-2c06-4e64-9e7c-c1ac07a7be33">
+    <data-source source="LOCAL" name="THC@localhost" uuid="4b0567fd-3bbe-48fe-bbe8-773f2bddb8b2">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/project/src/main/resources/application.properties</remarks>
+      <remarks>THCDB</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/THC</jdbc-url>
       <jdbc-additional-properties>
