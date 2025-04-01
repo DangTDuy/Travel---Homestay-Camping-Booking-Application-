@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh Sách Khu Cắm Trại</title>
+</head>
+<body>
+<h2>Danh Sách Khu Cắm Trại</h2>
+
+<!-- Form thêm mới Camping -->
+<form action="/camping-view/add" method="post">
+  <input type="text" name="name" placeholder="Tên Camping" required>
+  <input type="text" name="location" placeholder="Địa điểm" required>
+  <input type="number" name="price" placeholder="Giá (VND)" required>
+  <input type="number" name="capacity" placeholder="Sức chứa" required>
+  <input type="text" name="description" placeholder="Mô tả">
+  <select name="isAvailable">
+    <option value="true">Còn chỗ</option>
+    <option value="false">Hết chỗ</option>
+  </select>
+  <button type="submit">Thêm mới</button>
+</form>
+
+<!-- Bảng danh sách -->
+<table border="1">
+  <tr>
+    <th>Tên</th>
+    <th>Vị trí</th>
+    <th>Giá</th>
+    <th>Sức chứa</th>
+    <th>Mô tả</th>
+    <th>Trạng thái</th>
+    <th>Hành động</th>
+  </tr>
+  <tr th:each="camping : ${campings}">
+    <td th:text="${camping.name}"></td>
+    <td th:text="${camping.location}"></td>
+    <td th:text="${camping.price}"></td>
+    <td th:text="${camping.capacity}"></td>
+    <td th:text="${camping.description}"></td>
+    <td>
+      <span th:if="${camping.isAvailable}" style="color: green;">✅ Còn chỗ</span>
+      <span th:unless="${camping.isAvailable}" style="color: red;">❌ Hết chỗ</span>
+    </td>
+    <td>
+      <a th:href="@{/camping-view/edit/{id}(id=${camping.id})}">✏️ Sửa</a>
+      <a th:href="@{/camping-view/delete/{id}(id=${camping.id})}" onclick="return confirm('Bạn có chắc muốn xóa?')">🗑️ Xóa</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

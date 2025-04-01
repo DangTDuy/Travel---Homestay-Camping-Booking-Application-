@@ -31,6 +31,12 @@ public class CampingController {
         return campingService.addCamping(camping);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Camping> updateCamping(@PathVariable Long id, @RequestBody Camping campingDetails) {
+        Camping updatedCamping = campingService.updateCamping(id, campingDetails);
+        return updatedCamping != null ? ResponseEntity.ok(updatedCamping) : ResponseEntity.notFound().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCamping(@PathVariable Long id) {
         campingService.deleteCamping(id);
