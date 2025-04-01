@@ -25,11 +25,23 @@ public class CampingService {
         return campingRepository.save(camping);
     }
 
+    public Camping updateCamping(Long id, Camping campingDetails) {
+        return campingRepository.findById(id).map(camping -> {
+            camping.setName(campingDetails.getName());
+            camping.setLocation(campingDetails.getLocation());
+            camping.setPrice(campingDetails.getPrice());
+            camping.setCapacity(campingDetails.getCapacity());
+            camping.setDescription(campingDetails.getDescription());
+            camping.setAvailable(campingDetails.isAvailable());
+            return campingRepository.save(camping);
+        }).orElse(null);
+    }
+
     public void deleteCamping(Long id) {
         campingRepository.deleteById(id);
     }
 
     public List<Camping> getAvailableCampings() {
-        return campingRepository.findByIsAvailable(true);
+        return campingRepository.findByIsAvailableTrue();
     }
 }
