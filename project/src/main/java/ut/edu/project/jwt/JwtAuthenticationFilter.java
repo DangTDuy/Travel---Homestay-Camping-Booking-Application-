@@ -37,13 +37,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         if (jwtUtil.validateToken(token)) {
             String username = jwtUtil.extractUsername(token);
-            UserDetails userDetails = userService.loadUserByUsername(username);
+            String role = jwtUtil.extractRole(token); // Trích xuất role từ token
+            System.out.println("Extracted role from token: " + role); // Debug log
 
+            UserDetails userDetails = userService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            System.out.println("Token validation failed. Expired: " + jwtUtil.isTokenExpired(token));
         }
 
         filterChain.doFilter(request, response);
