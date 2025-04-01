@@ -1,24 +1,23 @@
 package ut.edu.project.controllers;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-public class TestController {
-    @GetMapping("/admin/test")
-    public String adminTest(@AuthenticationPrincipal UserDetails userDetails) {
-        return "Welcome Admin: " + userDetails.getUsername();
+@Controller
+public class HomeController {
+
+    @GetMapping("/layout")
+    public String layoutPage() {
+        return "master/_layout";
     }
 
-    @GetMapping("/user/test")
-    public String userTest(@AuthenticationPrincipal UserDetails userDetails) {
-        return "Welcome User: " + userDetails.getUsername();
+    @GetMapping("/about")
+    public String aboutPage() {
+        return "index";
     }
 
-    @GetMapping("/public")
-    public String publicTest() {
-        return "This is public!";
+    @GetMapping("/home")
+    public String homePage() {  // Đổi tên method từ aboutPage() → homePage()
+        return "home";
     }
 }
