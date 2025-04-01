@@ -282,9 +282,7 @@ header {
 /* Định dạng cho phần bình luận */
 .comments-container {
     padding: 2rem; /* Padding cho phần bình luận */
-    background-color: var(--background-color); /* Màu nền cho phần bình luận */
-    border-radius: 8px; /* Bo góc cho container */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng cho container */
+    background-color: #F5F5F5; /* Màu nền cho phần bình luận */
 }
 
 /* Tiêu đề phần bình luận */
