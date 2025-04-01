@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import ut.edu.project.jwt.JwtAuthenticationFilter;
 import ut.edu.project.jwt.JwtUtil;
 import ut.edu.project.services.UserService;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -38,8 +39,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Chỉ ADMIN mới truy cập được
-                        .requestMatchers("/user/**").authenticated()   // User phải đăng nhập
+                        .requestMatchers("/auths/**").permitAll()
+                        .requestMatchers("/homestays/create").hasRole("ADMIN")
+                        .requestMatchers("/homestays/my-homestays").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/homestays/{id}").hasRole("ADMIN") // Chỉnh sửa
+                        .requestMatchers(HttpMethod.DELETE, "/homestays/{id}").hasRole("ADMIN") // Xóa
+                        .requestMatchers("/homestays/{id}").permitAll() // GET detail homestay
+                        .requestMatchers("/homestays").permitAll() // GET all homestays
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -30,7 +30,7 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())) // Đảm bảo "ROLE_USER"
         );
     }
     public Optional<User> findByUsername(String username) {
@@ -50,5 +50,10 @@ public class UserService implements UserDetailsService {
 
         userRepository.save(user);
         return "User registered successfully!";
+    }
+    public boolean hasRole(String username, String role) {
+        User user = findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getRole().equals(role);
     }
 }

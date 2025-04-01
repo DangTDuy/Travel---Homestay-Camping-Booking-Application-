@@ -1,13 +1,65 @@
 package ut.edu.project.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ut.edu.project.models.Homestay;
+import ut.edu.project.models.User;
+import ut.edu.project.repositories.HomestayRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface HomestayService {
-    List<Homestay> getAllHomestays();
-    Optional<Homestay> getHomestayById(Long id);
-    Homestay saveHomestay(Homestay homestay);
-    void deleteHomestay(Long id);
+@Service
+public class HomestayService {
+
+    @Autowired
+    private HomestayRepository homestayRepository;
+
+    @Autowired
+    private UserService userService;
+
+    public Homestay createHomestay(Homestay homestay, String username) {
+        User owner = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        homestay.setOwner(owner);
+        return homestayRepository.save(homestay);
+    }
+
+    public List<Homestay> searchHomestays(String location) {
+        if (location != null && !location.isEmpty()) {
+            return homestayRepository.findByLocationContainingIgnoreCase(location);
+        }
+        return homestayRepository.findAll();
+    }
+
+    public Optional<Homestay> getHomestayById(Long id) {
+        return homestayRepository.findById(id);
+    }
+
+    public List<Homestay> getHomestaysByOwner(String username) {
+        User owner = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return homestayRepository.findByOwner(owner);
+    }
+
+    public Homestay updateHomestay(Long id, Homestay updatedHomestay, String username) {
+        Homestay homestay = homestayRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Homestay not found"));
+        // Không cần kiểm tra owner, chỉ ADMIN được gọi phương thức này
+        homestay.setName(updatedHomestay.getName());
+        homestay.setLocation(updatedHomestay.getLocation());
+        homestay.setDescription(updatedHomestay.getDescription());
+        homestay.setPricePerNight(updatedHomestay.getPricePerNight());
+        homestay.setCapacity(updatedHomestay.getCapacity());
+        homestay.setAmenities(updatedHomestay.getAmenities());
+        homestay.setImageUrls(updatedHomestay.getImageUrls());
+        return homestayRepository.save(homestay);
+    }
+
+    public void deleteHomestay(Long id, String username) {
+        Homestay homestay = homestayRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Homestay not found"));
+        // Không cần kiểm tra owner, chỉ ADMIN được gọi
+        homestayRepository.deleteById(id);
+    }
 }
