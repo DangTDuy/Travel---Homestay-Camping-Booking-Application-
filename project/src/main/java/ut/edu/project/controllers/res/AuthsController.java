@@ -39,7 +39,12 @@ public class AuthsController {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
-            String token = jwtUtil.generateToken(userDetails.getUsername());
+            // Lấy role từ UserDetails
+            String role = userDetails.getAuthorities().stream()
+                    .map(authority -> authority.getAuthority().replace("ROLE_", ""))
+                    .findFirst()
+                    .orElse("USER"); // Mặc định là "USER" nếu không tìm thấy role
+            String token = jwtUtil.generateToken(userDetails.getUsername(), role);
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");

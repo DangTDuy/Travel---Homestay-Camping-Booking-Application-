@@ -12,6 +12,7 @@ import ut.edu.project.models.User;
 import ut.edu.project.repositories.UserRepository;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -32,7 +33,9 @@ public class UserService implements UserDetailsService {
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }
-
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
     public String registerUser(RegisterDTO registerDTO) {
         if (userRepository.existsByUsername(registerDTO.getUsername())) {
             return "User already exists!";
