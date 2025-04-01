@@ -17,6 +17,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment savePayment(Payment payment) {
+        // Kiểm tra xem booking đã có payment chưa
+        Optional<Payment> existingPayment = paymentRepository.findByBookingId(payment.getBooking().getId());
+        if (existingPayment.isPresent()) {
+            throw new RuntimeException("Payment already exists for this booking");
+        }
         return paymentRepository.save(payment);
     }
 
@@ -33,5 +38,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void deletePayment(Long id) {
         paymentRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<Payment> getPaymentByBookingId(Long bookingId) {
+        return paymentRepository.findByBookingId(bookingId);
     }
 }

@@ -9,4 +9,5 @@ public interface PaymentService {
     Optional<Payment> getPaymentById(Long id);
     List<Payment> getAllPayments();
     void deletePayment(Long id);
+    Optional<Payment> getPaymentByBookingId(Long bookingId); // Lấy payment theo booking
 }

@@ -17,8 +17,8 @@ public class BookingController {
     private BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-        Booking newBooking = bookingService.saveBooking(booking);
+    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking, @RequestParam String paymentMethod) {
+        Booking newBooking = bookingService.saveBooking(booking, paymentMethod);
         return ResponseEntity.ok(newBooking);
     }
 
@@ -36,10 +36,19 @@ public class BookingController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
-        if (!bookingService.getBookingById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
         bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Booking> updateBookingStatus(@PathVariable Long id, @RequestParam String status) {
+        Booking updatedBooking = bookingService.updateBookingStatus(id, status);
+        return ResponseEntity.ok(updatedBooking);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Booking>> getBookingsByUser(@PathVariable Long userId) {
+        List<Booking> bookings = bookingService.getBookingsByUser(userId);
+        return ResponseEntity.ok(bookings);
     }
 }
