@@ -5,9 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ut.edu.project.models.Review;
 import ut.edu.project.services.ReviewService;
-import ut.edu.project.exceptions.ResourceNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/reviews")
@@ -28,9 +28,9 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
-        Review review = reviewService.getReviewById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
-        return ResponseEntity.ok(review);
+        Optional<Review> review = reviewService.getReviewById(id);
+        return review.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
