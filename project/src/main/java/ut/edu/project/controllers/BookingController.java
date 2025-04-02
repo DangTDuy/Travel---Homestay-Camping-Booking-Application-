@@ -16,7 +16,7 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @PostMapping
+    @PostMapping("/create") // Thay đổi URL tại đây
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking, @RequestParam String paymentMethod) {
         Booking newBooking = bookingService.saveBooking(booking, paymentMethod);
         return ResponseEntity.ok(newBooking);

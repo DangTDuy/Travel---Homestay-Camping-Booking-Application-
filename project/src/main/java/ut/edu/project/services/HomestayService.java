@@ -45,7 +45,15 @@ public class HomestayService {
     public Homestay updateHomestay(Long id, Homestay updatedHomestay, String username) {
         Homestay homestay = homestayRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Homestay not found"));
-        // Không cần kiểm tra owner, chỉ ADMIN được gọi phương thức này
+
+        // Kiểm tra quyền hạn của người dùng (chỉ ADMIN có quyền cập nhật)
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().equals("ADMIN")) {
+            throw new RuntimeException("Chỉ ADMIN mới có quyền cập nhật homestay");
+        }
+
         homestay.setName(updatedHomestay.getName());
         homestay.setLocation(updatedHomestay.getLocation());
         homestay.setDescription(updatedHomestay.getDescription());
@@ -59,7 +67,15 @@ public class HomestayService {
     public void deleteHomestay(Long id, String username) {
         Homestay homestay = homestayRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Homestay not found"));
-        // Không cần kiểm tra owner, chỉ ADMIN được gọi
+
+        // Kiểm tra quyền hạn của người dùng (chỉ ADMIN có quyền xóa)
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().equals("ADMIN")) {
+            throw new RuntimeException("Chỉ ADMIN mới có quyền xóa homestay");
+        }
+
         homestayRepository.deleteById(id);
     }
 }
