@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // Giữ để hỗ trợ sau này nếu cần
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // Giữ lại, dù không dùng @PreAuthorize bây giờ
 public class SecurityConfig {
 
     @Autowired
@@ -39,15 +41,23 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Công khai
                         .requestMatchers("/auths/**").permitAll()
-                        .requestMatchers("/homestays/create").hasRole("ADMIN")
-                        .requestMatchers("/homestays/my-homestays").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/homestays/{id}").hasRole("ADMIN") // Chỉnh sửa
-                        .requestMatchers(HttpMethod.DELETE, "/homestays/{id}").hasRole("ADMIN") // Xóa
-                        .requestMatchers("/homestays/{id}").permitAll() // GET detail homestay
-                        .requestMatchers("/homestays").permitAll() // GET all homestays
+                        .requestMatchers("/homestays/{id}").permitAll()
+                        .requestMatchers("/homestays").permitAll()
+                        // HomestayController
+                        .requestMatchers("/homestays/my-homestays").authenticated()         // USER và ADMIN
+                        .requestMatchers("/homestays/create").hasRole("ADMIN")             // Chỉ ADMIN
+                        .requestMatchers(HttpMethod.PUT, "/homestays/{id}").hasRole("ADMIN") // Chỉ ADMIN
+                        .requestMatchers(HttpMethod.DELETE, "/homestays/{id}").hasRole("ADMIN") // Chỉ ADMIN
+                        // UserController
+                        .requestMatchers("/user/me").authenticated()                       // USER và ADMIN
+                        .requestMatchers("/user/all").hasRole("ADMIN")                     // Chỉ ADMIN
+                        .requestMatchers(HttpMethod.PUT, "/user/{id}").hasRole("ADMIN")    // Chỉ ADMIN
+                        .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasRole("ADMIN") // Chỉ ADMIN
+                        // Admin routes
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").authenticated()
+                        // Các request khác
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
