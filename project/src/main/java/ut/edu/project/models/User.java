@@ -1,13 +1,9 @@
 package ut.edu.project.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
 @Entity
 @Getter
 @Setter
@@ -22,45 +18,28 @@ public class User {
     private String password;
     private String role;
 
+    private String hoTen;
+    private String email;
+    private String soDienThoai;
+
+    // Hằng số cho roles
+    public static final String ROLE_USER = "USER";
+    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String ROLE_MODERATOR = "MODERATOR";
+    // Thêm các roles khác nếu cần
+
+    // Constructors (nếu cần)
     public User() {}
 
-    public User(String username, String password, String role) {
+    public User(String username, String password, String role, String hoTen, String email, String soDienThoai) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.hoTen = hoTen;
+        this.email = email;
+        this.soDienThoai = soDienThoai;
     }
 
-    // Getter & Setter
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
+    // Getters and Setters (đã được lombok tạo tự động)
+    // (Lombok @Getter và @Setter sẽ tự động tạo ra các getter và setter)
 }
