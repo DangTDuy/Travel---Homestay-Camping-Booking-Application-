@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Homestay</title>
+</head>
+<body>
+<h1>Create Homestay</h1>
+<form id="homestayForm">
+    <label for="name">Tên homestay:</label><br>
+    <input type="text" id="name" name="name"><br><br>
+
+    <label for="location">Địa điểm:</label><br>
+    <input type="text" id="location" name="location"><br><br>
+
+    <label for="pricePerNight">Giá mỗi đêm:</label><br>
+    <input type="number" id="pricePerNight" name="pricePerNight"><br><br>
+
+    <label for="capacity">Sức chứa:</label><br>
+    <input type="number" id="capacity" name="capacity"><br><br>
+
+    <label>URL hình ảnh:</label><br>
+    <div id="imageUrls">
+        <input type="text" name="imageUrls[]"><br>
+    </div>
+    <button type="button" onclick="addImageUrl()">Thêm hình ảnh</button><br><br>
+
+    <button type="submit">Gửi</button>
+</form>
+
+<script>
+    function addImageUrl() {
+        var imageUrlsDiv = document.getElementById('imageUrls');
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'imageUrls[]';
+        imageUrlsDiv.appendChild(input);
+        imageUrlsDiv.appendChild(document.createElement('br'));
+    }
+
+    document.getElementById('homestayForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var form = event.target;
+        var formData = new FormData(form);
+        var homestay = {};
+        formData.forEach(function(value, key){
+            if (key === 'imageUrls[]') {
+                if (!homestay.imageUrls) {
+                    homestay.imageUrls = [];
+                }
+                homestay.imageUrls.push(value);
+            } else {
+                homestay[key] = value;
+            }
+        });
+
+        fetch('/homestays/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer YOUR_JWT_TOKEN' // Thay thế bằng token thực tế
+            },
+            body: JSON.stringify(homestay)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                alert('Homestay created successfully!'); // Hiển thị thông báo thành công
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Failed to create homestay. Please try again.'); // Hiển thị thông báo lỗi
+            });
+    });
+</script>
+</body>
+</html>
