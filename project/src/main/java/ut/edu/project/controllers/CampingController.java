@@ -42,7 +42,6 @@ public class CampingController {
         campingService.deleteCamping(id);
         return ResponseEntity.noContent().build();
     }
-
     @GetMapping("/available")
     public List<Camping> getAvailableCampings() {
         return campingService.getAvailableCampings();
