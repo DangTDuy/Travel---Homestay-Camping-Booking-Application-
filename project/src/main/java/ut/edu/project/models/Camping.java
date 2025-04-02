@@ -17,7 +17,8 @@ public class Camping {
     private String name;
     private String location;
     private double price;
-    private int capacity;
+    private int places;
     private String description;
     private boolean isAvailable;
+    private String image;
 }
