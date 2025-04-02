@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Payment for Booking</h1>
+    <form id="paymentForm">
+        <label for="payerId">Payer ID:</label>
+        <input type="number" id="payerId" required>
+
+        <label for="bookingId">Booking ID:</label>
+        <input type="number" id="bookingId" required>
+
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" required>
+
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod" required>
+            <option value="Credit Card">Credit Card</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+        </select>
+
+        <label for="status">Status:</label>
+        <input type="text" id="status" value="Pending" readonly>
+
+        <button type="submit">Submit Payment</button>
+    </form>
+
+    <div id="responseMessage"></div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
