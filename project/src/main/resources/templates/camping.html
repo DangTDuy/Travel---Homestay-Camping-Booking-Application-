@@ -2,51 +2,93 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Danh Sách Khu Cắm Trại</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camping Services</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body { background-color: #f8f9fa; }
+    .card { transition: transform 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px; overflow: hidden; }
+    .card:hover { transform: scale(1.05); }
+    .card img { height: 200px; object-fit: cover; }
+    .btn-primary { background-color: #007bff; border: none; }
+    .btn-primary:disabled { background-color: #6c757d; }
+  </style>
 </head>
 <body>
-<h2>Danh Sách Khu Cắm Trại</h2>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Dịch Vụ Cắm Trại</h2>
 
-<!-- Form thêm mới Camping -->
-<form action="/camping-view/add" method="post">
-  <input type="text" name="name" placeholder="Tên Camping" required>
-  <input type="text" name="location" placeholder="Địa điểm" required>
-  <input type="number" name="price" placeholder="Giá (VND)" required>
-  <input type="number" name="capacity" placeholder="Sức chứa" required>
-  <input type="text" name="description" placeholder="Mô tả">
-  <select name="isAvailable">
-    <option value="true">Còn chỗ</option>
-    <option value="false">Hết chỗ</option>
-  </select>
-  <button type="submit">Thêm mới</button>
-</form>
+  <!-- Form tìm kiếm, lọc và sắp xếp -->
+  <form th:action="@{/camping}" method="get" class="mb-4">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Tìm kiếm theo tên..." name="searchTerm" th:value="${searchTerm}">
+      </div>
+      <div class="col-md-3">
+        <input type="number" class="form-control" placeholder="Số chỗ tối thiểu..." name="minPlaces" th:value="${minPlaces}">
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="availability">
+          <option value="" th:selected="${availability == null}">Tất cả</option>
+          <option value="true" th:selected="${availability == 'true'}">Còn chỗ</option>
+          <option value="false" th:selected="${availability == 'false'}">Hết chỗ</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="sort">
+          <option value="" th:selected="${sort == null}">Không sắp xếp</option>
+          <option value="price_asc" th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
+          <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần</option>
+          <option value="places_asc" th:selected="${sort == 'places_asc'}">Số chỗ tăng dần</option>
+          <option value="places_desc" th:selected="${sort == 'places_desc'}">Số chỗ giảm dần</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+      </div>
+    </div>
+  </form>
 
-<!-- Bảng danh sách -->
-<table border="1">
-  <tr>
-    <th>Tên</th>
-    <th>Vị trí</th>
-    <th>Giá</th>
-    <th>Sức chứa</th>
-    <th>Mô tả</th>
-    <th>Trạng thái</th>
-    <th>Hành động</th>
-  </tr>
-  <tr th:each="camping : ${campings}">
-    <td th:text="${camping.name}"></td>
-    <td th:text="${camping.location}"></td>
-    <td th:text="${camping.price}"></td>
-    <td th:text="${camping.capacity}"></td>
-    <td th:text="${camping.description}"></td>
-    <td>
-      <span th:if="${camping.isAvailable}" style="color: green;">✅ Còn chỗ</span>
-      <span th:unless="${camping.isAvailable}" style="color: red;">❌ Hết chỗ</span>
-    </td>
-    <td>
-      <a th:href="@{/camping-view/edit/{id}(id=${camping.id})}">✏️ Sửa</a>
-      <a th:href="@{/camping-view/delete/{id}(id=${camping.id})}" onclick="return confirm('Bạn có chắc muốn xóa?')">🗑️ Xóa</a>
-    </td>
-  </tr>
-</table>
+  <!-- Danh sách camping -->
+  <div class="row">
+    <div class="col-md-4 mb-4" th:each="camping : ${campings}">
+      <div class="card">
+        <img th:src="${camping.image != null and !camping.image.isEmpty()} ? ${camping.image} : '/images/placeholder.jpg'"
+             class="card-img-top" alt="Camping Image">
+        <div class="card-body">
+          <h5 class="card-title" th:text="${camping.name}"></h5>
+          <p class="card-text text-muted" th:text="${camping.location}"></p>
+          <p class="card-text" th:text="${camping.description}"></p>
+          <p class="fw-bold text-danger" th:text="|Giá: ${camping.price} VNĐ / đêm|"></p>
+          <p class="text-muted" th:text="|Số chỗ: ${camping.places}|"></p>
+          <p class="text-success" th:if="${camping.isAvailable}">Còn chỗ</p>
+          <p class="text-danger" th:unless="${camping.isAvailable}">Hết chỗ</p>
+          <form th:action="@{/camping/book/{id}(id=${camping.id})}" method="post">
+            <button type="submit" class="btn btn-primary w-100" th:disabled="${!camping.isAvailable or camping.places == 0}">
+              Đặt chỗ ngay
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phân trang -->
+  <nav th:if="${totalPages > 1}" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+        <a class="page-link" th:href="@{/camping(page=${currentPage - 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, availability=${availability}, sort=${sort})}">Trước</a>
+      </li>
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+          th:classappend="${i == currentPage} ? 'active'">
+        <a class="page-link" th:href="@{/camping(page=${i}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, availability=${availability}, sort=${sort})}" th:text="${i + 1}"></a>
+      </li>
+      <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+        <a class="page-link" th:href="@{/camping(page=${currentPage + 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, availability=${availability}, sort=${sort})}">Sau</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
