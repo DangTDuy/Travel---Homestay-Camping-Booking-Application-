@@ -1,45 +1,67 @@
 package ut.edu.project.controllers;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ut.edu.project.models.Homestay;
 import ut.edu.project.services.HomestayService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/homestays")
 public class HomestayController {
 
-    private final HomestayService homestayService;
-
-    public HomestayController(HomestayService homestayService) {
-        this.homestayService = homestayService;
-    }
+    @Autowired
+    private HomestayService homestayService;
 
     @GetMapping
-    public List<Homestay> getAllHomestays() {
-        return homestayService.getAllHomestays();
+    public ResponseEntity<List<Homestay>> getAllHomestays(
+            @RequestParam(required = false) String location) {
+        List<Homestay> homestays = homestayService.searchHomestays(location);
+        return ResponseEntity.ok(homestays);
     }
 
     @GetMapping("/{id}")
-    public Optional<Homestay> getHomestayById(@PathVariable Long id) {
-        return homestayService.getHomestayById(id);
+    public ResponseEntity<Homestay> getHomestayById(@PathVariable Long id) {
+        Homestay homestay = homestayService.getHomestayById(id)
+                .orElseThrow(() -> new RuntimeException("Homestay not found"));
+        return ResponseEntity.ok(homestay);
     }
 
-    @PostMapping
-    public Homestay createHomestay(@RequestBody Homestay homestay) {
-        return homestayService.saveHomestay(homestay);
+    @GetMapping("/my-homestays")
+    public ResponseEntity<List<Homestay>> getMyHomestays(Authentication authentication) {
+        String username = authentication.getName();
+        List<Homestay> myHomestays = homestayService.getHomestaysByOwner(username);
+        return ResponseEntity.ok(myHomestays);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Homestay> createHomestay(
+            @Valid @RequestBody Homestay homestay,
+            Authentication authentication) {
+        String username = authentication.getName();
+        Homestay createdHomestay = homestayService.createHomestay(homestay, username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdHomestay);
     }
 
     @PutMapping("/{id}")
-    public Homestay updateHomestay(@PathVariable Long id, @RequestBody Homestay homestay) {
-        homestay.setId(id);
-        return homestayService.saveHomestay(homestay);
+    public ResponseEntity<Homestay> updateHomestay(
+            @PathVariable Long id,
+            @Valid @RequestBody Homestay homestay,
+            Authentication authentication) {
+        String username = authentication.getName();
+        Homestay updatedHomestay = homestayService.updateHomestay(id, homestay, username);
+        return ResponseEntity.ok(updatedHomestay);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteHomestay(@PathVariable Long id) {
-        homestayService.deleteHomestay(id);
+    public ResponseEntity<Void> deleteHomestay(@PathVariable Long id, Authentication authentication) {
+        String username = authentication.getName();
+        homestayService.deleteHomestay(id, username);
+        return ResponseEntity.noContent().build();
     }
 }

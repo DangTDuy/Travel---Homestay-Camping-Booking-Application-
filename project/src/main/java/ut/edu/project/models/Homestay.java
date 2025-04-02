@@ -31,4 +31,12 @@ public class Homestay {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner; // Chủ homestay
+
+
+
+
+
+
+
+
 }
