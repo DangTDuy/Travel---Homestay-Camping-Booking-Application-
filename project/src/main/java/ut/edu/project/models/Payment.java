@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "payment")
 @Getter
 @Setter
 public class Payment {
@@ -22,7 +23,7 @@ public class Payment {
     @OneToOne
     @JoinColumn(name = "booking_id", nullable = false)
     @NotNull
-    private Booking booking; // Liên kết với Booking
+    private Booking booking;
 
     @Column(nullable = false)
     @NotNull
@@ -38,5 +39,13 @@ public class Payment {
 
     @Column(name = "payment_date", nullable = false)
     @NotNull
-    private LocalDateTime paymentDate; // Thời gian thanh toán
+    private LocalDateTime paymentDate;
+
+    // Hằng số cho paymentMethod và status
+    public static final String PAYMENT_METHOD_CREDIT_CARD = "CREDIT_CARD";
+    public static final String PAYMENT_METHOD_CASH = "CASH";
+
+    public static final String STATUS_PENDING = "PENDING";
+    public static final String STATUS_COMPLETED = "COMPLETED";
+    public static final String STATUS_FAILED = "FAILED";
 }

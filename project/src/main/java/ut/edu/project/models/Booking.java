@@ -22,7 +22,7 @@ public class Booking {
 
     @Column(name = "service_type", nullable = false)
     @NotNull
-    private String serviceType; // Homestay, Camping, Travel
+    private String serviceType;
 
     @Column(name = "service_id", nullable = false)
     @NotNull
@@ -38,12 +38,21 @@ public class Booking {
 
     @Column(name = "total_price", nullable = false)
     @NotNull
-    private Double totalPrice; // Tổng giá
+    private Double totalPrice;
 
     @Column(name = "status", nullable = false)
     @NotNull
-    private String status; // Đã đặt, Đã thanh toán, Hủy
+    private String status;
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
-    private Payment payment; // Liên kết với Payment
+    private Payment payment;
+
+    // Hằng số cho serviceType và status
+    public static final String SERVICE_TYPE_HOTEL = "HOTEL";
+    public static final String SERVICE_TYPE_CAMPING = "CAMPING";
+    public static final String SERVICE_TYPE_TRAVEL = "TRAVEL";
+
+    public static final String STATUS_BOOKED = "BOOKED";
+    public static final String STATUS_PAID = "PAID";
+    public static final String STATUS_CANCELLED = "CANCELLED";
 }

@@ -14,25 +14,23 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+h1, h2 {
     text-align: center;
 }
 
-label {
-    display: block;
-    margin: 10px 0 5px;
+form {
+    display: flex;
+    flex-direction: column;
 }
 
-input, select {
-    width: 100%;
+input {
+    margin: 10px 0;
     padding: 10px;
-    margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
 button {
-    width: 100%;
     padding: 10px;
     background-color: #28a745;
     color: white;
@@ -45,7 +43,16 @@ button:hover {
     background-color: #218838;
 }
 
-#responseMessage {
-    margin-top: 20px;
-    text-align: center;
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: #e9ecef;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
 }
