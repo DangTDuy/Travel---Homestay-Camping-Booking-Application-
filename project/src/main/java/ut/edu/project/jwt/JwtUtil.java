@@ -15,11 +15,14 @@ public class JwtUtil {
 
     // Tạo token với username và role
     public String generateToken(String username, String role) {
+        // Chuẩn hóa role thành chữ hoa
+        String standardRole = role.toUpperCase();
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .claim("role", role) // Thêm claim "role"
+                .claim("role", standardRole) // Lưu role đã chuẩn hóa
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }

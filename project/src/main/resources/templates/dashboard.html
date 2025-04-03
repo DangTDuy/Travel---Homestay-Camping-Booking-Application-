@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng điều khiển</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+<!-- Header -->
+<header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">Bảng điều khiển</h1>
+        <div>
+            <a href="/user/profile" class="text-blue-600 hover:text-blue-800 mr-4">
+                <i class="fas fa-user-circle"></i> Hồ sơ
+            </a>
+            <a href="/logout" class="text-red-600 hover:text-red-800">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Thông báo role -->
+<div th:if="${isAdmin}" class="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
+    <div class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+        <p>
+            <i class="fas fa-shield-alt mr-2"></i>
+            <strong>Bạn đang đăng nhập với quyền QUẢN TRỊ VIÊN</strong> -
+            <a href="/admin" class="text-yellow-800 hover:underline ml-1">Truy cập trang quản trị</a>
+        </p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-lg font-medium text-gray-900">Chào mừng bạn đến với hệ thống</h2>
+
+            <!-- Thêm phần chào mừng cá nhân -->
+            <div class="mt-2 text-sm text-gray-600">
+                <i class="fas fa-user mr-1"></i> Xin chào,
+                <span class="font-medium" th:text="${username} ?: 'Khách'"></span>!
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+                <!-- Card 1 -->
+                <div class="bg-blue-50 overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-blue-800">
+                            <i class="fas fa-campground mr-2"></i>Camping
+                        </h3>
+                        <div class="mt-2 text-sm text-blue-600">
+                            <a href="/camping" class="hover:underline block py-1">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Địa điểm camping
+                            </a>
+                            <a href="#" class="hover:underline block py-1">
+                                <i class="fas fa-calendar-alt mr-2"></i>Đặt chỗ của tôi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-green-50 overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-green-800">
+                            <i class="fas fa-home mr-2"></i>Homestay
+                        </h3>
+                        <div class="mt-2 text-sm text-green-600">
+                            <a href="/homestay" class="hover:underline block py-1">
+                                <i class="fas fa-search mr-2"></i>Tìm homestay
+                            </a>
+                            <a href="#" class="hover:underline block py-1">
+                                <i class="fas fa-history mr-2"></i>Lịch sử đặt phòng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-purple-50 overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-purple-800">
+                            <i class="fas fa-user-cog mr-2"></i>Tài khoản
+                        </h3>
+                        <div class="mt-2 text-sm text-purple-600">
+                            <a href="/user/profile" class="hover:underline block py-1">
+                                <i class="fas fa-id-card mr-2"></i>Thông tin cá nhân
+                            </a>
+                            <a href="#" class="hover:underline block py-1">
+                                <i class="fas fa-lock mr-2"></i>Đổi mật khẩu
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phần chỉ dành cho ADMIN -->
+            <div th:if="${isAdmin}" class="mt-8 border-t pt-6">
+                <h3 class="text-lg font-medium text-red-800">
+                    <i class="fas fa-tools mr-2"></i>Công cụ quản trị
+                </h3>
+                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                    <a th:href="@{/user/all}" class="bg-red-50 p-4 rounded-lg hover:bg-red-100 block border border-red-200">
+                        <h4 class="font-medium text-red-800">
+                            <i class="fas fa-users mr-2"></i>Quản lý người dùng
+                        </h4>
+                        <p class="text-sm text-red-600 mt-1">Xem và quản lý tất cả người dùng</p>
+                    </a>
+                    <a href="/admin/reports" class="bg-red-50 p-4 rounded-lg hover:bg-red-100 block border border-red-200">
+                        <h4 class="font-medium text-red-800">
+                            <i class="fas fa-chart-pie mr-2"></i>Báo cáo hệ thống
+                        </h4>
+                        <p class="text-sm text-red-600 mt-1">Thống kê và phân tích dữ liệu</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

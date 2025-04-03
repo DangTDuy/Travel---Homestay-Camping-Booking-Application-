@@ -31,6 +31,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với tên đăng nhập: " + username));
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -67,7 +68,10 @@ public class UserService implements UserDetailsService {
         user.setEmail(registerDTO.getEmail().trim().toLowerCase());
         user.setSoDienThoai(registerDTO.getSoDienThoai() != null ? registerDTO.getSoDienThoai().trim() : null);
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
-        user.setRole(registerDTO.getRole() != null ? registerDTO.getRole() : "USER");
+
+        // Chuẩn hóa role thành chữ hoa và mặc định là "USER" nếu null
+        String role = registerDTO.getRole() != null ? registerDTO.getRole().toUpperCase() : "USER";
+        user.setRole(role);
 
         try {
             userRepository.save(user);
