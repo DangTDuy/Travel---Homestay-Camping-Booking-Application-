@@ -1,94 +1,214 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Travel-Homestay-Camping - Discover unique camping experiences.">
+  <meta name="keywords" content="Travel, Homestay, Camping, Adventure, Explore">
   <title>Camping Services</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <style>
-    body { background-color: #f8f9fa; }
-    .card { transition: transform 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px; overflow: hidden; }
-    .card:hover { transform: scale(1.05); }
-    .card img { height: 200px; object-fit: cover; }
-    .btn-primary { background-color: #007bff; border: none; }
-    .btn-primary:disabled { background-color: #6c757d; }
-  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Tint&family=Bytesized&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <link rel="stylesheet" href="/assets/css/camping.css"> <!-- Thay home.css thành camping.css -->
 </head>
-<body>
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Dịch Vụ Cắm Trại</h2>
 
-  <!-- Form tìm kiếm, lọc và sắp xếp -->
-  <form th:action="@{/camping}" method="get" class="mb-4">
-    <div class="row g-3">
-      <div class="col-md-4">
-        <input type="text" class="form-control" placeholder="Tìm kiếm theo tên..." name="searchTerm" th:value="${searchTerm}">
-      </div>
-      <div class="col-md-3">
-        <input type="number" class="form-control" placeholder="Số chỗ tối thiểu..." name="minPlaces" th:value="${minPlaces}">
-      </div>
-      <div class="col-md-2">
-        <select class="form-select" name="availability">
-          <option value="" th:selected="${availability == null}">Tất cả</option>
-          <option value="true" th:selected="${availability == 'true'}">Còn chỗ</option>
-          <option value="false" th:selected="${availability == 'false'}">Hết chỗ</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <select class="form-select" name="sort">
-          <option value="" th:selected="${sort == null}">Không sắp xếp</option>
-          <option value="price_asc" th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
-          <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần</option>
-          <option value="places_asc" th:selected="${sort == 'places_asc'}">Số chỗ tăng dần</option>
-          <option value="places_desc" th:selected="${sort == 'places_desc'}">Số chỗ giảm dần</option>
-        </select>
-      </div>
-      <div class="col-md-1">
-        <button type="submit" class="btn btn-primary w-100">Lọc</button>
-      </div>
-    </div>
-  </form>
+<body style="background-color: #F0F0F0;">
 
-  <!-- Danh sách camping -->
-  <div class="row">
-    <div class="col-md-4 mb-4" th:each="camping : ${campings}">
-      <div class="card">
-        <img th:src="${camping.image != null and !camping.image.isEmpty()} ? ${camping.image} : '/images/placeholder.jpg'"
-             class="card-img-top" alt="Camping Image">
-        <div class="card-body">
-          <h5 class="card-title" th:text="${camping.name}"></h5>
-          <p class="card-text text-muted" th:text="${camping.location}"></p>
-          <p class="card-text" th:text="${camping.description}"></p>
-          <p class="fw-bold text-danger" th:text="|Giá: ${camping.price} VNĐ / đêm|"></p>
-          <p class="text-muted" th:text="|Số chỗ: ${camping.places}|"></p>
-          <p class="text-success" th:if="${camping.isAvailable}">Còn chỗ</p>
-          <p class="text-danger" th:unless="${camping.isAvailable}">Hết chỗ</p>
-          <form th:action="@{/camping/book/{id}(id=${camping.id})}" method="post">
-            <button type="submit" class="btn btn-primary w-100" th:disabled="${!camping.isAvailable or camping.places == 0}">
-              Đặt chỗ ngay
-            </button>
-          </form>
-        </div>
-      </div>
+<!-- Header -->
+<header>
+  <div class="header-content">
+    <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="logo" />
+    <span class="site-title">Travel-Homestay-Camping</span>
+  </div>
+  <nav class="nav-menu">
+    <div class="highlight-box">
+      <a href="#">Hỗ trợ</a>
+      <a href="#">Hợp tác với chúng tôi</a>
+      <a href="#">Đặt chỗ của tôi</a>
+      <a href="#">Đăng Nhập</a>
+      <a href="#">Đăng Ký</a>
     </div>
+  </nav>
+</header>
+
+<!-- Khoảng cách giữa header và sidebar -->
+<div class="h-4 bg-blue-600"></div>
+
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <div class="sidebar p-6 flex flex-col">
+    <nav class="flex-grow">
+      <ul>
+        <!-- Camping -->
+        <li class="mb-4">
+          <a href="#" class="font-bold flex items-center">
+            <img src="https://cdn-icons-png.flaticon.com/128/4469/4469267.png" alt="Camping Icon" class="w-6 h-6 mr-2"/>
+            Camping
+          </a>
+          <ul class="ml-4 mt-2 space-y-2">
+            <li><a href="#">Địa điểm cắm trại</a></li>
+            <li><a href="#">Chuẩn bị đồ dùng</a></li>
+            <li><a href="#">Kinh nghiệm sinh tồn</a></li>
+            <li><a href="#">Hoạt động ngoài trời</a></li>
+            <li><a href="#">Lưu ý về an toàn</a></li>
+          </ul>
+        </li>
+
+        <!-- Homestay -->
+        <li class="mb-4">
+          <a href="#" class="font-bold flex items-center">
+            <img src="https://cdn-icons-png.flaticon.com/128/18610/18610661.png" alt="Homestay Icon" class="w-6 h-6 mr-2"/>
+            Homestay
+          </a>
+          <ul class="ml-4 mt-2 space-y-2">
+            <li><a href="#">Homestay nổi bật</a></li>
+            <li><a href="#">Kinh nghiệm đặt phòng</a></li>
+            <li><a href="#">Tiện nghi & dịch vụ</a></li>
+            <li><a href="#">Review khách hàng</a></li>
+            <li><a href="#">Ưu đãi & giảm giá</a></li>
+          </ul>
+        </li>
+
+        <!-- Travel -->
+        <li class="mb-4">
+          <a href="#" class="font-bold flex items-center">
+            <img src="https://cdn-icons-png.flaticon.com/128/854/854996.png" alt="Travel Icon" class="w-6 h-6 mr-2"/>
+            Travel
+          </a>
+          <ul class="ml-4 mt-2 space-y-2">
+            <li><a href="#">Điểm đến nổi bật</a></li>
+            <li><a href="#">Hướng dẫn di chuyển</a></li>
+            <li><a href="#">Kinh nghiệm du lịch</a></li>
+            <li><a href="#">Địa điểm ăn uống</a></li>
+            <li><a href="#">Mẹo du lịch tiết kiệm</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
   </div>
 
-  <!-- Phân trang -->
-  <nav th:if="${totalPages > 1}" class="mt-4">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-        <a class="page-link" th:href="@{/camping(page=${currentPage - 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, availability=${availability}, sort=${sort})}">Trước</a>
-      </li>
-      <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-          th:classappend="${i == currentPage} ? 'active'">
-        <a class="page-link" th:href="@{/camping(page=${i}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, availability=${availability}, sort=${sort})}" th:text="${i + 1}"></a>
-      </li>
-      <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-        <a class="page-link" th:href="@{/camping(page=${currentPage + 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, availability=${availability}, sort=${sort})}">Sau</a>
-      </li>
-    </ul>
-  </nav>
+  <!-- Main Content -->
+  <div class="flex-1 p-8">
+    <!-- Search Section -->
+    <div class="search-section">
+      <div class="search-container">
+        <h2 class="search-title">Tìm Kiếm Dịch Vụ Cắm Trại</h2>
+        <form th:action="@{/camping}" method="get" class="search-input-group flex space-x-2">
+          <input type="text" placeholder="Nhập tên camping..." name="searchTerm" th:value="${searchTerm}" class="search-input flex-1 p-2 border rounded"/>
+          <input type="number" placeholder="Số chỗ tối thiểu..." name="minPlaces" th:value="${minPlaces}" class="search-input w-32 p-2 border rounded"/>
+          <input type="date" name="startDate" th:value="${startDate}" class="search-input w-40 p-2 border rounded"/>
+          <input type="date" name="endDate" th:value="${endDate}" class="search-input w-40 p-2 border rounded"/>
+          <select name="sort" class="search-input w-40 p-2 border rounded">
+            <option value="" th:selected="${sort == null}">Không sắp xếp</option>
+            <option value="price_asc" th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
+            <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần</option>
+            <option value="maxPlaces_asc" th:selected="${sort == 'maxPlaces_asc'}">Số chỗ tăng dần</option>
+            <option value="maxPlaces_desc" th:selected="${sort == 'maxPlaces_desc'}">Số chỗ giảm dần</option>
+          </select>
+          <button type="submit" class="search-button bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Tìm</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Thông báo -->
+    <div th:if="${message}" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" th:text="${message}"></div>
+
+    <!-- Camping List -->
+    <section class="services">
+      <h2 class="section-title">Danh Sách Camping</h2>
+      <div class="service-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div th:each="camping : ${campings}" class="service-box bg-white rounded-lg shadow-lg overflow-hidden">
+          <img th:src="${camping.image} ?: '/images/placeholder.jpg'" alt="Camping Image" class="service-image w-full h-48 object-cover"/>
+          <div class="service-content p-4">
+            <h3 th:text="${camping.name}" class="text-xl font-bold"></h3>
+            <p class="text-gray-600" th:text="${camping.location}"></p>
+            <p th:text="${camping.description}"></p>
+            <p class="font-bold text-red-600" th:text="|Giá: ${camping.price} VNĐ / đêm|"></p>
+            <p class="text-gray-600" th:text="|Số chỗ tối đa: ${camping.maxPlaces}|"></p>
+            <p th:if="${camping.isAvailable}" class="text-green-600">Còn chỗ</p>
+            <p th:unless="${camping.isAvailable}" class="text-red-600">Hết chỗ</p>
+
+            <!-- Dịch vụ bổ sung -->
+            <p th:if="${camping.additionalServices.size() > 0}">
+              <strong>Dịch vụ bổ sung:</strong>
+              <span th:each="service : ${camping.additionalServices}" th:text="${service} + ', '"></span>
+            </p>
+
+            <!-- Form đặt chỗ -->
+            <form th:action="@{/camping/book/{id}(id=${camping.id})}" method="post" class="space-y-2 mt-4">
+              <input type="date" name="startDate" class="w-full p-2 border rounded" required/>
+              <input type="date" name="endDate" class="w-full p-2 border rounded" required/>
+              <input type="number" name="numberOfPeople" placeholder="Số người" min="1" th:max="${camping.maxPlaces}" class="w-full p-2 border rounded" required/>
+              <input type="text" name="customerName" placeholder="Tên khách hàng" class="w-full p-2 border rounded" required/>
+              <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700" th:disabled="${!camping.isAvailable}">Đặt chỗ ngay</button>
+            </form>
+
+            <!-- Danh sách đặt chỗ -->
+            <div th:if="${camping.bookings.size() > 0}" class="mt-4">
+              <h6 class="font-bold">Đặt chỗ hiện tại:</h6>
+              <ul class="space-y-2">
+                <li th:each="booking, iterStat : ${camping.bookings}" class="flex items-center justify-between">
+                  <span th:text="${booking.split('#')[0]} + ' đến ' + ${booking.split('#')[1]} + ' (' + ${booking.split('#')[2]} + ' người, ' + ${booking.split('#')[3]} + ')'"></span>
+                  <form th:action="@{/camping/cancel/{id}(id=${camping.id})}" method="post" class="inline">
+                    <input type="hidden" name="bookingIndex" th:value="${iterStat.index}"/>
+                    <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700" th:disabled="${booking.split('#')[4] == 'true'}">Hủy</button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Form đánh giá -->
+            <form th:action="@{/camping/review/{id}(id=${camping.id})}" method="post" class="space-y-2 mt-4">
+              <input type="number" name="rating" placeholder="Xếp hạng (1-5)" min="1" max="5" class="w-full p-2 border rounded" required/>
+              <textarea name="comment" placeholder="Nhận xét" class="w-full p-2 border rounded" required></textarea>
+              <input type="text" name="reviewerName" placeholder="Tên bạn" class="w-full p-2 border rounded" required/>
+              <button type="submit" class="w-full bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Gửi đánh giá</button>
+            </form>
+
+            <!-- Danh sách đánh giá -->
+            <div th:if="${camping.reviews.size() > 0}" class="mt-4">
+              <h6 class="font-bold">Đánh giá:</h6>
+              <ul class="space-y-2">
+                <li th:each="review : ${camping.reviews}" th:text="${review.split('#')[0]} + ' sao - ' + ${review.split('#')[1]} + ' (' + ${review.split('#')[2]} + ')'"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Phân trang -->
+    <nav th:if="${totalPages > 1}" class="mt-8 flex justify-center">
+      <ul class="flex space-x-2">
+        <li th:classappend="${currentPage == 0} ? 'opacity-50 cursor-not-allowed'">
+          <a th:href="@{/camping(page=${currentPage - 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, startDate=${startDate}, endDate=${endDate}, sort=${sort})}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Trước</a>
+        </li>
+        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'bg-blue-800' : 'bg-blue-600'">
+          <a th:href="@{/camping(page=${i}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, startDate=${startDate}, endDate=${endDate}, sort=${sort})}" class="text-white px-4 py-2 rounded hover:bg-blue-700" th:text="${i + 1}"></a>
+        </li>
+        <li th:classappend="${currentPage == totalPages - 1} ? 'opacity-50 cursor-not-allowed'">
+          <a th:href="@{/camping(page=${currentPage + 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, startDate=${startDate}, endDate=${endDate}, sort=${sort})}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sau</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="f-container">
+    <p>© 2023 Travel-Homestay-Camping. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">Chính sách bảo mật</a>
+      <a href="#">Điều khoản sử dụng</a>
+      <a href="#">Liên hệ</a>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
