@@ -53,13 +53,14 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Đổi từ STATELESS sang IF_REQUIRED
                         .sessionFixation().migrateSession()
                 )
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         // Các endpoint công khai
                         .requestMatchers(
+                                "/payments",
                                 "/",
                                 "/home",
                                 "/api/auth/**",
@@ -86,13 +87,13 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/auth/login-user")
                         .loginProcessingUrl("/login-processing")
-                        .defaultSuccessUrl("/home", true) // Chuyển hướng về trang chủ sau login
+                        .defaultSuccessUrl("/home", true) // Luôn chuyển hướng về /home sau login
                         .failureUrl("/auth/login-user?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/home?logout=true") // Chuyển hướng về trang chủ sau logout
+                        .logoutSuccessUrl("/home?logout=true")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "jwtToken")
                         .permitAll()
