@@ -1,26 +1,22 @@
 package ut.edu.project.controllers.res;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import ut.edu.project.dtos.AuthResponse;
 import ut.edu.project.dtos.LoginRequest;
 import ut.edu.project.dtos.RegisterDTO;
 import ut.edu.project.jwt.JwtUtil;
 import ut.edu.project.services.UserService;
+import jakarta.validation.Valid; // Sử dụng jakarta.validation cho Spring Boot 3.x
 
 @RestController
-@RequestMapping("/auths")
+@RequestMapping("/api/auth")
 public class AuthsController {
 
     @Autowired
@@ -36,41 +32,39 @@ public class AuthsController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
             );
+
             UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
-            // Lấy role từ UserDetails
             String role = userDetails.getAuthorities().stream()
-                    .map(authority -> authority.getAuthority())
                     .findFirst()
-                    .orElse("USER"); // Mặc định là "USER" nếu không tìm thấy role
+                    .map(auth -> auth.getAuthority())
+                    .orElse("USER");
+
             String token = jwtUtil.generateToken(userDetails.getUsername(), role);
             return ResponseEntity.ok(new AuthResponse(token));
+
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
+            return ResponseEntity.status(401).body("Tên đăng nhập hoặc mật khẩu không đúng");
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterDTO registerDTO, BindingResult bindingResult) {
+        // Kiểm tra lỗi validation
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+        }
+
+        // Gọi service để đăng ký
         String result = userService.registerUser(registerDTO);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/profile")
-    public ResponseEntity<?> getUserProfile(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid token!");
+        if (result.contains("successfully")) { // Thay "thành công" bằng "successfully" để khớp với UserService
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
         }
-
-        String token = authHeader.substring(7);
-        if (!jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token!");
-        }
-
-        String username = jwtUtil.extractUsername(token);
-        return ResponseEntity.ok("User: " + username);
     }
 }

@@ -18,11 +18,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/me")
+    @GetMapping("/profile")
     public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
         Optional<UserDTO> userDTO = userService.findByUsername(username).map(user -> new UserDTO(
-                user.getId(), // Thêm id
+                user.getId(),
                 user.getUsername(),
                 user.getHoTen(),
                 user.getEmail(),

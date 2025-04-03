@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cập nhật hồ sơ người dùng</title>
+</head>
+<body>
+<h1>Cập nhật hồ sơ người dùng</h1>
+<form id="updateProfileForm">
+    <label for="hoTen">Họ tên:</label><br>
+    <input type="text" id="hoTen" name="hoTen"><br><br>
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email"><br><br>
+    <label for="soDienThoai">Số điện thoại:</label><br>
+    <input type="text" id="soDienThoai" name="soDienThoai"><br><br>
+    <button type="submit">Cập nhật</button>
+</form>
+<script>
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert('Bạn cần đăng nhập để cập nhật hồ sơ.');
+        window.location.href = '/login.html';
+    } else {
+        document.getElementById('updateProfileForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const hoTen = document.getElementById('hoTen').value;
+            const email = document.getElementById('email').value;
+            const soDienThoai = document.getElementById('soDienThoai').value;
+            fetch('http://localhost:8090/user/me/update', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ hoTen: hoTen, email: email, soDienThoai: soDienThoai })
+            })
+                .then(response => {
+                    if(response.ok){
+                        return response.json();
+                    }
+                    throw new Error('Cập nhật hồ sơ thất bại.');
+                })
+                .then(data => {
+                    alert('Cập nhật hồ sơ thành công!');
+                    window.location.href = '/user/profile.html';
+                })
+                .catch(error => {
+                    console.error('Lỗi cập nhật hồ sơ:', error);
+                    alert('Lỗi cập nhật hồ sơ.');
+                });
+        });
+    }
+</script>
+</body>
+</html>
