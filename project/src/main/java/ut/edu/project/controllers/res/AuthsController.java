@@ -41,7 +41,7 @@ public class AuthsController {
             UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
             // Lấy role từ UserDetails
             String role = userDetails.getAuthorities().stream()
-                    .map(authority -> authority.getAuthority().replace("ROLE_", ""))
+                    .map(authority -> authority.getAuthority())
                     .findFirst()
                     .orElse("USER"); // Mặc định là "USER" nếu không tìm thấy role
             String token = jwtUtil.generateToken(userDetails.getUsername(), role);

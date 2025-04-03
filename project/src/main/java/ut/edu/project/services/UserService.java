@@ -34,7 +34,7 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole()))  // No "ROLE_" prefix
         );
     }
 
