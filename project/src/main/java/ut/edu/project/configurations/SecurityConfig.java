@@ -47,21 +47,21 @@ public class SecurityConfig {
                         .requestMatchers("/auths/**").permitAll()
                         .requestMatchers("/homestays/{id}").permitAll()
                         .requestMatchers("/homestays").permitAll()
+                        // User endpoints - move this higher in the chain
+                        .requestMatchers("/user/me").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/user/me/update").authenticated()
                         // HomestayController
-                        .requestMatchers("/homestays/my-homestays").authenticated()         // USER và ADMIN
-                        .requestMatchers("/homestays/create").hasRole(ROLE_ADMIN)             // Chỉ ADMIN
-                        .requestMatchers(HttpMethod.PUT, "/homestays/{id}").hasRole(ROLE_ADMIN) // Chỉ ADMIN
-                        .requestMatchers(HttpMethod.DELETE, "/homestays/{id}").hasRole(ROLE_ADMIN) // Chỉ ADMIN
+                        .requestMatchers("/homestays/my-homestays").authenticated()
+                        .requestMatchers("/homestays/create").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/homestays/{id}").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/homestays/{id}").hasAuthority("ADMIN")
                         // UserController
-                        .requestMatchers(HttpMethod.GET, "/user/{id}").hasRole(ROLE_ADMIN)    // Chỉ ADMIN truy cập GET /user/{id}
-                        .requestMatchers(HttpMethod.PUT, "/user/me/update").authenticated() // Yêu cầu xác thực
-                        .requestMatchers(HttpMethod.PUT, "/user/me/update").hasAnyRole("USER", "ADMIN") // Yêu cầu xác thực và role
-                        .requestMatchers("/user/me").authenticated()                       // USER và ADMIN
-                        .requestMatchers("/user/all").hasRole(ROLE_ADMIN)                  // Chỉ ADMIN
-                        .requestMatchers(HttpMethod.PUT, "/user/{id}").hasRole(ROLE_ADMIN)    // Chỉ ADMIN
-                        .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasRole(ROLE_ADMIN) // Chỉ ADMIN
+                        .requestMatchers(HttpMethod.GET, "/user/{id}").hasAuthority("ADMIN")
+                        .requestMatchers("/user/all").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/user/{id}").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasAuthority("ADMIN")
                         // Admin routes
-                        .requestMatchers("/admin/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         // Các request khác
                         .anyRequest().permitAll()
                 )
