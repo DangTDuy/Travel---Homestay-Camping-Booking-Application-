@@ -2,14 +2,17 @@ package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl; // Thêm import cho PageImpl
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ut.edu.project.models.Camping;
 import ut.edu.project.repositories.CampingRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors; // Thêm import cho Collectors
 
 @Service
 public class CampingService {
@@ -33,10 +36,11 @@ public class CampingService {
             camping.setName(campingDetails.getName());
             camping.setLocation(campingDetails.getLocation());
             camping.setPrice(campingDetails.getPrice());
-            camping.setPlaces(campingDetails.getPlaces());
+            camping.setMaxPlaces(campingDetails.getMaxPlaces());
             camping.setDescription(campingDetails.getDescription());
             camping.setAvailable(campingDetails.isAvailable());
             camping.setImage(campingDetails.getImage());
+            camping.setAdditionalServices(campingDetails.getAdditionalServices());
             return campingRepository.save(camping);
         }).orElse(null);
     }
@@ -49,17 +53,40 @@ public class CampingService {
         return campingRepository.findByIsAvailableTrue();
     }
 
-    public boolean bookCamping(Long id) {
+    public boolean bookCamping(Long id, LocalDate startDate, LocalDate endDate, int numberOfPeople, String customerName) {
         return campingRepository.findById(id).map(camping -> {
-            if (camping.isAvailable() && camping.getPlaces() > 0) {
-                camping.setPlaces(camping.getPlaces() - 1);
-                if (camping.getPlaces() == 0) {
-                    camping.setAvailable(false);
-                }
+            if (camping.isAvailable() && numberOfPeople <= camping.getMaxPlaces() && isAvailableForDates(camping, startDate, endDate)) {
+                String booking = startDate + "#" + endDate + "#" + numberOfPeople + "#" + customerName + "#false";
+                camping.getBookings().add(booking);
                 campingRepository.save(camping);
                 return true;
             }
             return false;
+        }).orElse(false);
+    }
+
+    public boolean cancelBooking(Long id, int bookingIndex) {
+        return campingRepository.findById(id).map(camping -> {
+            List<String> bookings = camping.getBookings();
+            if (bookingIndex >= 0 && bookingIndex < bookings.size()) {
+                String[] parts = bookings.get(bookingIndex).split("#");
+                LocalDate startDate = LocalDate.parse(parts[0]);
+                if (LocalDate.now().isBefore(startDate.minusDays(1))) {
+                    bookings.set(bookingIndex, parts[0] + "#" + parts[1] + "#" + parts[2] + "#" + parts[3] + "#true");
+                    campingRepository.save(camping);
+                    return true;
+                }
+            }
+            return false;
+        }).orElse(false);
+    }
+
+    public boolean addReview(Long id, int rating, String comment, String reviewerName) {
+        return campingRepository.findById(id).map(camping -> {
+            String review = rating + "#" + comment + "#" + reviewerName;
+            camping.getReviews().add(review);
+            campingRepository.save(camping);
+            return true;
         }).orElse(false);
     }
 
@@ -70,7 +97,7 @@ public class CampingService {
 
     public Page<Camping> getCampingsByMinPlaces(int minPlaces, int page, int size, String sort) {
         PageRequest pageRequest = buildPageRequest(page, size, sort);
-        return campingRepository.findByPlacesGreaterThanEqual(minPlaces, pageRequest);
+        return campingRepository.findByMaxPlacesGreaterThanEqual(minPlaces, pageRequest);
     }
 
     public Page<Camping> getCampingsByAvailability(boolean isAvailable, int page, int size, String sort) {
@@ -78,9 +105,29 @@ public class CampingService {
         return campingRepository.findByIsAvailable(isAvailable, pageRequest);
     }
 
-    public Page<Camping> getCampingsPaginated(int page, int size, String sort) {
+    public Page<Camping> getCampingsPaginated(int page, int size, String sort, LocalDate startDate, LocalDate endDate) {
         PageRequest pageRequest = buildPageRequest(page, size, sort);
-        return campingRepository.findAll(pageRequest);
+        Page<Camping> campingPage = campingRepository.findAll(pageRequest);
+        if (startDate != null && endDate != null) {
+            List<Camping> filteredList = campingPage.getContent().stream()
+                    .filter(c -> isAvailableForDates(c, startDate, endDate))
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredList, pageRequest, campingPage.getTotalElements());
+        }
+        return campingPage;
+    }
+
+    private boolean isAvailableForDates(Camping camping, LocalDate start, LocalDate end) {
+        for (String booking : camping.getBookings()) {
+            String[] parts = booking.split("#");
+            LocalDate bookingStart = LocalDate.parse(parts[0]);
+            LocalDate bookingEnd = LocalDate.parse(parts[1]);
+            boolean isCancelled = Boolean.parseBoolean(parts[4]);
+            if (!isCancelled && !(end.isBefore(bookingStart) || start.isAfter(bookingEnd))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private PageRequest buildPageRequest(int page, int size, String sort) {
@@ -92,10 +139,10 @@ public class CampingService {
                 return PageRequest.of(page, size, Sort.by("price").ascending());
             case "price_desc":
                 return PageRequest.of(page, size, Sort.by("price").descending());
-            case "places_asc":
-                return PageRequest.of(page, size, Sort.by("places").ascending());
-            case "places_desc":
-                return PageRequest.of(page, size, Sort.by("places").descending());
+            case "maxPlaces_asc":
+                return PageRequest.of(page, size, Sort.by("maxPlaces").ascending());
+            case "maxPlaces_desc":
+                return PageRequest.of(page, size, Sort.by("maxPlaces").descending());
             default:
                 return PageRequest.of(page, size);
         }

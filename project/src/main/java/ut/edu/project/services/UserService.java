@@ -30,11 +30,11 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với tên đăng nhập: " + username));
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole()))
         );
     }
 
@@ -44,62 +44,71 @@ public class UserService implements UserDetailsService {
 
     public String registerUser(RegisterDTO registerDTO) {
         if (registerDTO == null) {
-            return "Invalid input";
+            return "Dữ liệu đăng ký không hợp lệ.";
         }
+
         if (userRepository.existsByUsername(registerDTO.getUsername())) {
-            return "User already exists!";
+            return "Tên đăng nhập đã tồn tại.";
         }
+
+        if (userRepository.existsByEmail(registerDTO.getEmail())) {
+            return "Email đã được sử dụng.";
+        }
+
+        // Thêm kiểm tra số điện thoại
+        if (registerDTO.getSoDienThoai() != null && !registerDTO.getSoDienThoai().isEmpty()
+                && userRepository.existsBySoDienThoai(registerDTO.getSoDienThoai())) {
+            return "Số điện thoại đã được sử dụng.";
+        }
+
         User user = new User();
-        user.setUsername(registerDTO.getUsername());
-        user.setHoTen(registerDTO.getHoTen());
-        user.setEmail(registerDTO.getEmail());
-        user.setSoDienThoai(registerDTO.getSoDienThoai());
-        String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
-        System.out.println("Encoded password for " + registerDTO.getUsername() + ": " + encodedPassword);
-        user.setPassword(encodedPassword);
-        user.setRole(registerDTO.getRole());
-        userRepository.save(user);
-        return "User registered successfully!";
+        user.setUsername(registerDTO.getUsername().trim());
+        user.setHoTen(registerDTO.getHoTen().trim());
+        user.setEmail(registerDTO.getEmail().trim().toLowerCase());
+        user.setSoDienThoai(registerDTO.getSoDienThoai() != null ? registerDTO.getSoDienThoai().trim() : null);
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setRole(registerDTO.getRole() != null ? registerDTO.getRole() : "USER");
+
+        try {
+            userRepository.save(user);
+            return "Đăng ký thành công.";
+        } catch (Exception e) {
+            return "Lỗi hệ thống: " + e.getMessage();
+        }
     }
 
     public boolean hasRole(String username, String role) {
         User user = findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
         return user.getRole().equals(role);
     }
 
     public List<UserDTO> findAll() {
-        List<User> users = userRepository.findAll();
-        return users.stream().map(user -> new UserDTO(
-                user.getId(), // Thêm id
-                user.getUsername(),
-                user.getHoTen(),
-                user.getEmail(),
-                user.getSoDienThoai(),
-                user.getRole()
-        )).collect(Collectors.toList());
+        return userRepository.findAll().stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toList());
     }
 
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        userRepository.delete(user);
+        userRepository.delete(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng.")));
     }
 
     public UserDTO updateUser(Long id, User updatedUser) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
         user.setUsername(updatedUser.getUsername());
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
         user.setRole(updatedUser.getRole());
         userRepository.save(user);
-        return new UserDTO(user.getId(), user.getUsername(), user.getHoTen(), user.getEmail(), user.getSoDienThoai(), user.getRole());
+        return new UserDTO(user);
     }
 
     public UserDTO updateUserByUsername(String username, UpdateUserDTO updatedUserDTO) {
-        User user = findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
         if (updatedUserDTO.getHoTen() != null) {
             user.setHoTen(updatedUserDTO.getHoTen());
         }
@@ -110,11 +119,11 @@ public class UserService implements UserDetailsService {
             user.setSoDienThoai(updatedUserDTO.getSoDienThoai());
         }
         userRepository.save(user);
-        return new UserDTO(user.getId(), user.getUsername(), user.getHoTen(), user.getEmail(), user.getSoDienThoai(), user.getRole());
+        return new UserDTO(user);
     }
 
     public UserDTO getUserById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserDTO(user.getId(), user.getUsername(), user.getHoTen(), user.getEmail(), user.getSoDienThoai(), user.getRole());
+        return new UserDTO(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng.")));
     }
 }

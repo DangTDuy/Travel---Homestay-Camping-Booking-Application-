@@ -1,5 +1,7 @@
 package ut.edu.project.dtos;
 
+import ut.edu.project.models.User; // Import lớp User nếu cần
+
 public class UserDTO {
     private Long id;
     private String username;
@@ -19,6 +21,17 @@ public class UserDTO {
         this.role = role;
     }
 
+    // Constructor nhận vào đối tượng User
+    public UserDTO(User user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.hoTen = user.getHoTen();
+        this.email = user.getEmail();
+        this.soDienThoai = user.getSoDienThoai();
+        this.role = user.getRole();
+    }
+
+    // Getters và setters
     public Long getId() {
         return id;
     }

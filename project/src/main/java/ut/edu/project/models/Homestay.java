@@ -34,7 +34,7 @@ public class Homestay {
     @Column(nullable = false)
     @NotNull(message = "Giá mỗi đêm không được để trống")
     @Positive(message = "Giá mỗi đêm phải là số dương")
-    private Double pricePerNight;
+    private Double price; // Đổi tên thành price
 
     @Column
     @NotNull(message = "Sức chứa không được để trống")
@@ -64,12 +64,5 @@ public class Homestay {
         createdAt = LocalDateTime.now();
     }
 
-    // Cập nhật lại phương thức setPricePerNight
-    public void setPricePerNight(Double pricePerNight) {
-        if (pricePerNight != null && pricePerNight > 0) {
-            this.pricePerNight = pricePerNight;
-        } else {
-            throw new IllegalArgumentException("Giá mỗi đêm phải là số dương");
-        }
-    }
+    // Xóa phương thức setPricePerNight và getPricePerNight
 }
