@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông tin cá nhân</title>
+</head>
+<body>
+<h1>Thông tin cá nhân</h1>
+<div th:if="${user}">
+    <p>Username: <span th:text="${user.username}"></span></p>
+    <p>Họ tên: <span th:text="${user.hoTen}"></span></p>
+    <p>Email: <span th:text="${user.email}"></span></p>
+    <p>SĐT: <span th:text="${user.soDienThoai}"></span></p>
+    <a th:href="@{/user/profile/update}">Cập nhật</a>
+</div>
+<a th:href="@{/dashboard}">Quay lại</a>
+</body>
+</html>
