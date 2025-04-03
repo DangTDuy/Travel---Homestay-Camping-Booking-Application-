@@ -3,99 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tour Du Lịch - ResQnow</title>
+    <title>Tour Du Lịch</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+        body {
+            background-color: #F0F0F0;
+        }
+
+        .banner {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
         .card {
             transition: transform 0.3s ease-in-out;
             border-radius: 15px;
             overflow: hidden;
         }
+
         .card:hover {
             transform: scale(1.05);
         }
+
         .carousel-item img {
             height: 200px;
             object-fit: cover;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #1a73e8;
+            color: white;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .site-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            background-color: #1a73e8;
+        }
+
+        .highlight-box a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            margin: 0 5px;
+            display: inline-block;
+        }
+
+        .highlight-box a:hover {
+            background-color: #155a8a;
+        }
+
+        .footer {
+            background-color: #1a73e8;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .service-box {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: white;
+            margin-bottom: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-box img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .service-box h3 {
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .service-box p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            background-color: #155a8a;
+        }
+
+        .new-tour-section {
+            background-color: #fff;
+            padding: 30px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .new-tour-section h3 {
+            font-size: 24px;
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        .new-tour-form input, .new-tour-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .new-tour-form button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .new-tour-form button:hover {
+            background-color: #155a8a;
+        }
+
+        /* Flexbox for the card container */
+        .tour-cards-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .tour-card {
+            flex: 1 1 calc(33.333% - 20px); /* 3 cards per row */
+            max-width: calc(33.333% - 20px);
         }
     </style>
 </head>
 <body>
 
+<header>
+    <div class="header-content">
+        <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="logo" />
+        <span class="site-title">Tour Du Lịch</span>
+    </div>
+    <nav class="nav-menu">
+        <div class="highlight-box">
+            <a href="#">Hỗ trợ</a>
+            <a href="#">Hợp tác với chúng tôi</a>
+            <a href="#">Đặt chỗ của tôi</a>
+            <a href="#">Đăng Nhập</a>
+            <a href="#">Đăng Ký</a>
+        </div>
+    </nav>
+</header>
+
 <div class="container mt-4">
+    <!-- Hình ảnh banner phía trên -->
+    <img src="https://pistachiohotel.com/UploadFile/Gallery/Overview/a3.jpg" class="banner" alt="Tour Du Lịch" />
+
     <h2 class="text-center text-primary mb-4">🌍 Danh Sách Tour Du Lịch</h2>
 
-    <div class="row">
+    <div class="tour-cards-row">
         <!-- Hiển thị danh sách tour theo dạng card -->
-        <div class="col-md-4 mb-4" th:each="travel : ${travels}">
+        <div class="tour-card">
             <div class="card shadow-lg">
                 <!-- Carousel ảnh -->
-                <div id="carousel-${travel.id}" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner">
                         <div class="carousel-item active">
-                            <img th:src="${travel.imageUrls[0]}" class="d-block w-100" alt="Ảnh 1">
+                            <img src="https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Knms/meo-vat/avatar-trai-nghiem-24-dia-diem-du-lich-da-nang.jpg" class="d-block w-100" alt="Ảnh 1">
                         </div>
-                        <div class="carousel-item" th:each="img, iter : ${travel.imageUrls}">
-                            <img th:if="${iter.index != 0}" th:src="${img}" class="d-block w-100" alt="Ảnh khác">
+                        <div class="carousel-item">
+                            <img src="https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Knms/meo-vat/avatar-trai-nghiem-24-dia-diem-du-lich-da-nang.jpg" class="d-block w-100" alt="Ảnh 2">
                         </div>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${travel.id}" data-bs-slide="prev">
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon"></span>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-${travel.id}" data-bs-slide="next">
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
                         <span class="carousel-control-next-icon"></span>
                     </button>
                 </div>
 
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${travel.name}"></h5>
-                    <p class="card-text">
-                        📍 <span th:text="${travel.location}"></span> <br>
-                        💰 <strong th:text="${travel.price} + ' VNĐ'"></strong> <br>
-                        🗺️ <span th:text="${travel.itinerary}"></span>
-                    </p>
-                    <a href="#" class="btn btn-primary w-100">Chi tiết</a>
+                    <h5 class="card-title">Tour Du Lịch Đà Nẵng</h5>
+                    <p class="card-text">Khám phá thành phố Đà Nẵng với những điểm đến nổi bật như Bà Nà Hills, cầu Rồng, và bãi biển Mỹ Khê.</p>
+                    <a href="#" class="button">Chi tiết</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hiển thị danh sách tour theo dạng card -->
+        <div class="tour-card">
+            <div class="card shadow-lg">
+                <!-- Carousel ảnh -->
+                <div class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Knms/meo-vat/avatar-trai-nghiem-24-dia-diem-du-lich-da-nang.jpg" class="d-block w-100" alt="Ảnh 1">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Knms/meo-vat/avatar-trai-nghiem-24-dia-diem-du-lich-da-nang.jpg" class="d-block w-100" alt="Ảnh 2">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Tour Du Lịch Hà Nội</h5>
+                    <p class="card-text">Khám phá thủ đô Hà Nội với các di tích lịch sử, văn hóa và những địa danh nổi tiếng.</p>
+                    <a href="#" class="button">Chi tiết</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hiển thị danh sách tour theo dạng card -->
+        <div class="tour-card">
+            <div class="card shadow-lg">
+                <!-- Carousel ảnh -->
+                <div class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Knms/meo-vat/avatar-trai-nghiem-24-dia-diem-du-lich-da-nang.jpg" class="d-block w-100" alt="Ảnh 1">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Knms/meo-vat/avatar-trai-nghiem-24-dia-diem-du-lich-da-nang.jpg" class="d-block w-100" alt="Ảnh 2">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Tour Du Lịch Phú Quốc</h5>
+                    <p class="card-text">Khám phá Phú Quốc với các bãi biển tuyệt đẹp và các hoạt động thú vị.</p>
+                    <a href="#" class="button">Chi tiết</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <hr class="my-4">
-
-    <!-- Form thêm tour -->
-    <div class="card shadow-lg p-4">
-        <h3 class="text-center text-success">➕ Thêm Tour Mới</h3>
-        <form action="/travels/add" method="post">
-            <div class="mb-3">
-                <label class="form-label">Tên Tour:</label>
-                <input type="text" class="form-control" name="name" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Địa Điểm:</label>
-                <input type="text" class="form-control" name="location" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Giá Tour (VNĐ):</label>
-                <input type="number" class="form-control" name="price" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Lịch Trình:</label>
-                <textarea class="form-control" name="itinerary" rows="3" required></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Hình Ảnh Tour (URL, cách nhau bằng dấu phẩy):</label>
-                <input type="text" class="form-control" name="imageUrls" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">📌 Thêm Tour</button>
+    <!-- Tạo tour mới -->
+    <div class="new-tour-section">
+        <h3>Tạo Tour Mới</h3>
+        <form class="new-tour-form">
+            <input type="text" placeholder="Tên tour" required>
+            <textarea placeholder="Mô tả tour" required></textarea>
+            <input type="text" placeholder="Địa điểm" required>
+            <button type="submit">Tạo Tour</button>
         </form>
     </div>
+
 </div>
+
+<footer class="footer">
+    <div class="footer-links">
+        <a href="#">Giới thiệu</a>
+        <a href="#">Liên hệ</a>
+        <a href="#">Chính sách bảo mật</a>
+    </div>
+</footer>
 
 </body>
 </html>
