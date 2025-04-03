@@ -17,7 +17,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin/homestay")
 @PreAuthorize("hasAuthority('ADMIN')")
-public class AdminController {
+public class AdminHomestayController {
 
     @Autowired
     private HomestayService homestayService;

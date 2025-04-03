@@ -53,12 +53,10 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Đổi từ STATELESS sang IF_REQUIRED
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().migrateSession()
                 )
-                .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        // Các endpoint công khai
                         .requestMatchers(
                                 "/payments",
                                 "/",
@@ -73,21 +71,21 @@ public class SecurityConfig {
                                 "/login",
                                 "/login-processing"
                         ).permitAll()
-
-                        // Các endpoint yêu cầu xác thực
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-
-                        // Các endpoint admin
-                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
-
-                        // Tất cả các request khác yêu cầu xác thực
+                        .requestMatchers(
+                                "/user/profile",
+                                "/user/profile/update"
+                        ).hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/user/all").hasAuthority("ADMIN")
+                        .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/user/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/user/**").hasAuthority("ADMIN")
+                        .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/auth/login-user")
                         .loginProcessingUrl("/login-processing")
-                        .defaultSuccessUrl("/home", true) // Luôn chuyển hướng về /home sau login
+                        .defaultSuccessUrl("/dashboard", true)
                         .failureUrl("/auth/login-user?error=true")
                         .permitAll()
                 )
@@ -98,6 +96,7 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID", "jwtToken")
                         .permitAll()
                 )
+                // Add this to ensure security context is available in Thymeleaf
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

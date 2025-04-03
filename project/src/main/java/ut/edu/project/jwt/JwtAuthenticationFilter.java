@@ -37,12 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwtUtil.validateToken(token)) {
             String username = jwtUtil.extractUsername(token);
             String role = jwtUtil.extractRole(token);
-            System.out.println("Extracted role from token: " + role);
 
-            // Tạo UserDetails trực tiếp từ thông tin JWT
+            // Chuẩn hóa role thành chữ hoa
+            role = role.toUpperCase();
+
+            System.out.println("Username from token: " + username);
+            System.out.println("Role from token (standardized): " + role);
+
             UserDetails userDetails = new org.springframework.security.core.userdetails.User(
                     username,
-                    "", // Mật khẩu không cần thiết cho JWT
+                    "",
                     Collections.singleton(new SimpleGrantedAuthority(role))
             );
 
