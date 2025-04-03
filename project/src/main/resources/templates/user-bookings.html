@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Your Bookings</title>
+</head>
+<body>
+<h1>BOOKING CỦA BẠN</h1>
+<table>
+    <tr th:each="booking : ${bookings}">
+        <td th:text="${booking.id}"></td>
+        <td th:text="${booking.serviceType}"></td>
+        <td th:text="${booking.status}"></td>
+    </tr>
+</table>
+</body>
+</html>

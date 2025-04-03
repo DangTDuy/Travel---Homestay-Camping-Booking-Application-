@@ -2,6 +2,8 @@ package ut.edu.project.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ut.edu.project.models.Booking;
 import ut.edu.project.services.BookingService;
@@ -9,46 +11,78 @@ import ut.edu.project.services.BookingService;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
+@Controller
 @RequestMapping("/bookings")
 public class BookingController {
 
-    @Autowired
-    private BookingService bookingService;
+    private final BookingService bookingService;
 
-    @PostMapping("/create") // Thay đổi URL tại đây
-    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking, @RequestParam String paymentMethod) {
-        Booking newBooking = bookingService.saveBooking(booking, paymentMethod);
-        return ResponseEntity.ok(newBooking);
+    @Autowired
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
+
+    /* ==================== */
+    /* == API ENDPOINTS == */
+    /* ==================== */
+    @ResponseBody
+    @PostMapping("/api/create")
+    public ResponseEntity<Booking> createBookingApi(@RequestBody Booking booking,
+                                                    @RequestParam String paymentMethod) {
+        try {
+            Booking newBooking = bookingService.saveBooking(booking, paymentMethod);
+            return ResponseEntity.ok(newBooking);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("/api/{id}")
+    public ResponseEntity<Booking> getBookingByIdApi(@PathVariable Long id) {
+        Optional<Booking> booking = bookingService.getBookingById(id);
+        return booking.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @ResponseBody
+    @GetMapping("/api")
+    public ResponseEntity<List<Booking>> getAllBookingsApi() {
+        return ResponseEntity.ok(bookingService.getAllBookings());
+    }
+
+    /* ==================== */
+    /* == VIEW ENDPOINTS == */
+    /* ==================== */
+    @GetMapping
+    public String showAllBookings(Model model) {
+        try {
+            model.addAttribute("bookings", bookingService.getAllBookings());
+            return "bookings";
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to load bookings");
+            return "error";
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
-        Optional<Booking> booking = bookingService.getBookingById(id);
-        return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public String showBookingDetails(@PathVariable Long id, Model model) {
+        try {
+            Optional<Booking> booking = bookingService.getBookingById(id);
+            if (booking.isPresent()) {
+                model.addAttribute("booking", booking.get());
+                return "booking-details";
+            }
+            return "redirect:/bookings";
+        } catch (Exception e) {
+            model.addAttribute("error", "Booking not found");
+            return "error";
+        }
     }
 
-    @GetMapping
-    public ResponseEntity<List<Booking>> getAllBookings() {
-        List<Booking> bookings = bookingService.getAllBookings();
-        return ResponseEntity.ok(bookings);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
-        bookingService.deleteBooking(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Booking> updateBookingStatus(@PathVariable Long id, @RequestParam String status) {
-        Booking updatedBooking = bookingService.updateBookingStatus(id, status);
-        return ResponseEntity.ok(updatedBooking);
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Booking>> getBookingsByUser(@PathVariable Long userId) {
-        List<Booking> bookings = bookingService.getBookingsByUser(userId);
-        return ResponseEntity.ok(bookings);
+    @GetMapping("/create")
+    public String showCreateForm(Model model) {
+        model.addAttribute("booking", new Booking());
+        return "create-booking";
     }
 }
