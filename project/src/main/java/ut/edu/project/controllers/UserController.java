@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @PutMapping("/me/update")
+    @PutMapping("/profile/update")
     public ResponseEntity<UserDTO> updateCurrentUser(Authentication authentication, @RequestBody UpdateUserDTO updatedUserDTO) {
         String username = authentication.getName();
         UserDTO userDTO = userService.updateUserByUsername(username, updatedUserDTO);
