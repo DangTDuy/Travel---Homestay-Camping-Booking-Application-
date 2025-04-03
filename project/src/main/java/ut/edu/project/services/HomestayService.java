@@ -19,9 +19,15 @@ public class HomestayService {
     private UserService userService;
 
     public Homestay createHomestay(Homestay homestay, String username) {
-        User owner = userService.findByUsername(username)
+        User user = userService.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        homestay.setOwner(owner);
+
+        // Nếu không phải ADMIN, chặn lại
+        if (!user.getRole().equals("ADMIN")) {
+            throw new RuntimeException("Bạn không có quyền tạo homestay");
+        }
+
+        homestay.setOwner(user);
         return homestayRepository.save(homestay);
     }
 
