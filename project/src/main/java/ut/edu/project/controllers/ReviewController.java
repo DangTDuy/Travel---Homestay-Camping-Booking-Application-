@@ -1,50 +1,48 @@
 package ut.edu.project.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ut.edu.project.models.Review;
 import ut.edu.project.services.ReviewService;
 
-import java.util.List;
-import java.util.Optional;
-
-@RestController
+@Controller
 @RequestMapping("/reviews")
 public class ReviewController {
 
     @Autowired
     private ReviewService reviewService;
 
+    // Hiển thị danh sách đánh giá và form tạo mới
+    @GetMapping
+    public String showReviews(Model model) {
+        model.addAttribute("reviews", reviewService.getAllReviews());
+        model.addAttribute("review", new Review()); // Đối tượng để bind với form
+        return "review"; // Trả về template review.html
+    }
+
+    // Xử lý gửi đánh giá
     @PostMapping
-    public ResponseEntity<?> createReview(@RequestBody Review review) {
+    public String createReview(@ModelAttribute Review review, Model model) {
         try {
-            Review savedReview = reviewService.saveReview(review);
-            return ResponseEntity.ok(savedReview);
+            reviewService.saveReview(review);
+            return "redirect:/reviews"; // Chuyển hướng về danh sách sau khi lưu
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("reviews", reviewService.getAllReviews());
+            return "review"; // Quay lại trang nếu có lỗi
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
-        Optional<Review> review = reviewService.getReviewById(id);
-        return review.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Review>> getAllReviews() {
-        return ResponseEntity.ok(reviewService.getAllReviews());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
+    // Xóa đánh giá
+    @PostMapping("/delete/{id}")
+    public String deleteReview(@PathVariable Long id) {
         try {
             reviewService.deleteReview(id);
-            return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            // Có thể thêm xử lý lỗi nếu cần
         }
+        return "redirect:/reviews"; // Chuyển hướng về danh sách
     }
 }
