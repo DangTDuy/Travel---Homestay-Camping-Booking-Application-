@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Homestay</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+<!-- Header -->
+<header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">Danh sách Homestay</h1>
+        <div>
+            <a href="/dashboard" class="text-blue-600 hover:text-blue-800 mr-4">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <a href="/logout" class="text-red-600 hover:text-red-800">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <!-- Search Section -->
+    <div class="mb-8 bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">Tìm kiếm Homestay</h2>
+        <form th:action="@{/homestay}" method="get" class="flex items-center">
+            <div class="relative flex-grow">
+                <input type="text" name="location" th:value="${param.location}"
+                       class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="Nhập địa điểm bạn muốn đến...">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+            <button type="submit"
+                    class="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center">
+                <i class="fas fa-search mr-2"></i> Tìm kiếm
+            </button>
+        </form>
+    </div>
+
+    <!-- Homestay List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div th:each="homestay : ${homestays}" class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="h-48 overflow-hidden">
+                <img th:if="${homestay.imageUrls != null and not #lists.isEmpty(homestay.imageUrls)}"
+                     th:src="${homestay.imageUrls[0]}"
+                     alt="Homestay Image"
+                     class="w-full h-full object-cover"
+                     onerror="this.onerror=null;this.src='/assets/img/placeholder.jpg';">
+                <div th:unless="${homestay.imageUrls != null and not #lists.isEmpty(homestay.imageUrls)}"
+                     class="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-home text-gray-400 text-4xl"></i>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-bold text-gray-900" th:text="${homestay.name}"></h3>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
+                          th:text="${homestay.capacity} + ' người'"></span>
+                </div>
+                <div class="flex items-center text-gray-600 mb-2">
+                    <i class="fas fa-map-marker-alt mr-2"></i>
+                    <span th:text="${homestay.location}"></span>
+                </div>
+                <p class="text-gray-700 text-sm mb-4 line-clamp-3" th:text="${homestay.description}"></p>
+
+                <div class="flex items-center mb-4">
+                    <span class="text-yellow-500 mr-1">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </span>
+                    <span class="text-gray-600 text-sm">(4.5)</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-bold text-blue-600" th:text="${#numbers.formatCurrency(homestay.price)} + '/đêm'"></span>
+                    <a th:href="@{'/homestay/' + ${homestay.id}}"
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(homestays)}" class="bg-white p-8 rounded-lg shadow text-center">
+        <i class="fas fa-home text-gray-400 text-5xl mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">Không tìm thấy homestay nào</h3>
+        <p class="text-gray-500 mb-4">Hiện không có homestay nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
+        <a href="/homestay" class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả homestay</a>
+    </div>
+</main>
+
+</body>
+</html>

@@ -10,17 +10,25 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import ut.edu.project.jwt.JwtAuthenticationFilter;
 import ut.edu.project.jwt.JwtUtil;
 import ut.edu.project.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Autowired
     private UserService userService;
@@ -50,8 +58,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Cấu hình CSRF với CookieCsrfTokenRepository
+        CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf");
+
         return http
-                .csrf(csrf -> csrf.disable())
+                // Bật CSRF với cấu hình cookie
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(tokenRepository)
+                        .csrfTokenRequestHandler(requestHandler)
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().migrateSession()
@@ -93,10 +110,23 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/home?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID", "jwtToken")
+                        .deleteCookies("JSESSIONID", "jwtToken", "XSRF-TOKEN")
                         .permitAll()
                 )
-                // Add this to ensure security context is available in Thymeleaf
+                // Thêm filter để log request
+                .addFilterBefore((request, response, chain) -> {
+                    if (request instanceof HttpServletRequest) {
+                        HttpServletRequest httpRequest = (HttpServletRequest) request;
+                        logger.info("Request to: {}", httpRequest.getRequestURI());
+                        Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                        if (authentication != null && authentication.isAuthenticated()) {
+                            logger.info("User authenticated: {}", authentication.getName());
+                        } else {
+                            logger.info("User not authenticated.");
+                        }
+                    }
+                    chain.doFilter(request, response);
+                }, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
