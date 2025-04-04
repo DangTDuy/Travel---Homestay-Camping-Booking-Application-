@@ -18,9 +18,12 @@
             <a href="/dashboard" class="text-blue-600 hover:text-blue-800 mr-4">
                 <i class="fas fa-arrow-left"></i> Quay lại
             </a>
-            <a href="/logout" class="text-red-600 hover:text-red-800">
-                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-            </a>
+            <form id="logoutForm" th:action="@{/logout}" method="POST">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
+            </form>
         </div>
     </div>
 </header>

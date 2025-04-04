@@ -11,62 +11,343 @@
             document.getElementById('logoutForm').submit();
         }
     </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+
+        .card-icon-container {
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover .card-icon-container {
+            transform: scale(1.1);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .bg-gradient-secondary {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        }
+
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #4f46e5;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #4f46e5;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar-open {
+                transform: translateX(0);
+            }
+        }
+
+        .mobile-menu-button {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-<!-- Header -->
-<header class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Bảng điều khiển</h1>
-        <div>
-            <span class="text-gray-600 mr-4"><i class="fas fa-user mr-1"></i> Xin chào, <span th:text="${username}"></span></span>
-            <!-- Form ẩn cho việc đăng xuất -->
-            <form id="logoutForm" th:action="@{/logout}" method="POST" style="display: none;">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            </form>
-            <a href="javascript:void(0)" onclick="submitLogout()" class="text-red-600 hover:text-red-800">
-                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-            </a>
-        </div>
+<body class="min-h-screen bg-gray-50">
+<!-- Mobile menu button -->
+<div class="md:hidden fixed top-4 right-4 z-50">
+    <button id="mobileMenuButton" class="mobile-menu-button p-2 rounded-md bg-white shadow-md text-gray-600 hover:text-indigo-600 focus:outline-none">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform md:translate-x-0 transition-transform duration-300 ease-in-out">
+    <div class="flex items-center justify-center h-16 px-4 bg-indigo-600">
+        <h1 class="text-xl font-bold text-white flex items-center">
+            <i class="fas fa-home mr-2"></i>
+            Homestay System
+        </h1>
     </div>
-</header>
+    <div class="px-4 py-6">
+        <div class="flex items-center px-4 py-3 bg-indigo-50 rounded-lg mb-6">
+            <div class="flex-shrink-0">
+                <i class="fas fa-user-circle text-indigo-600 text-2xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900" th:text="${username}"></p>
+                <p class="text-xs text-gray-500">Tài khoản người dùng</p>
+            </div>
+        </div>
 
-<!-- Main Content -->
-<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-    <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h2 class="text-lg font-medium text-gray-900">Chào mừng bạn đến với Hệ thống Homestay</h2>
-
-            <!-- User Section -->
-            <div class="mt-5">
-                <h3 class="text-lg font-medium text-green-800"><i class="fas fa-home mr-2"></i>Người dùng</h3>
-                <div class="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <a href="/homestay" class="bg-green-50 p-4 rounded-lg hover:bg-green-100">
-                        <h4 class="font-medium text-green-800"><i class="fas fa-search mr-2"></i>Tìm kiếm Homestay</h4>
-                        <p class="text-sm text-green-600 mt-1">Xem và đặt homestay yêu thích</p>
+        <nav>
+            <div class="mb-4">
+                <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menu chính</h3>
+                <div class="mt-2 space-y-1">
+                    <a href="/dashboard" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        Bảng điều khiển
                     </a>
-                    <a href="/user/bookings" class="bg-green-50 p-4 rounded-lg hover:bg-green-100">
-                        <h4 class="font-medium text-green-800"><i class="fas fa-calendar-alt mr-2"></i>Lịch sử đặt phòng</h4>
-                        <p class="text-sm text-green-600 mt-1">Xem các đặt phòng của bạn</p>
+                    <a href="/homestay" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg">
+                        <i class="fas fa-search mr-3"></i>
+                        Tìm kiếm Homestay
+                    </a>
+                    <a href="/user/bookings" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg">
+                        <i class="fas fa-calendar-alt mr-3"></i>
+                        Lịch sử đặt phòng
                     </a>
                 </div>
             </div>
 
-            <!-- Admin Section -->
-            <div th:if="${isAdmin}" class="mt-8 border-t pt-6">
-                <h3 class="text-lg font-medium text-red-800"><i class="fas fa-tools mr-2"></i>Công cụ quản trị</h3>
-                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <a href="/admin/homestay" class="bg-red-50 p-4 rounded-lg hover:bg-red-100">
-                        <h4 class="font-medium text-red-800"><i class="fas fa-home mr-2"></i>Quản lý Homestay</h4>
-                        <p class="text-sm text-red-600 mt-1">Thêm, sửa, xóa homestay</p>
+            <div th:if="${isAdmin}" class="mb-4">
+                <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quản trị</h3>
+                <div class="mt-2 space-y-1">
+                    <a href="/admin/homestay" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg">
+                        <i class="fas fa-home mr-3"></i>
+                        Quản lý Homestay
                     </a>
-                    <a href="/admin/users" class="bg-red-50 p-4 rounded-lg hover:bg-red-100">
-                        <h4 class="font-medium text-red-800"><i class="fas fa-users mr-2"></i>Quản lý người dùng</h4>
-                        <p class="text-sm text-red-600 mt-1">Xem và quản lý tất cả người dùng</p>
+                    <a href="/admin/users" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg">
+                        <i class="fas fa-users mr-3"></i>
+                        Quản lý người dùng
                     </a>
                 </div>
             </div>
-        </div>
+
+            <div class="pt-4 border-t border-gray-200">
+                <form id="logoutForm" th:action="@{/logout}" method="POST">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="button" onclick="submitLogout()" class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 rounded-lg">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </nav>
     </div>
-</main>
+</aside>
+
+<!-- Main content -->
+<div class="md:ml-64">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-tachometer-alt mr-2 text-indigo-600"></i>
+                Bảng điều khiển
+            </h1>
+            <div class="flex items-center space-x-4">
+                    <span class="text-gray-600 hidden md:block">
+                        <i class="fas fa-user-circle mr-2 text-indigo-500"></i>
+                        Xin chào, <span th:text="${username}" class="font-medium"></span>
+                    </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Welcome Banner -->
+        <div class="dashboard-card bg-gradient-primary text-white mb-8">
+            <div class="p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Chào mừng trở lại!</h2>
+                <p class="opacity-90">Quản lý và khám phá hệ thống homestay của bạn</p>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="dashboard-card bg-white">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-indigo-50 text-indigo-600">
+                            <i class="fas fa-home text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Homestay có sẵn</p>
+                            <p class="text-2xl font-semibold text-gray-800">25</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card bg-white">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-50 text-green-600">
+                            <i class="fas fa-calendar-check text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Đặt phòng gần đây</p>
+                            <p class="text-2xl font-semibold text-gray-800">3</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card bg-white">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-50 text-blue-600">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Đánh giá của bạn</p>
+                            <p class="text-2xl font-semibold text-gray-800">4.8</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card bg-white">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-50 text-purple-600">
+                            <i class="fas fa-bell text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Thông báo</p>
+                            <p class="text-2xl font-semibold text-gray-800">2</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Section -->
+        <div class="mb-10">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-user-circle text-indigo-600 mr-3"></i>
+                Dành cho người dùng
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <a href="/homestay" class="dashboard-card bg-white">
+                    <div class="h-40 bg-gradient-success flex items-center justify-center card-icon-container">
+                        <i class="fas fa-search text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-lg font-bold text-gray-800">Tìm kiếm Homestay</h4>
+                        <p class="mt-2 text-gray-600">Khám phá và đặt homestay phù hợp với nhu cầu của bạn</p>
+                        <div class="mt-4 flex items-center text-indigo-600">
+                            <span class="font-medium">Bắt đầu tìm kiếm</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/user/bookings" class="dashboard-card bg-white">
+                    <div class="h-40 bg-gradient-warning flex items-center justify-center card-icon-container">
+                        <i class="fas fa-calendar-alt text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-lg font-bold text-gray-800">Lịch sử đặt phòng</h4>
+                        <p class="mt-2 text-gray-600">Xem lại các đặt phòng và trạng thái hiện tại</p>
+                        <div class="mt-4 flex items-center text-indigo-600">
+                            <span class="font-medium">Xem chi tiết</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Admin Section -->
+        <div th:if="${isAdmin}" class="border-t pt-10">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-shield-alt text-red-600 mr-3"></i>
+                Công cụ quản trị
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <a href="/admin/homestay" class="dashboard-card bg-white">
+                    <div class="h-40 bg-gradient-secondary flex items-center justify-center card-icon-container">
+                        <i class="fas fa-home text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-lg font-bold text-gray-800">Quản lý Homestay</h4>
+                        <p class="mt-2 text-gray-600">Thêm, chỉnh sửa và quản lý các homestay trong hệ thống</p>
+                        <div class="mt-4 flex items-center text-red-600">
+                            <span class="font-medium">Truy cập ngay</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/admin/users" class="dashboard-card bg-white">
+                    <div class="h-40 bg-gradient-secondary flex items-center justify-center card-icon-container">
+                        <i class="fas fa-users text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-lg font-bold text-gray-800">Quản lý người dùng</h4>
+                        <p class="mt-2 text-gray-600">Xem và quản lý tất cả người dùng hệ thống</p>
+                        <div class="mt-4 flex items-center text-red-600">
+                            <span class="font-medium">Truy cập ngay</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById('mobileMenuButton').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('sidebar-open');
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+        const sidebar = document.querySelector('.sidebar');
+        const mobileButton = document.getElementById('mobileMenuButton');
+
+        if (!sidebar.contains(event.target) && event.target !== mobileButton && !mobileButton.contains(event.target)) {
+            sidebar.classList.remove('sidebar-open');
+        }
+    });
+</script>
 </body>
 </html>

@@ -6,82 +6,184 @@
     <title>Đăng nhập - Hệ thống Homestay</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+        }
+
+        .login-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .login-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+            padding-left: 2.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-login {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .icon-abs {
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus + .input-icon .icon-abs {
+            color: #3b82f6;
+        }
+
+        .remember-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .link-transition {
+            transition: all 0.2s ease;
+        }
+
+        .link-transition:hover {
+            transform: translateX(2px);
+        }
+    </style>
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
-<div class="max-w-md w-full">
+<body class="min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-md">
     <!-- Logo -->
-    <div class="text-center mb-6">
-        <a href="/">
-            <h1 class="text-3xl font-bold text-blue-600">Hệ thống Homestay</h1>
+    <div class="text-center mb-8">
+        <a href="/" class="inline-block">
+            <div class="flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Hệ thống Homestay</h1>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Kết nối với không gian sống tuyệt vời</p>
         </a>
     </div>
 
     <!-- Login Card -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="px-6 py-8">
-            <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Đăng nhập</h2>
+    <div class="login-card">
+        <div class="px-8 py-10">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Đăng nhập tài khoản</h2>
 
             <!-- Error Alert -->
-            <div th:if="${param.error}" class="mb-4 bg-red-50 border-l-4 border-red-500 p-4 text-red-700">
-                <p class="font-medium">Đăng nhập thất bại</p>
-                <p>Tên đăng nhập hoặc mật khẩu không chính xác.</p>
+            <div th:if="${param.error}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-700">Đăng nhập thất bại</p>
+                        <p class="text-sm text-red-600 mt-1">Tên đăng nhập hoặc mật khẩu không chính xác.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Logout Message -->
-            <div th:if="${param.logout}" class="mb-4 bg-green-50 border-l-4 border-green-500 p-4 text-green-700">
-                <p>Bạn đã đăng xuất thành công.</p>
+            <div th:if="${param.logout}" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-green-700">Bạn đã đăng xuất thành công.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Login Form -->
-            <form th:action="@{/login-processing}" method="post">
-                <!-- Thêm CSRF token -->
+            <form th:action="@{/login-processing}" method="post" class="space-y-6">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-                <div class="mb-4">
-                    <label for="username" class="block text-gray-700 font-medium mb-2">Tên đăng nhập</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            <i class="fas fa-user"></i>
-                        </span>
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Tên đăng nhập</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none input-icon">
+                            <i class="fas fa-user icon-abs"></i>
+                        </div>
                         <input type="text" id="username" name="username" required
-                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                               class="input-field block w-full py-3 px-4 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-lg">
                     </div>
                 </div>
 
-                <div class="mb-6">
-                    <label for="password" class="block text-gray-700 font-medium mb-2">Mật khẩu</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            <i class="fas fa-lock"></i>
-                        </span>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-500">Quên mật khẩu?</a>
+                    </div>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none input-icon">
+                            <i class="fas fa-lock icon-abs"></i>
+                        </div>
                         <input type="password" id="password" name="password" required
-                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                               class="input-field block w-full py-3 px-4 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-lg">
                     </div>
                 </div>
 
-                <div class="mb-6 flex items-center">
-                    <input type="checkbox" id="remember-me" name="remember-me" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                    <label for="remember-me" class="ml-2 block text-gray-700">Ghi nhớ đăng nhập</label>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox"
+                               class="h-4 w-4 remember-checkbox rounded border-gray-300 focus:ring-blue-500">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">Ghi nhớ đăng nhập</label>
+                    </div>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
-                </button>
+                <div>
+                    <button type="submit" class="btn-login w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-sign-in-alt mr-2 mt-0.5"></i> Đăng nhập
+                    </button>
+                </div>
             </form>
         </div>
 
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <p class="text-center text-gray-600">
+        <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 rounded-b-lg">
+            <p class="text-center text-sm text-gray-600">
                 Chưa có tài khoản?
-                <a href="http://localhost:8090/auth/register-user" class="text-blue-600 hover:text-blue-800 font-medium">Đăng ký ngay</a>
+                <a href="http://localhost:8090/auth/register-user" class="link-transition font-medium text-blue-600 hover:text-blue-500 ml-1">
+                    Đăng ký ngay <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                </a>
             </p>
         </div>
     </div>
 
     <!-- Back to Home -->
-    <div class="mt-6 text-center">
-        <a href="/" class="text-gray-600 hover:text-gray-800">
-            <i class="fas fa-arrow-left mr-2"></i>Quay lại trang chủ
+    <div class="mt-8 text-center">
+        <a href="/home" class="link-transition inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-800">
+            <i class="fas fa-arrow-left mr-2"></i> Quay lại trang chủ
         </a>
     </div>
 </div>

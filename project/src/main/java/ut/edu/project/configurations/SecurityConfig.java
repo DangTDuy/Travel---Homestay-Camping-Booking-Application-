@@ -65,7 +65,7 @@ public class SecurityConfig {
         CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
-        tokenRepository.setHeaderName("X-CSRF-TOKEN"); // Update CSRF configuration
+        tokenRepository.setHeaderName("X-CSRF-TOKEN"); // Đảm bảo header CSRF khớp với frontend
 
         return http
                 // Bật CSRF với cấu hình cookie
@@ -111,19 +111,20 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/logout") // URL xử lý đăng xuất
+                        .logoutSuccessUrl("/home?logout=true") // Chuyển hướng mặc định về /home sau khi đăng xuất
                         .logoutSuccessHandler((request, response, authentication) -> {
                             logger.info("Đăng xuất thành công. Chuyển hướng đến trang chủ.");
-                            try{
+                            try {
                                 response.sendRedirect("/home?logout=true");
-                            } catch (IOException e){
+                            } catch (IOException e) {
                                 logger.error("Lỗi chuyển hướng đăng xuất", e);
                             }
                         })
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID", "jwtToken", "XSRF-TOKEN")
-                        .permitAll()
+                        .invalidateHttpSession(true) // Hủy session
+                        .clearAuthentication(true) // Xóa thông tin xác thực
+                        .deleteCookies("JSESSIONID", "jwtToken", "XSRF-TOKEN") // Xóa các cookie liên quan
+                        .permitAll() // Cho phép tất cả truy cập logout
                 )
                 // Thêm filter để log request
                 .addFilterBefore((request, response, chain) -> {
