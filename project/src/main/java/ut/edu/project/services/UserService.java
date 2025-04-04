@@ -109,7 +109,38 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
         return new UserDTO(user);
     }
+    public UserDTO saveUser(UserDTO userDTO) {
+        User user;
+        if (userDTO.getId() != null) {
+            // Cập nhật user hiện có
+            user = userRepository.findById(userDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
+        } else {
+            // Tạo user mới
+            if (userRepository.existsByUsername(userDTO.getUsername())) {
+                throw new RuntimeException("Tên đăng nhập đã tồn tại.");
+            }
+            if (userRepository.existsByEmail(userDTO.getEmail())) {
+                throw new RuntimeException("Email đã được sử dụng.");
+            }
+            user = new User();
+        }
 
+        // Cập nhật thông tin user
+        user.setUsername(userDTO.getUsername());
+        user.setHoTen(userDTO.getHoTen());
+        user.setEmail(userDTO.getEmail());
+        user.setSoDienThoai(userDTO.getSoDienThoai());
+        user.setRole(userDTO.getRole());
+
+        // Nếu là tạo mới, cần set password mặc định
+        if (userDTO.getId() == null) {
+            user.setPassword(passwordEncoder.encode("password123")); // Password mặc định, có thể thay đổi
+        }
+
+        user = userRepository.save(user);
+        return new UserDTO(user);
+    }
     public UserDTO updateUserByUsername(String username, UpdateUserDTO updatedUserDTO) {
         User user = findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
