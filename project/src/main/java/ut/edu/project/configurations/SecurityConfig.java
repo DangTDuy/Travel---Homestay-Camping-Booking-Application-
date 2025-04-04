@@ -16,12 +16,16 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import ut.edu.project.jwt.JwtAuthenticationFilter;
 import ut.edu.project.jwt.JwtUtil;
 import ut.edu.project.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -108,8 +112,12 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/home?logout=true")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            logger.info("Đăng xuất thành công. Chuyển hướng đến trang chủ.");
+                            response.sendRedirect("/home?logout=true");
+                        })
                         .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .deleteCookies("JSESSIONID", "jwtToken", "XSRF-TOKEN")
                         .permitAll()
                 )

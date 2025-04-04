@@ -33,13 +33,16 @@
             </div>
 
             <!-- Login Form -->
-            <form action="/login-processing" method="post">
+            <form th:action="@{/login-processing}" method="post">
+                <!-- Thêm CSRF token -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                 <div class="mb-4">
                     <label for="username" class="block text-gray-700 font-medium mb-2">Tên đăng nhập</label>
                     <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                                <i class="fas fa-user"></i>
-                            </span>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fas fa-user"></i>
+                        </span>
                         <input type="text" id="username" name="username" required
                                class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -48,9 +51,9 @@
                 <div class="mb-6">
                     <label for="password" class="block text-gray-700 font-medium mb-2">Mật khẩu</label>
                     <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                                <i class="fas fa-lock"></i>
-                            </span>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fas fa-lock"></i>
+                        </span>
                         <input type="password" id="password" name="password" required
                                class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                     </div>
