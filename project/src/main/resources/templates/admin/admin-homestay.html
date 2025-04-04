@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Homestay</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -327,11 +329,14 @@
 
         if (!validateFormData(formData)) return;
 
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        headers[getCSRFHeaderName()] = getCSRFToken();
+
         fetch('/admin/homestay/create', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: headers,
             body: JSON.stringify(formData)
         })
             .then(response => {
@@ -364,11 +369,14 @@
 
         if (!validateFormData(formData)) return;
 
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        headers[getCSRFHeaderName()] = getCSRFToken();
+
         fetch(`/admin/homestay/${formData.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: headers,
             body: JSON.stringify(formData)
         })
             .then(response => {
@@ -387,14 +395,18 @@
             });
     }
 
+
     function deleteHomestay() {
         if (!homestayToDelete) return;
 
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        headers[getCSRFHeaderName()] = getCSRFToken();
+
         fetch(`/admin/homestay/${homestayToDelete}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         })
             .then(response => {
                 if (!response.ok) {
@@ -407,6 +419,14 @@
                 console.error('Error:', error);
                 alert('Lỗi: ' + error.message);
             });
+    }
+
+    function getCSRFToken() {
+        return document.querySelector("meta[name='_csrf']").getAttribute("content");
+    }
+
+    function getCSRFHeaderName() {
+        return document.querySelector("meta[name='_csrf_header']").getAttribute("content");
     }
 </script>
 

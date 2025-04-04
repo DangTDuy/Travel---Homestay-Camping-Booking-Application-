@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import ut.edu.project.jwt.JwtAuthenticationFilter;
 import ut.edu.project.jwt.JwtUtil;
 import ut.edu.project.services.UserService;
@@ -66,6 +65,7 @@ public class SecurityConfig {
         CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
+        tokenRepository.setHeaderName("X-CSRF-TOKEN"); // Update CSRF configuration
 
         return http
                 // Bật CSRF với cấu hình cookie
@@ -114,7 +114,11 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
                             logger.info("Đăng xuất thành công. Chuyển hướng đến trang chủ.");
-                            response.sendRedirect("/home?logout=true");
+                            try{
+                                response.sendRedirect("/home?logout=true");
+                            } catch (IOException e){
+                                logger.error("Lỗi chuyển hướng đăng xuất", e);
+                            }
                         })
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
