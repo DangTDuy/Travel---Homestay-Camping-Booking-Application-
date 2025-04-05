@@ -1,37 +1,78 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Travel-Homestay-Camping - Chi tiết homestay">
+    <meta name="keywords" content="Homestay, Chi tiết, Travel-Homestay-Camping">
     <title th:text="${homestay.name} + ' - Chi tiết Homestay'">Chi tiết Homestay</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Thêm CSRF token cho Spring Security -->
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-</head>
-<body class="bg-gray-100">
 
-<header class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900" th:text="${homestay.name}"></h1>
-        <div>
-            <a href="/homestay" class="text-blue-600 hover:text-blue-800 mr-4">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
-            <form id="logoutForm" th:action="@{/logout}" method="POST">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" class="text-red-600 hover:text-red-800">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans">
+
+<!-- Header -->
+<header class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="h-10 w-10"/>
+            <span class="text-2xl font-serif font-bold text-primary">Travel<span class="text-secondary">Homestay</span>Camping</span>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-4">
+            <span class="text-gray-600">
+                <i class="fas fa-user-circle mr-2 text-primary"></i>
+                Xin chào, <span th:text="${username}" class="font-medium"></span>
+            </span>
+            <form id="logoutForm" th:action="@{/logout}" method="POST" class="ml-4">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                 </button>
             </form>
         </div>
+
+        <!-- Mobile menu button -->
+        <button id="mobileMenuButton" class="md:hidden text-gray-600 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
     </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-20">
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="relative">
             <div class="h-96 overflow-hidden">
@@ -49,7 +90,7 @@
                  class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
                 <div th:each="image, iter : ${homestay.imageUrls}"
                      th:if="${iter.index < 5}"
-                     class="w-16 h-16 border-2 border-white rounded overflow-hidden cursor-pointer hover:border-blue-500"
+                     class="w-16 h-16 border-2 border-white rounded overflow-hidden cursor-pointer hover:border-primary"
                      th:attr="data-image=${image}"
                      onclick="changeMainImage(this.getAttribute('data-image'))">
                     <img th:src="${image}" class="w-full h-full object-cover">
@@ -60,23 +101,24 @@
         <div class="p-6">
             <div class="flex flex-col md:flex-row md:justify-between md:items-start">
                 <div class="md:w-2/3 md:pr-8">
+                    <h1 class="text-3xl font-bold text-dark mb-4" th:text="${homestay.name}"></h1>
                     <div class="flex items-center mb-4">
                         <i class="fas fa-map-marker-alt text-gray-600 mr-2"></i>
                         <span class="text-gray-700" th:text="${homestay.location}"></span>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-xl font-semibold mb-2">Mô tả</h3>
+                        <h3 class="text-xl font-semibold text-dark mb-2">Mô tả</h3>
                         <p class="text-gray-700" th:text="${homestay.description} ?: 'Chưa có mô tả'"></p>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-xl font-semibold mb-2">Tiện nghi</h3>
+                        <h3 class="text-xl font-semibold text-dark mb-2">Tiện nghi</h3>
                         <div th:if="${homestay.amenities != null and not #lists.isEmpty(homestay.amenities)}"
                              class="flex flex-wrap gap-2">
                             <span th:each="amenity : ${homestay.amenities}"
                                   class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                <i class="fas fa-check-circle text-secondary mr-1"></i>
                                 <span th:text="${amenity}"></span>
                             </span>
                         </div>
@@ -86,9 +128,9 @@
                 </div>
 
                 <div class="md:w-1/3">
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 sticky top-4">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 sticky top-20">
                         <div class="flex justify-between items-center mb-4">
-                            <span class="text-2xl font-bold text-blue-600" th:text="${#numbers.formatCurrency(homestay.price)}"></span>
+                            <span class="text-2xl font-bold text-primary" th:text="${#numbers.formatCurrency(homestay.price)}"></span>
                             <span class="text-gray-600">/ đêm</span>
                         </div>
 
@@ -111,11 +153,16 @@
                         </div>
 
                         <button onclick="openBookingModal()"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium">
+                                class="w-full bg-primary hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium">
                             <i class="fas fa-calendar-check mr-2"></i> Đặt ngay
                         </button>
                     </div>
                 </div>
+            </div>
+            <div class="mt-6">
+                <a href="/homestay" class="inline-flex items-center text-primary hover:text-blue-700 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách Homestay
+                </a>
             </div>
         </div>
     </div>
@@ -126,12 +173,12 @@
 <input type="hidden" id="homestayPrice" th:value="${homestay.price}"/>
 
 <!-- Booking Modal -->
-<div id="bookingModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+<div id="bookingModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 transition-opacity" aria-hidden="true">
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" th:text="'Đặt ' + ${homestay.name}"></h3>
@@ -166,14 +213,14 @@
                     <div class="bg-blue-50 p-4 rounded-lg mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-gray-700">Tổng cộng:</span>
-                            <span class="text-xl font-bold text-blue-600" id="totalPrice">0 VND</span>
+                            <span class="text-xl font-bold text-primary" id="totalPrice">0 VND</span>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button type="button" onclick="submitBooking()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
                     <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng
                 </button>
                 <button type="button" onclick="closeBookingModal()"
@@ -246,7 +293,6 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // Thêm CSRF token vào header
                 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
             },
             body: JSON.stringify(formData)
