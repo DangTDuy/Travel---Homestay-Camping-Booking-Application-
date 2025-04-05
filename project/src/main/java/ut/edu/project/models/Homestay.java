@@ -63,6 +63,7 @@ public class Homestay {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
-
+    private Double rating; // Điểm đánh giá trung bình
+    private String tags; // Ví dụ: "beach,mountain,family"
     // Xóa phương thức setPricePerNight và getPricePerNight
 }
