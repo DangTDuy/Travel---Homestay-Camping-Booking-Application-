@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <title>Quick Stats Fragment</title>
+</head>
+<body>
+    <div th:fragment="quick-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="dashboard-card bg-white">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-50 text-primary">
+                        <i class="fas fa-home text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Homestay có sẵn</p>
+                        <p class="text-2xl font-semibold text-gray-800">25</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card bg-white">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-50 text-secondary">
+                        <i class="fas fa-calendar-check text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Đặt phòng gần đây</p>
+                        <p class="text-2xl font-semibold text-gray-800">3</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card bg-white">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-50 text-yellow-500">
+                        <i class="fas fa-star text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Đánh giá của bạn</p>
+                        <p class="text-2xl font-semibold text-gray-800">4.8</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card bg-white">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-50 text-purple-500">
+                        <i class="fas fa-bell text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Thông báo</p>
+                        <p class="text-2xl font-semibold text-gray-800">2</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -10,10 +10,13 @@ import ut.edu.project.dtos.LoginRequest;
 import ut.edu.project.dtos.RegisterDTO;
 import ut.edu.project.services.UserService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserService userService;
@@ -40,30 +43,22 @@ public class AuthController {
         }
 
         String result = userService.registerUser(registerDTO);
-        if (result.contains("thành công")) { // Sửa lại điều kiện này
+        if (result.contains("thành công")) {
             redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Bạn có thể đăng nhập ngay.");
+            return "redirect:/auth/login-user";
         } else {
             redirectAttributes.addFlashAttribute("error", result);
             redirectAttributes.addFlashAttribute("registerDTO", registerDTO);
+            return "redirect:/auth/register-user";
         }
-        return "redirect:/auth/register-user";
     }
 
     @GetMapping("/login-user")
-    public String showLoginForm(
-            @RequestParam(value = "registerSuccess", required = false) Boolean registerSuccess,
-            @RequestParam(value = "error", required = false) String error,
-            Model model) {
-
-        model.addAttribute("loginRequest", new LoginRequest());
-
-        if (registerSuccess != null && registerSuccess) {
-            model.addAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
+    public String showLoginForm(Model model) {
+        logger.info("Showing login form");
+        if (!model.containsAttribute("loginRequest")) {
+            model.addAttribute("loginRequest", new LoginRequest());
         }
-        if (error != null) {
-            model.addAttribute("errorMessage", "Đăng nhập thất bại");
-        }
-
         return "auth/login";
     }
 }

@@ -12,6 +12,8 @@ import ut.edu.project.dtos.UserDTO;
 import ut.edu.project.dtos.UpdateUserDTO;
 import ut.edu.project.models.User;
 import ut.edu.project.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -29,9 +32,16 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.info("Attempting to load user: {}", username);
+        
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với tên đăng nhập: " + username));
+                .orElseThrow(() -> {
+                    logger.error("User not found: {}", username);
+                    return new UsernameNotFoundException("Không tìm thấy người dùng với tên đăng nhập: " + username);
+                });
 
+        logger.info("User found: {} with role: {}", username, user.getRole());
+        
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),

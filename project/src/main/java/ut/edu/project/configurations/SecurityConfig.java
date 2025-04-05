@@ -61,21 +61,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Cấu hình CSRF với CookieCsrfTokenRepository
-        CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-        requestHandler.setCsrfRequestAttributeName("_csrf");
-        tokenRepository.setHeaderName("X-CSRF-TOKEN"); // Đảm bảo header CSRF khớp với frontend
-
         return http
-                // Bật CSRF với cấu hình cookie
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(tokenRepository)
-                        .csrfTokenRequestHandler(requestHandler)
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .sessionFixation().migrateSession()
+                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -96,10 +88,9 @@ public class SecurityConfig {
                                 "/user/profile",
                                 "/user/profile/update"
                         ).hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/user/all").hasAuthority("ADMIN")
+                        .requestMatchers("/user/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/user/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/user/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/user/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -111,35 +102,27 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // URL xử lý đăng xuất
-                        .logoutSuccessUrl("/home?logout=true") // Chuyển hướng mặc định về /home sau khi đăng xuất
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            logger.info("Đăng xuất thành công. Chuyển hướng đến trang chủ.");
-                            try {
-                                response.sendRedirect("/home?logout=true");
-                            } catch (IOException e) {
-                                logger.error("Lỗi chuyển hướng đăng xuất", e);
-                            }
-                        })
-                        .invalidateHttpSession(true) // Hủy session
-                        .clearAuthentication(true) // Xóa thông tin xác thực
-                        .deleteCookies("JSESSIONID", "jwtToken", "XSRF-TOKEN") // Xóa các cookie liên quan
-                        .permitAll() // Cho phép tất cả truy cập logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/auth/login-user")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
-                // Thêm filter để log request
-                .addFilterBefore((request, response, chain) -> {
-                    if (request instanceof HttpServletRequest) {
-                        HttpServletRequest httpRequest = (HttpServletRequest) request;
-                        logger.info("Request to: {}", httpRequest.getRequestURI());
-                        Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-                        if (authentication != null && authentication.isAuthenticated()) {
-                            logger.info("User authenticated: {}", authentication.getName());
-                        } else {
-                            logger.info("User not authenticated.");
-                        }
-                    }
-                    chain.doFilter(request, response);
-                }, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(
+                        ((request, response, chain) -> {
+                            if (request instanceof HttpServletRequest) {
+                                HttpServletRequest httpRequest = (HttpServletRequest) request;
+                                logger.info("Request to: {}", httpRequest.getRequestURI());
+                                Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                                if (authentication != null && authentication.isAuthenticated()) {
+                                    logger.info("User authenticated: {}", authentication.getName());
+                                } else {
+                                    logger.info("User not authenticated.");
+                                }
+                            }
+                            chain.doFilter(request, response);
+                        }), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

@@ -3,14 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
-<h1>Thông tin cá nhân</h1>
-<div th:if="${user}">
-    <p>Username: <span th:text="${user.username}"></span></p>
-    <p>Họ tên: <span th:text="${user.hoTen}"></span></p>
-    <p>Email: <span th:text="${user.email}"></span></p>
-    <a th:href="@{/dashboard}">Quay lại</a>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2>Thông tin cá nhân</h2>
+                    <div th:if="${user}" class="mb-4">
+                        <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+                        <p><strong>Họ tên:</strong> <span th:text="${user.hoTen}"></span></p>
+                        <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+                        <p><strong>Số điện thoại:</strong> <span th:text="${user.soDienThoai}"></span></p>
+                    </div>
+                    
+                    <form id="profileForm">
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                        
+                        <!-- Preferences Section -->
+                        <h3 class="mt-4">Sở thích</h3>
+                        <div class="mb-3">
+                            <label class="form-label">Loại homestay yêu thích</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="preferences" value="beach" id="beach">
+                                <label class="form-check-label" for="beach">Biển</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="preferences" value="mountain" id="mountain">
+                                <label class="form-check-label" for="mountain">Núi</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="preferences" value="city" id="city">
+                                <label class="form-check-label" for="city">Thành phố</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Khoảng giá ưa thích</label>
+                            <select class="form-select" name="priceRange" id="priceRange">
+                                <option value="0-500000">Dưới 500,000đ</option>
+                                <option value="500000-1000000">500,000đ - 1,000,000đ</option>
+                                <option value="1000000-2000000">1,000,000đ - 2,000,000đ</option>
+                                <option value="2000000+">Trên 2,000,000đ</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Số lượng phòng ngủ</label>
+                            <select class="form-select" name="bedrooms" id="bedrooms">
+                                <option value="1">1 phòng</option>
+                                <option value="2">2 phòng</option>
+                                <option value="3">3 phòng</option>
+                                <option value="4+">4 phòng trở lên</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profileForm');
+    
+    // Lấy CSRF token từ input hidden
+    const csrfToken = document.querySelector('input[name="_csrf"]').value;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    
+    console.log('CSRF Token:', csrfToken);
+    console.log('CSRF Header:', csrfHeader);
+    
+    // Load existing preferences
+    fetch('/user/preferences', {
+        headers: {
+            [csrfHeader]: csrfToken
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Loaded preferences:', data);
+        // Set checkboxes
+        if (data && data.preferences && Array.isArray(data.preferences)) {
+            data.preferences.forEach(pref => {
+                const checkbox = document.querySelector(`input[value="${pref}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        // Set price range
+        if (data && data.priceRange) {
+            document.getElementById('priceRange').value = data.priceRange;
+        }
+        
+        // Set bedrooms
+        if (data && data.bedrooms) {
+            document.getElementById('bedrooms').value = data.bedrooms;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading preferences:', error);
+        alert('Không thể tải thông tin sở thích. Vui lòng thử lại sau.');
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Form submitted');
+        
+        const preferences = Array.from(document.querySelectorAll('input[name="preferences"]:checked'))
+            .map(cb => cb.value);
+            
+        const data = {
+            preferences: preferences,
+            priceRange: document.getElementById('priceRange').value,
+            bedrooms: document.getElementById('bedrooms').value
+        };
+        
+        console.log('Sending data:', data);
+        
+        fetch('/user/preferences', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || 'Cập nhật thất bại');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Update successful:', data);
+            alert('Đã cập nhật sở thích thành công!');
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error updating preferences:', error);
+            alert('Không thể cập nhật sở thích: ' + error.message);
+        });
+    });
+});
+</script>
 </body>
 </html>

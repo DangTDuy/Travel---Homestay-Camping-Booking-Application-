@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <title>Scripts Fragment</title>
+</head>
+<body>
+    <th:block th:fragment="scripts">
+        <!-- Back to Top Button -->
+        <button id="back-to-top" class="fixed bottom-5 right-5 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition opacity-0 invisible">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+
+        <script>
+            // Sample homestay data
+            const sampleHomestays = [
+                {
+                    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                    location: 'Đà Lạt, Lâm Đồng',
+                    name: 'Homestay Đồi Thông View Đẹp',
+                    rating: '4.8',
+                    price: '1,200,000₫',
+                    match: 98,
+                    amenities: ['WiFi', 'Bãi đỗ xe', 'BBQ']
+                },
+                {
+                    image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+                    location: 'Hội An, Quảng Nam',
+                    name: 'Ancient Town Homestay',
+                    rating: '4.9',
+                    price: '950,000₫',
+                    match: 95,
+                    amenities: ['Hồ bơi', 'Ăn sáng', 'Xe đạp']
+                },
+                {
+                    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80',
+                    location: 'Sapa, Lào Cai',
+                    name: 'Mountain View Homestay',
+                    rating: '4.7',
+                    price: '850,000₫',
+                    match: 92,
+                    amenities: ['View núi', 'Lò sưởi', 'Tour guide']
+                }
+            ];
+
+            // Mobile menu toggle
+            document.getElementById('mobileMenuButton').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('sidebar-open');
+            });
+
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                const sidebar = document.querySelector('.sidebar');
+                const mobileButton = document.getElementById('mobileMenuButton');
+
+                if (!sidebar.contains(event.target) && event.target !== mobileButton && !mobileButton.contains(event.target)) {
+                    sidebar.classList.remove('sidebar-open');
+                }
+            });
+
+            // Back to top button
+            const backToTopButton = document.getElementById('back-to-top');
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                } else {
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                }
+            });
+
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // AI Panel Functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                const aiButton = document.getElementById('ai-recommendations-toggle');
+                const aiPanel = document.getElementById('ai-recommendations-panel');
+                const closeButton = document.getElementById('close-ai-panel');
+                const overlay = document.getElementById('ai-panel-overlay');
+                const panelContent = aiPanel.querySelector('.absolute.bottom-0');
+                let isOpen = false;
+
+                function toggleAIPanel() {
+                    isOpen = !isOpen;
+                    aiPanel.style.pointerEvents = isOpen ? 'auto' : 'none';
+                    overlay.style.opacity = isOpen ? '1' : '0';
+                    panelContent.style.transform = isOpen ? 'translateY(0)' : 'translateY(100%)';
+                    
+                    // Remove notification badge when opening
+                    if (isOpen) {
+                        const badge = document.getElementById('ai-notification-badge');
+                        if (badge) badge.style.display = 'none';
+                    }
+                }
+
+                // Open panel when clicking AI button
+                aiButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleAIPanel();
+                });
+
+                // Close panel when clicking close button
+                closeButton.addEventListener('click', function() {
+                    toggleAIPanel();
+                });
+
+                // Close panel when clicking overlay
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        toggleAIPanel();
+                    }
+                });
+
+                // Handle recommendation tabs
+                const tabButtons = document.querySelectorAll('.tab-button');
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        // Remove active class from all buttons
+                        tabButtons.forEach(btn => {
+                            btn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-purple-600');
+                            btn.classList.add('hover:bg-white/50', 'text-gray-600');
+                        });
+
+                        // Add active class to clicked button
+                        this.classList.add('active', 'bg-white', 'shadow-sm', 'text-purple-600');
+                        this.classList.remove('hover:bg-white/50', 'text-gray-600');
+
+                        // Show loading state
+                        document.getElementById('recommendations-content').innerHTML = '';
+                        document.getElementById('ai-loading-state').classList.remove('hidden');
+
+                        // Simulate loading recommendations
+                        setTimeout(() => {
+                            document.getElementById('ai-loading-state').classList.add('hidden');
+                            loadRecommendations(this.dataset.type);
+                        }, 1500);
+                    });
+                });
+
+                // Function to load recommendations
+                function loadRecommendations(type) {
+                    const container = document.getElementById('recommendations-content');
+                    const template = document.getElementById('recommendation-card-template');
+                    const amenityTemplate = document.getElementById('amenity-badge-template');
+                    
+                    // Clear existing content
+                    container.innerHTML = '';
+
+                    // Add recommendations based on type
+                    let homestays = [...sampleHomestays];
+                    if (type === 'trending') {
+                        homestays = homestays.sort((a, b) => b.rating - a.rating);
+                    } else if (type === 'deals') {
+                        homestays = homestays.sort((a, b) => parseInt(a.price.replace(/[^\d]/g, '')) - parseInt(b.price.replace(/[^\d]/g, '')));
+                    }
+
+                    homestays.forEach(homestay => {
+                        const card = template.content.cloneNode(true);
+                        
+                        // Set image and basic info
+                        const img = card.querySelector('img');
+                        img.src = homestay.image;
+                        img.alt = homestay.name;
+                        
+                        card.querySelector('.location').textContent = homestay.location;
+                        card.querySelector('.name').textContent = homestay.name;
+                        card.querySelector('.rating').textContent = homestay.rating;
+                        card.querySelector('.price').textContent = homestay.price;
+                        card.querySelector('.match-percentage').textContent = homestay.match + '%';
+                        card.querySelector('.match-circle').style.strokeDasharray = `${homestay.match}, 100`;
+
+                        // Add amenities
+                        const amenitiesContainer = card.querySelector('.amenities-container');
+                        homestay.amenities.forEach(amenity => {
+                            const badge = amenityTemplate.content.cloneNode(true);
+                            badge.querySelector('.amenity-name').textContent = amenity;
+                            amenitiesContainer.appendChild(badge);
+                        });
+                        
+                        container.appendChild(card);
+                    });
+                }
+
+                // Load initial recommendations
+                loadRecommendations('personalized');
+            });
+
+            function refreshRecommendations() {
+                const button = document.getElementById('refreshRecommendations');
+                const container = document.getElementById('recommendations-content');
+
+                button.querySelector('i').classList.add('fa-spin');
+                button.disabled = true;
+
+                // Show loading state
+                container.innerHTML = '';
+                document.getElementById('ai-loading-state').classList.remove('hidden');
+
+                // Simulate refresh
+                setTimeout(() => {
+                    document.getElementById('ai-loading-state').classList.add('hidden');
+                    loadRecommendations('personalized');
+                    button.querySelector('i').classList.remove('fa-spin');
+                    button.disabled = false;
+                }, 2000);
+            }
+
+            // Add click handler for refresh button
+            document.getElementById('refreshRecommendations').addEventListener('click', refreshRecommendations);
+        </script>
+    </th:block>
+</body>
+</html>

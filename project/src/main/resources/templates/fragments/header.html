@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <title>Header Fragment</title>
+</head>
+<body>
+    <header th:fragment="header" class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="http://localhost:8090/dashboard">
+                    <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="h-10 w-10"/>
+                </a>
+                <span class="text-2xl font-serif font-bold text-primary">
+                    Travel<span class="text-secondary">Homestay</span>Camping
+                </span>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-4">
+                <span class="text-gray-600">
+                    <i class="fas fa-user-circle mr-2 text-primary"></i>
+                    Xin chào, <span th:text="${username}" class="font-medium"></span>
+                </span>
+                <form id="logoutForm" th:action="@{/logout}" method="POST" class="ml-4">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                    </button>
+                </form>
+            </div>
+
+            <!-- Mobile menu button -->
+            <button id="mobileMenuButton" class="md:hidden text-gray-600 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </header>
+</body>
+</html>

@@ -20,6 +20,10 @@ public class Booking {
     @NotNull
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "homestay_id")
+    private Homestay homestay;
+
     @Column(name = "service_type", nullable = false)
     @NotNull
     private String serviceType;

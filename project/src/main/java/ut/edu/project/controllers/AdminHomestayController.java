@@ -31,19 +31,26 @@ public class AdminHomestayController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createHomestay(
-            @Valid @RequestBody Homestay homestay,
+    public String createHomestay(
+            @Valid @ModelAttribute Homestay homestay,
             BindingResult result,
-            Authentication authentication) {
+            Authentication authentication,
+            Model model) {
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(result.getAllErrors());
+            List<Homestay> homestays = homestayService.searchHomestays(null);
+            model.addAttribute("homestays", homestays);
+            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin nhập vào");
+            return "admin/admin-homestay";
         }
         try {
             String username = authentication.getName();
-            Homestay createdHomestay = homestayService.createHomestay(homestay, username);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdHomestay);
+            homestayService.createHomestay(homestay, username);
+            return "redirect:/admin/homestay";
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            List<Homestay> homestays = homestayService.searchHomestays(null);
+            model.addAttribute("homestays", homestays);
+            model.addAttribute("error", e.getMessage());
+            return "admin/admin-homestay";
         }
     }
 

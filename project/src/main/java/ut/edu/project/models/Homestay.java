@@ -57,13 +57,28 @@ public class Homestay {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    @OneToMany(mappedBy = "homestay", cascade = CascadeType.ALL)
+    private List<Booking> bookings = new ArrayList<>();
+
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (booking_count == null) {
+            booking_count = 0;
+        }
+        if (rating == null) {
+            rating = 0.0;
+        }
     }
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private Integer booking_count = 0;
+
     private Double rating; // Điểm đánh giá trung bình
+    @Column(columnDefinition = "TEXT")
     private String tags; // Ví dụ: "beach,mountain,family"
-    // Xóa phương thức setPricePerNight và getPricePerNight
+    @Column(columnDefinition = "TEXT")
+    private String seasons; // Mùa phù hợp (dạng JSON string)
 }
