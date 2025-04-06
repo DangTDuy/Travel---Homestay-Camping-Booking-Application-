@@ -154,9 +154,23 @@ public class AIRecommendationService {
     }
 
     /**
-     * Tạo gợi ý homestay dựa trên sở thích người dùng
+     * Tạo gợi ý homestay dựa trên sở thích người dùng và loại gợi ý
      */
-    public List<Homestay> generateRecommendations(User user, int limit) {
+    public List<Homestay> generateRecommendations(User user, int limit, String type) {
+        switch (type != null ? type.toLowerCase() : "") {
+            case "trending":
+                return getTrendingHomestays(limit);
+            case "deals":
+                return getDealHomestays(limit);
+            default:
+                return generatePersonalizedRecommendations(user, limit);
+        }
+    }
+
+    /**
+     * Tạo gợi ý cá nhân hóa
+     */
+    private List<Homestay> generatePersonalizedRecommendations(User user, int limit) {
         UserPreference preference = analyzeUserPreferences(user);
         List<Homestay> allHomestays = homestayRepository.findAll();
         
@@ -234,5 +248,114 @@ public class AIRecommendationService {
                 .limit(limit)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách homestay theo bộ lọc
+     */
+    public List<Homestay> getFilteredRecommendations(
+            User user, Double minPrice, Double maxPrice, 
+            String location, List<String> amenities, int limit) {
+        List<Homestay> allHomestays = homestayRepository.findAll();
+        
+        return allHomestays.stream()
+                .filter(homestay -> {
+                    // Lọc theo giá
+                    if (minPrice != null && homestay.getPrice() < minPrice) return false;
+                    if (maxPrice != null && homestay.getPrice() > maxPrice) return false;
+                    
+                    // Lọc theo địa điểm
+                    if (location != null && !homestay.getLocation().toLowerCase()
+                            .contains(location.toLowerCase())) return false;
+                    
+                    // Lọc theo tiện nghi
+                    if (amenities != null && !amenities.isEmpty()) {
+                        if (homestay.getAmenities() == null) return false;
+                        return homestay.getAmenities().containsAll(amenities);
+                    }
+                    
+                    return true;
+                })
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách homestay đang xu hướng
+     */
+    public List<Homestay> getTrendingHomestays(int limit) {
+        return homestayRepository.findAll().stream()
+                .sorted((h1, h2) -> {
+                    // Sắp xếp theo số lượt đặt và đánh giá
+                    int bookingCompare = h2.getBooking_count().compareTo(h1.getBooking_count());
+                    if (bookingCompare != 0) return bookingCompare;
+                    return h2.getRating().compareTo(h1.getRating());
+                })
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách homestay có ưu đãi
+     */
+    public List<Homestay> getDealHomestays(int limit) {
+        // Tính giá trung bình của tất cả homestay
+        double avgPrice = homestayRepository.findAll().stream()
+                .mapToDouble(Homestay::getPrice)
+                .average()
+                .orElse(0.0);
+        
+        return homestayRepository.findAll().stream()
+                .filter(homestay -> homestay.getPrice() < avgPrice * 0.8) // Giá thấp hơn 20% so với trung bình
+                .sorted((h1, h2) -> h1.getPrice().compareTo(h2.getPrice())) // Sắp xếp theo giá tăng dần
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Cập nhật sở thích người dùng
+     */
+    public UserPreference updateUserPreferences(User user, Map<String, Object> preferences) {
+        UserPreference userPreference = userPreferenceRepository.findByUser(user)
+                .orElse(new UserPreference());
+        userPreference.setUser(user);
+
+        // Cập nhật các sở thích từ request
+        if (preferences.containsKey("preferredLocation")) {
+            userPreference.setPreferredLocation((String) preferences.get("preferredLocation"));
+        }
+        if (preferences.containsKey("preferredPriceRange")) {
+            userPreference.setPreferredPriceRange((Double) preferences.get("preferredPriceRange"));
+        }
+        if (preferences.containsKey("preferredAmenities")) {
+            try {
+                userPreference.setPreferredAmenities(
+                    objectMapper.writeValueAsString(preferences.get("preferredAmenities")));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        if (preferences.containsKey("preferredTags")) {
+            try {
+                userPreference.setPreferredTags(
+                    objectMapper.writeValueAsString(preferences.get("preferredTags")));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        if (preferences.containsKey("prefersQuiet")) {
+            userPreference.setPrefersQuiet((Boolean) preferences.get("prefersQuiet"));
+        }
+        if (preferences.containsKey("prefersFamily")) {
+            userPreference.setPrefersFamily((Boolean) preferences.get("prefersFamily"));
+        }
+        if (preferences.containsKey("prefersLuxury")) {
+            userPreference.setPrefersLuxury((Boolean) preferences.get("prefersLuxury"));
+        }
+        if (preferences.containsKey("prefersBudget")) {
+            userPreference.setPrefersBudget((Boolean) preferences.get("prefersBudget"));
+        }
+
+        return userPreferenceRepository.save(userPreference);
     }
 }

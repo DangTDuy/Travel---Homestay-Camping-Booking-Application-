@@ -46,7 +46,7 @@ public class DashboardController {
         
         // Lấy danh sách homestay được đề xuất từ AI
         model.addAttribute("recommendedHomestays", 
-            aiRecommendationService.generateRecommendations(user, 6));
+            aiRecommendationService.generateRecommendations(user, 6, "personalized"));
         return "dashboard";
     }
 
@@ -64,7 +64,7 @@ public class DashboardController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         model.addAttribute("recommendedHomestays", 
-            aiRecommendationService.generateRecommendations(user, 6));
+            aiRecommendationService.generateRecommendations(user, 6, "personalized"));
         return "dashboard :: #recommendations-content";
     }
 }

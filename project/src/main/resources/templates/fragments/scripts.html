@@ -6,40 +6,41 @@
 </head>
 <body>
     <th:block th:fragment="scripts">
-        <!-- Back to Top Button -->
-        <button id="back-to-top" class="fixed bottom-5 right-5 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition opacity-0 invisible">
-            <i class="fas fa-arrow-up"></i>
-        </button>
-
         <script>
-            // Sample homestay data
+            // Sample homestays data (temporary)
             const sampleHomestays = [
                 {
-                    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-                    location: 'Đà Lạt, Lâm Đồng',
-                    name: 'Homestay Đồi Thông View Đẹp',
-                    rating: '4.8',
-                    price: '1,200,000₫',
-                    match: 98,
-                    amenities: ['WiFi', 'Bãi đỗ xe', 'BBQ']
+                    id: 1,
+                    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+                    location: "Đà Lạt",
+                    name: "Homestay Đà Lạt View",
+                    rating: 4.8,
+                    price: 1200000,
+                    matchPercentage: 95,
+                    viewers: 12,
+                    amenities: ["WiFi", "Bếp", "Điều hòa", "Ban công"]
                 },
                 {
-                    image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
-                    location: 'Hội An, Quảng Nam',
-                    name: 'Ancient Town Homestay',
-                    rating: '4.9',
-                    price: '950,000₫',
-                    match: 95,
-                    amenities: ['Hồ bơi', 'Ăn sáng', 'Xe đạp']
+                    id: 2,
+                    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4",
+                    location: "Sapa",
+                    name: "Homestay Sapa Valley",
+                    rating: 4.6,
+                    price: 800000,
+                    matchPercentage: 88,
+                    viewers: 8,
+                    amenities: ["WiFi", "Bếp", "Sưởi", "View núi"]
                 },
                 {
-                    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=80',
-                    location: 'Sapa, Lào Cai',
-                    name: 'Mountain View Homestay',
-                    rating: '4.7',
-                    price: '850,000₫',
-                    match: 92,
-                    amenities: ['View núi', 'Lò sưởi', 'Tour guide']
+                    id: 3,
+                    imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
+                    location: "Hội An",
+                    name: "Homestay Hội An Ancient",
+                    rating: 4.9,
+                    price: 1500000,
+                    matchPercentage: 92,
+                    viewers: 15,
+                    amenities: ["WiFi", "Bể bơi", "Xe đạp", "Bữa sáng"]
                 }
             ];
 
@@ -58,157 +59,402 @@
                 }
             });
 
-            // Back to top button
-            const backToTopButton = document.getElementById('back-to-top');
-
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    backToTopButton.classList.remove('opacity-0', 'invisible');
-                } else {
-                    backToTopButton.classList.add('opacity-0', 'invisible');
-                }
-            });
-
-            backToTopButton.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            // AI Panel Functionality
+            // AI Assistant Panel
             document.addEventListener('DOMContentLoaded', function() {
-                const aiButton = document.getElementById('ai-recommendations-toggle');
+                const aiButton = document.getElementById('ai-assistant-btn');
                 const aiPanel = document.getElementById('ai-recommendations-panel');
+                const aiOverlay = document.getElementById('ai-panel-overlay');
                 const closeButton = document.getElementById('close-ai-panel');
-                const overlay = document.getElementById('ai-panel-overlay');
-                const panelContent = aiPanel.querySelector('.absolute.bottom-0');
-                let isOpen = false;
+                const recommendationsContent = document.getElementById('recommendations-content');
+                const refreshButton = document.getElementById('refreshRecommendations');
+                const tabButtons = document.querySelectorAll('.tab-button');
+                let currentTab = 'personalized';
+                let isPanelOpen = false;
+                let userPreferences = null;
 
-                function toggleAIPanel() {
-                    isOpen = !isOpen;
-                    aiPanel.style.pointerEvents = isOpen ? 'auto' : 'none';
-                    overlay.style.opacity = isOpen ? '1' : '0';
-                    panelContent.style.transform = isOpen ? 'translateY(0)' : 'translateY(100%)';
-                    
-                    // Remove notification badge when opening
-                    if (isOpen) {
-                        const badge = document.getElementById('ai-notification-badge');
-                        if (badge) badge.style.display = 'none';
+                // Show loading state
+                function showLoading() {
+                    const loadingState = recommendationsContent.querySelector('.loading-state');
+                    if (loadingState) {
+                        loadingState.classList.remove('hidden');
+                        recommendationsContent.querySelector('.error-state')?.classList.add('hidden');
+                        recommendationsContent.querySelector('.empty-state')?.classList.add('hidden');
                     }
                 }
 
-                // Open panel when clicking AI button
-                aiButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    toggleAIPanel();
-                });
-
-                // Close panel when clicking close button
-                closeButton.addEventListener('click', function() {
-                    toggleAIPanel();
-                });
-
-                // Close panel when clicking overlay
-                overlay.addEventListener('click', function(e) {
-                    if (e.target === overlay) {
-                        toggleAIPanel();
+                // Show error state
+                function showError() {
+                    const errorState = recommendationsContent.querySelector('.error-state');
+                    if (errorState) {
+                        recommendationsContent.querySelector('.loading-state')?.classList.add('hidden');
+                        errorState.classList.remove('hidden');
+                        recommendationsContent.querySelector('.empty-state')?.classList.add('hidden');
                     }
-                });
+                }
 
-                // Handle recommendation tabs
-                const tabButtons = document.querySelectorAll('.tab-button');
-                tabButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        // Remove active class from all buttons
-                        tabButtons.forEach(btn => {
-                            btn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-purple-600');
-                            btn.classList.add('hover:bg-white/50', 'text-gray-600');
-                        });
+                // Show empty state
+                function showEmpty() {
+                    const emptyState = recommendationsContent.querySelector('.empty-state');
+                    if (emptyState) {
+                        recommendationsContent.querySelector('.loading-state')?.classList.add('hidden');
+                        recommendationsContent.querySelector('.error-state')?.classList.add('hidden');
+                        emptyState.classList.remove('hidden');
+                    }
+                }
 
-                        // Add active class to clicked button
-                        this.classList.add('active', 'bg-white', 'shadow-sm', 'text-purple-600');
-                        this.classList.remove('hover:bg-white/50', 'text-gray-600');
-
-                        // Show loading state
-                        document.getElementById('recommendations-content').innerHTML = '';
-                        document.getElementById('ai-loading-state').classList.remove('hidden');
-
-                        // Simulate loading recommendations
-                        setTimeout(() => {
-                            document.getElementById('ai-loading-state').classList.add('hidden');
-                            loadRecommendations(this.dataset.type);
-                        }, 1500);
+                // Show recommendations
+                function showRecommendations() {
+                    const states = ['loading-state', 'error-state', 'empty-state'];
+                    states.forEach(state => {
+                        recommendationsContent.querySelector(`.${state}`)?.classList.add('hidden');
                     });
-                });
+                }
 
-                // Function to load recommendations
-                function loadRecommendations(type) {
-                    const container = document.getElementById('recommendations-content');
-                    const template = document.getElementById('recommendation-card-template');
-                    const amenityTemplate = document.getElementById('amenity-badge-template');
+                function showPanel() {
+                    if (!aiPanel || isPanelOpen) return;
                     
-                    // Clear existing content
-                    container.innerHTML = '';
+                    // Make panel visible first
+                    aiPanel.classList.remove('opacity-0');
+                    aiPanel.classList.remove('pointer-events-none');
+                    
+                    // Show overlay
+                    aiOverlay.classList.add('opacity-100');
+                    aiOverlay.classList.add('pointer-events-auto');
+                    
+                    // Animate panel up
+                    setTimeout(() => {
+                        aiPanel.querySelector('.transform').classList.remove('translate-y-[120%]');
+                    }, 50);
+                    
+                    document.body.style.overflow = 'hidden';
+                    isPanelOpen = true;
+                    
+                    // Load user preferences first, then recommendations
+                    loadUserPreferences().then(() => {
+                        loadRecommendations(currentTab);
+                    });
+                }
 
-                    // Add recommendations based on type
-                    let homestays = [...sampleHomestays];
+                function hidePanel() {
+                    if (!aiPanel || !isPanelOpen) return;
+                    
+                    // Hide overlay
+                    aiOverlay.classList.remove('opacity-100');
+                    aiOverlay.classList.remove('pointer-events-auto');
+                    
+                    // Animate panel down
+                    aiPanel.querySelector('.transform').classList.add('translate-y-[120%]');
+                    
+                    // Hide panel after animation
+                    setTimeout(() => {
+                        aiPanel.classList.add('opacity-0');
+                        aiPanel.classList.add('pointer-events-none');
+                    }, 700);
+                    
+                    document.body.style.overflow = '';
+                    isPanelOpen = false;
+                }
+
+                // Toggle panel when AI button is clicked
+                if (aiButton) {
+                    aiButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (isPanelOpen) {
+                            hidePanel();
+                        } else {
+                            showPanel();
+                        }
+                    });
+                }
+
+                // Hide panel when close button is clicked
+                if (closeButton) {
+                    closeButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        hidePanel();
+                    });
+                }
+
+                // Hide panel when overlay is clicked
+                if (aiOverlay) {
+                    aiOverlay.addEventListener('click', function(e) {
+                        if (e.target === aiOverlay) {
+                            hidePanel();
+                        }
+                    });
+                }
+
+                // Handle tab switching
+                if (tabButtons) {
+                    tabButtons.forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const type = this.dataset.type;
+                            if (type === currentTab) return;
+
+                            // Update active state
+                            tabButtons.forEach(btn => {
+                                btn.classList.remove('active', 'bg-white', 'text-purple-600', 'shadow-sm');
+                                btn.classList.add('text-gray-600');
+                            });
+                            this.classList.add('active', 'bg-white', 'text-purple-600', 'shadow-sm');
+                            this.classList.remove('text-gray-600');
+
+                            // Load recommendations for new tab
+                            currentTab = type;
+                            loadRecommendations(type);
+                        });
+                    });
+                }
+
+                // Refresh recommendations
+                if (refreshButton) {
+                    refreshButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showLoading();
+                        loadUserPreferences().then(() => {
+                            loadRecommendations(currentTab);
+                        });
+                    });
+                }
+
+                // Load user preferences from server
+                async function loadUserPreferences() {
+                    try {
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                        
+                        // Fetch user preferences from API
+                        const response = await fetch('/api/ai/user-preferences', {
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken
+                            }
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Failed to load user preferences');
+                        }
+                        
+                        userPreferences = await response.json();
+                        
+                        // Update AI message based on preferences
+                        updateAIMessage();
+                        
+                        return userPreferences;
+                    } catch (error) {
+                        console.error('Error loading user preferences:', error);
+                        // Use default preferences if API fails
+                        userPreferences = {
+                            preferredLocations: ['Đà Lạt', 'Sapa', 'Hội An'],
+                            priceRange: { min: 500000, max: 2000000 },
+                            preferredAmenities: ['WiFi', 'Bếp', 'Điều hòa'],
+                            travelStyle: 'relaxed',
+                            recentSearches: ['homestay view đẹp', 'homestay giá rẻ'],
+                            favoriteTypes: ['mountain', 'beach', 'city']
+                        };
+                        
+                        // Update AI message with default preferences
+                        updateAIMessage();
+                        
+                        return userPreferences;
+                    }
+                }
+                
+                // Update AI message based on user preferences
+                function updateAIMessage() {
+                    const aiMessage = document.querySelector('.ai-message');
+                    if (aiMessage && userPreferences) {
+                        // Create personalized message based on preferences
+                        let message = 'Xin chào! ';
+                        
+                        if (userPreferences.preferredLocations && userPreferences.preferredLocations.length > 0) {
+                            message += `Tôi thấy bạn thích ${userPreferences.preferredLocations.join(', ')}. `;
+                        }
+                        
+                        if (userPreferences.recentSearches && userPreferences.recentSearches.length > 0) {
+                            message += `Dựa trên tìm kiếm gần đây của bạn về "${userPreferences.recentSearches[0]}", `;
+                        }
+                        
+                        message += 'tôi đã tìm thấy những homestay phù hợp nhất:';
+                        
+                        aiMessage.innerHTML = `
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 p-2 bg-purple-100 text-purple-600 rounded-full animate-bounce">
+                                    <i class="fas fa-sparkles"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">${message}</p>
+                                    <div class="flex items-center text-sm text-gray-500 mt-1">
+                                        <span>Cập nhật vừa xong</span>
+                                        <span class="mx-2">•</span>
+                                        <span class="text-purple-600 font-medium">${userPreferences.matchPercentage || 98}% phù hợp</span>
+                                        <span class="mx-2">•</span>
+                                        <span class="flex items-center">
+                                            <i class="fas fa-users mr-1"></i>
+                                            <span id="total-viewers">12 người đang xem</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Load recommendations
+                async function loadRecommendations(type) {
+                    showLoading();
+
+                    try {
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                        
+                        // Fetch recommendations from API with user preferences
+                        const response = await fetch(`/api/ai/recommendations?type=${type}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken
+                            }
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        if (data.length === 0) {
+                            showEmpty();
+                            return;
+                        }
+
+                        showRecommendations();
+                        recommendationsContent.innerHTML = '';
+                        data.forEach(homestay => {
+                            const card = createHomestayCard(homestay);
+                            recommendationsContent.appendChild(card);
+                        });
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showError();
+                        // Fallback to sample data if API fails
+                        loadSampleRecommendations(type);
+                    }
+                }
+                
+                // Load sample recommendations as fallback
+                function loadSampleRecommendations(type) {
+                    // Sample homestays data (temporary)
+                    const sampleHomestays = [
+                        {
+                            id: 1,
+                            imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+                            location: "Đà Lạt",
+                            name: "Homestay Đà Lạt View",
+                            rating: 4.8,
+                            price: 1200000,
+                            matchPercentage: 95,
+                            viewers: 12,
+                            amenities: ["WiFi", "Bếp", "Điều hòa", "Ban công"]
+                        },
+                        {
+                            id: 2,
+                            imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4",
+                            location: "Sapa",
+                            name: "Homestay Sapa Valley",
+                            rating: 4.6,
+                            price: 800000,
+                            matchPercentage: 88,
+                            viewers: 8,
+                            amenities: ["WiFi", "Bếp", "Sưởi", "View núi"]
+                        },
+                        {
+                            id: 3,
+                            imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
+                            location: "Hội An",
+                            name: "Homestay Hội An Ancient",
+                            rating: 4.9,
+                            price: 1500000,
+                            matchPercentage: 92,
+                            viewers: 15,
+                            amenities: ["WiFi", "Bể bơi", "Xe đạp", "Bữa sáng"]
+                        }
+                    ];
+                    
+                    // Filter sample data based on type
+                    let filteredData = [...sampleHomestays];
+                    
                     if (type === 'trending') {
-                        homestays = homestays.sort((a, b) => b.rating - a.rating);
+                        // Sort by viewers
+                        filteredData.sort((a, b) => b.viewers - a.viewers);
                     } else if (type === 'deals') {
-                        homestays = homestays.sort((a, b) => parseInt(a.price.replace(/[^\d]/g, '')) - parseInt(b.price.replace(/[^\d]/g, '')));
+                        // Sort by price (lowest first)
+                        filteredData.sort((a, b) => a.price - b.price);
+                    } else {
+                        // Sort by match percentage
+                        filteredData.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                    }
+                    
+                    if (filteredData.length === 0) {
+                        showEmpty();
+                        return;
+                    }
+                    
+                    showRecommendations();
+                    recommendationsContent.innerHTML = '';
+                    filteredData.forEach(homestay => {
+                        const card = createHomestayCard(homestay);
+                        recommendationsContent.appendChild(card);
+                    });
+                }
+
+                // Create homestay card
+                function createHomestayCard(homestay) {
+                    const template = document.getElementById('recommendation-card-template');
+                    const card = template.content.cloneNode(true);
+
+                    // Set homestay data
+                    card.querySelector('.name').textContent = homestay.name || 'Unnamed Homestay';
+                    card.querySelector('.location').textContent = homestay.location || 'Location not specified';
+                    card.querySelector('.rating').textContent = homestay.rating || '0';
+                    card.querySelector('.price').textContent = homestay.price ? `${homestay.price.toLocaleString()}đ` : 'Price not available';
+                    card.querySelector('.viewers-count').textContent = `${homestay.viewers || 0} viewing`;
+                    card.querySelector('.match-percentage').textContent = `${homestay.matchPercentage || 0}%`;
+
+                    // Set image
+                    const img = card.querySelector('img');
+                    if (homestay.imageUrl) {
+                        img.src = homestay.imageUrl;
+                        img.alt = homestay.name;
+                    } else {
+                        img.src = '/images/default-homestay.jpg';
+                        img.alt = 'Default Homestay Image';
                     }
 
-                    homestays.forEach(homestay => {
-                        const card = template.content.cloneNode(true);
-                        
-                        // Set image and basic info
-                        const img = card.querySelector('img');
-                        img.src = homestay.image;
-                        img.alt = homestay.name;
-                        
-                        card.querySelector('.location').textContent = homestay.location;
-                        card.querySelector('.name').textContent = homestay.name;
-                        card.querySelector('.rating').textContent = homestay.rating;
-                        card.querySelector('.price').textContent = homestay.price;
-                        card.querySelector('.match-percentage').textContent = homestay.match + '%';
-                        card.querySelector('.match-circle').style.strokeDasharray = `${homestay.match}, 100`;
+                    // Set match circle
+                    const matchCircle = card.querySelector('.match-circle');
+                    const percentage = homestay.matchPercentage || 0;
+                    matchCircle.style.strokeDasharray = `${percentage}, 100`;
 
-                        // Add amenities
-                        const amenitiesContainer = card.querySelector('.amenities-container');
+                    // Add amenities
+                    const amenitiesContainer = card.querySelector('.amenities-container');
+                    if (homestay.amenities && homestay.amenities.length > 0) {
+                        const amenityTemplate = document.getElementById('amenity-badge-template');
                         homestay.amenities.forEach(amenity => {
                             const badge = amenityTemplate.content.cloneNode(true);
                             badge.querySelector('.amenity-name').textContent = amenity;
                             amenitiesContainer.appendChild(badge);
                         });
-                        
-                        container.appendChild(card);
+                    }
+
+                    // Add click handler for view details button
+                    const viewDetailsBtn = card.querySelector('.view-details-btn');
+                    viewDetailsBtn.addEventListener('click', () => {
+                        window.location.href = `/homestays/${homestay.id}`;
                     });
+
+                    return card;
                 }
-
-                // Load initial recommendations
-                loadRecommendations('personalized');
             });
-
-            function refreshRecommendations() {
-                const button = document.getElementById('refreshRecommendations');
-                const container = document.getElementById('recommendations-content');
-
-                button.querySelector('i').classList.add('fa-spin');
-                button.disabled = true;
-
-                // Show loading state
-                container.innerHTML = '';
-                document.getElementById('ai-loading-state').classList.remove('hidden');
-
-                // Simulate refresh
-                setTimeout(() => {
-                    document.getElementById('ai-loading-state').classList.add('hidden');
-                    loadRecommendations('personalized');
-                    button.querySelector('i').classList.remove('fa-spin');
-                    button.disabled = false;
-                }, 2000);
-            }
-
-            // Add click handler for refresh button
-            document.getElementById('refreshRecommendations').addEventListener('click', refreshRecommendations);
         </script>
     </th:block>
 </body>
