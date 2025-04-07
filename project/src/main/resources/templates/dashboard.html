@@ -40,6 +40,14 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom styles for booking status */
+        .status-pending { background-color: #FEF3C7; color: #92400E; border-color: #FCD34D; }
+        .status-confirmed { background-color: #DBEAFE; color: #1E40AF; border-color: #93C5FD; }
+        .status-completed { background-color: #D1FAE5; color: #065F46; border-color: #6EE7B7; }
+        .status-cancelled { background-color: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+        .status-refunded { background-color: #E5E7EB; color: #4B5563; border-color: #D1D5DB; }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header -->
@@ -54,12 +62,95 @@
             <!-- Welcome Banner -->
             <th:block th:replace="~{fragments/welcome-banner :: welcome-banner}"></th:block>
 
-            <!-- Quick Stats -->
+            <!-- Quick Stats (Should be directly included, not wrapped in a grid here) -->
             <th:block th:replace="~{fragments/quick-stats :: quick-stats}"></th:block>
 
-            <!-- AI Recommendations Section -->
-            <th:block th:replace="~{fragments/ai-assistant :: ai-assistant}"></th:block>
+            <!-- User Bookings History -->
+            <div sec:authorize="hasAnyRole('USER', 'ADMIN')"> <!-- Show only for logged-in users -->
+                <h2 class="text-2xl font-semibold text-gray-700 mt-8 mb-4">Lịch sử Đặt phòng</h2>
+                 <!-- Error Message Display (if redirecting with error) -->
+                <div th:if="${bookingError}" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    <p th:text="${bookingError}"></p>
+                </div>
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                    <div th:if="${bookings == null or #lists.isEmpty(bookings)}">
+                        <p class="text-center text-gray-500 py-10 px-6">Bạn chưa có đặt phòng nào.</p>
+                         <div class="text-center pb-6">
+                             <a href="/homestay" class="text-primary hover:text-blue-700 font-medium">Tìm Homestay ngay &rarr;</a>
+                         </div>
+                    </div>
 
+                    <div th:unless="${bookings == null or #lists.isEmpty(bookings)}" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dịch vụ</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày nhận</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày trả</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr th:each="booking : ${bookings}">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <span th:switch="${booking.serviceType}">
+                                            <i th:case="${T(ut.edu.project.models.Booking.ServiceType).HOMESTAY}" class="fas fa-home mr-1 text-blue-500"></i>
+                                            <i th:case="${T(ut.edu.project.models.Booking.ServiceType).CAMPING}" class="fas fa-campground mr-1 text-green-500"></i>
+                                            <i th:case="${T(ut.edu.project.models.Booking.ServiceType).TRAVEL}" class="fas fa-plane mr-1 text-purple-500"></i>
+                                            <span th:text="${booking.serviceType.displayName}">Loại</span>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <!-- Display name based on service type -->
+                                        <span th:if="${booking.homestay != null}" th:text="${booking.homestay.name}"></span>
+                                        <span th:if="${booking.camping != null}" th:text="${booking.camping.name}"></span>
+                                        <span th:if="${booking.travel != null}" th:text="${booking.travel.name}"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${booking.guests}"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#numbers.formatCurrency(booking.totalPrice)}"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-xs font-semibold">
+                                        <span class="px-2 inline-flex leading-5 rounded-full border"
+                                              th:text="${booking.status.displayName}"
+                                              th:classappend="${booking.status == T(ut.edu.project.models.Booking.BookingStatus).PENDING ? 'status-pending' :
+                                                               booking.status == T(ut.edu.project.models.Booking.BookingStatus).CONFIRMED ? 'status-confirmed' :
+                                                               booking.status == T(ut.edu.project.models.Booking.BookingStatus).COMPLETED ? 'status-completed' :
+                                                               booking.status == T(ut.edu.project.models.Booking.BookingStatus).CANCELLED ? 'status-cancelled' :
+                                                               booking.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED ? 'status-refunded' : ''}">
+                                            Trạng thái
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                                        <!-- Cancel Button -->
+                                        <a th:if="${booking.canCancel()}" 
+                                           th:href="@{/bookings/{id}/cancel(id=${booking.id})}"
+                                           onclick="return confirm('Bạn có chắc chắn muốn hủy đặt phòng này?')"
+                                           class="text-red-600 hover:text-red-800 transition duration-150 ease-in-out" title="Hủy đặt phòng">
+                                            <i class="fas fa-times-circle"></i> Hủy
+                                        </a>
+                                        <!-- Payment Button -->
+                                        <a th:if="${booking.status == T(ut.edu.project.models.Booking.BookingStatus).PENDING}" 
+                                           th:href="@{/bookings/{id}/payment(id=${booking.id})}"
+                                           class="text-green-600 hover:text-green-800 transition duration-150 ease-in-out" title="Thanh toán">
+                                            <i class="fas fa-credit-card"></i> Thanh toán
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- End User Bookings History -->
+
+            <!-- AI Recommendations Section (Homestays) -->
+            <th:block th:replace="~{fragments/ai-assistant :: ai-assistant}"></th:block>
+            
             <!-- User Section -->
             <th:block th:replace="~{fragments/user-section :: user-section}"></th:block>
 

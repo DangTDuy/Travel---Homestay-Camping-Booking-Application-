@@ -5,9 +5,9 @@
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Travel-Homestay-Camping - Quản lý homestay trong hệ thống">
+    <meta name="description" content="Quản lý homestay - Trang dành cho Admin">
     <meta name="keywords" content="Quản lý, Homestay, Admin, Travel-Homestay-Camping">
-    <title>Travel-Homestay-Camping | Quản lý Homestay</title>
+    <title>Quản lý Homestay</title>
 
     <!-- Favicon -->
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
@@ -40,447 +40,1284 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom styles for admin pages -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+        }
+        .sidebar .active {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        .card-hover:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
-<!-- Header -->
-<header class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <a href="http://localhost:8090/dashboard">
-                <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="h-10 w-10"/>
-            </a>
-            <span class="text-2xl font-serif font-bold text-primary">
-        Travel<span class="text-secondary">Homestay</span>Camping
-    </span>
+<!-- Sidebar fragment -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content -->
+<div class="md:ml-64 p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-dark">Quản lý Homestay</h1>
+                <p class="text-gray-600">Thêm, chỉnh sửa và quản lý homestay trong hệ thống</p>
+            </div>
+            <button onclick="openAddModal()" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition duration-150 ease-in-out">
+                <i class="fas fa-plus mr-2"></i>
+                Thêm Homestay
+            </button>
         </div>
 
-        <div class="hidden md:flex items-center space-x-4">
-            <span class="text-gray-600">
-                <i class="fas fa-user-circle mr-2 text-primary"></i>
-                Xin chào, <span th:text="${username}" class="font-medium"></span>
+        <!-- Error Alert -->
+        <div id="errorAlert" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative hidden mb-6" role="alert">
+            <strong class="font-bold">Lỗi!</strong>
+            <span class="block sm:inline" id="errorMessage"></span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="hideErrorAlert()">
+                <i class="fas fa-times"></i>
             </span>
-            <form id="logoutForm" th:action="@{/logout}" method="POST" class="ml-4">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
-                </button>
+        </div>
+
+        <!-- Success Alert -->
+        <div id="successAlert" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative hidden mb-6" role="alert">
+            <strong class="font-bold">Thành công!</strong>
+            <span class="block sm:inline" id="successMessage"></span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="hideSuccessAlert()">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <form id="searchForm" onsubmit="handleSearchForm(event)" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="searchLocation" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                            </span>
+                            <input type="text" id="searchLocation" name="location"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                                   placeholder="Tìm kiếm theo địa điểm">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="priceRange" class="block text-sm font-medium text-gray-700 mb-1">Khoảng giá</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-dollar-sign text-gray-400"></i>
+                            </span>
+                            <select id="priceRange" name="priceRange"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white appearance-none">
+                                <option value="">Tất cả giá</option>
+                                <option value="0-500000">Dưới 500K</option>
+                                <option value="500000-1000000">500K - 1 triệu</option>
+                                <option value="1000000-2000000">1 - 2 triệu</option>
+                                <option value="2000000-">Trên 2 triệu</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center">
+                            <i class="fas fa-search mr-2"></i>Tìm kiếm
+                        </button>
+                        <button type="button" onclick="resetSearch()" class="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
 
-        <!-- Mobile menu button -->
-        <button id="mobileMenuButton" class="md:hidden text-gray-600 focus:outline-none">
-            <i class="fas fa-bars text-2xl"></i>
-        </button>
-    </div>
-</header>
-
-<!-- Main Content -->
-<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 pt-20">
-    <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <div class="flex justify-between items-center mb-6">
-                <div class="w-1/2">
-                    <form th:action="@{/admin/homestay}" method="get">
-                        <div class="relative">
-                            <input type="text" name="location" th:value="${param.location}"
-                                   class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800"
-                                   placeholder="Tìm kiếm theo địa điểm...">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        </div>
-                    </form>
-                </div>
-                <button onclick="openAddModal()"
-                        class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center font-medium">
-                    <i class="fas fa-plus mr-2"></i> Thêm Homestay mới
-                </button>
+        <!-- Homestay List -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Loading Spinner -->
+            <div id="loadingTable" class="flex justify-center items-center py-10 hidden">
+                <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+                <span class="ml-3 text-gray-600">Đang tải dữ liệu...</span>
             </div>
-
-            <div class="overflow-x-auto">
+            
+            <div id="homestayTableContainer" class="overflow-x-auto hidden">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá/đêm</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sức chứa</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                    </tr>
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sức chứa</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đánh giá</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                    <tr th:each="homestay : ${homestays}">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="font-medium text-gray-900" th:text="${homestay.name}"></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500" th:text="${homestay.location}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500" th:text="${#numbers.formatCurrency(homestay.price)}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500" th:text="${homestay.capacity} + ' người'"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500" th:text="${#temporals.format(homestay.createdAt, 'dd/MM/yyyy')}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button th:onclick="'openEditModal(this)'"
-                                    th:data-id="${homestay.id}"
-                                    th:data-name="${homestay.name}"
-                                    th:data-location="${homestay.location}"
-                                    th:data-description="${homestay.description}"
-                                    th:data-price="${homestay.price}"
-                                    th:data-capacity="${homestay.capacity}"
-                                    th:data-amenities="${#strings.listJoin(homestay.amenities, ', ')}"
-                                    th:data-image-urls="${#strings.listJoin(homestay.imageUrls, ', ')}"
-                                    class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                <i class="fas fa-edit"></i> Sửa
-                            </button>
-                            <button th:onclick="'confirmDelete(' + ${homestay.id} + ')'"
-                                    class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash"></i> Xóa
-                            </button>
-                        </td>
-                    </tr>
+                    <tbody class="bg-white divide-y divide-gray-200" id="homestayTableBody">
+                        <!-- Dynamic rows will be added here by JavaScript -->
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-</main>
-
-<!-- Add Modal -->
-<div id="addModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-        </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Thêm Homestay mới</h3>
-                <form id="addForm" th:action="@{/admin/homestay/create}" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Tên Homestay</label>
-                        <input type="text" id="name" name="name" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="location">Địa điểm</label>
-                        <input type="text" id="location" name="location" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="description">Mô tả</label>
-                        <textarea id="description" name="description" rows="3"
-                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="price">Giá mỗi đêm (VND)</label>
-                            <input type="number" id="price" name="price" min="0" step="100000" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="capacity">Sức chứa (người)</label>
-                            <input type="number" id="capacity" name="capacity" min="1" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="amenities">Tiện nghi (mỗi tiện nghi cách nhau bằng dấu phẩy)</label>
-                        <input type="text" id="amenities" name="amenities"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="imageUrls">URL ảnh (mỗi URL cách nhau bằng dấu phẩy, tối đa 5 ảnh)</label>
-                        <input type="text" id="imageUrls" name="imageUrls"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit"
-                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
-                            Thêm
-                        </button>
-                        <button type="button" onclick="closeAddModal()"
-                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            Hủy
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Modal -->
-<div id="editModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-        </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Chỉnh sửa Homestay</h3>
-                <form id="editForm">
-                    <input type="hidden" id="editId" name="id">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="editName">Tên Homestay</label>
-                        <input type="text" id="editName" name="name" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="editLocation">Địa điểm</label>
-                        <input type="text" id="editLocation" name="location" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="editDescription">Mô tả</label>
-                        <textarea id="editDescription" name="description" rows="3"
-                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="editPrice">Giá mỗi đêm (VND)</label>
-                            <input type="number" id="editPrice" name="price" min="0" step="100000" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="editCapacity">Sức chứa (người)</label>
-                            <input type="number" id="editCapacity" name="capacity" min="1" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="editAmenities">Tiện nghi (mỗi tiện nghi cách nhau bằng dấu phẩy)</label>
-                        <input type="text" id="editAmenities" name="amenities"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="editImageUrls">URL ảnh (mỗi URL cách nhau bằng dấu phẩy, tối đa 5 ảnh)</label>
-                        <input type="text" id="editImageUrls" name="imageUrls"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                </form>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="updateHomestay()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
-                    Cập nhật
-                </button>
-                <button type="button" onclick="closeEditModal()"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Hủy
+            
+            <!-- No Results Message -->
+            <div id="noResults" class="text-center py-16 px-4 hidden">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-dark mb-2">Không tìm thấy homestay nào</h3>
+                <p class="text-gray-500 mb-6">Vui lòng thử lại với các tiêu chí tìm kiếm khác hoặc thêm homestay mới.</p>
+                <button onclick="openAddModal()" class="inline-block bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i> Thêm Homestay mới
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div id="deleteModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+<!-- Add/Edit Modal -->
+<div id="homestayModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="border-b px-6 py-3 flex justify-between items-center">
+            <h3 class="text-xl font-semibold text-dark" id="modalTitle">Thêm Homestay mới</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                        <i class="fas fa-exclamation-triangle text-red-600"></i>
-                    </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Xác nhận xóa</h3>
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-600">Bạn có chắc chắn muốn xóa homestay này? Hành động này không thể hoàn tác.</p>
-                        </div>
-                    </div>
+        
+        <!-- Thêm khu vực cố định cho thông báo lỗi trong form -->
+        <div id="formErrorContainer" class="px-6 pt-3 hidden sticky top-0 z-10">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-md">
+                <strong class="font-bold">Lỗi!</strong>
+                <span class="block sm:inline" id="formErrorMessage"></span>
+            </div>
+        </div>
+        
+        <form id="homestayForm" class="px-6 py-4 space-y-4" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="homestayId">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Tên homestay -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Tên homestay <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" name="name" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                </div>
+                
+                <!-- Địa điểm -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm <span class="text-red-500">*</span></label>
+                    <input type="text" id="location" name="location" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="deleteHomestay()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                    Xóa
-                </button>
-                <button type="button" onclick="closeDeleteModal()"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            
+            <!-- Mô tả -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
+                <textarea id="description" name="description" rows="3" required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Giá mỗi đêm -->
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Giá mỗi đêm (VNĐ) <span class="text-red-500">*</span></label>
+                    <input type="number" id="price" name="price" min="0" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                </div>
+                
+                <!-- Sức chứa -->
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Sức chứa <span class="text-red-500">*</span></label>
+                    <input type="number" id="capacity" name="capacity" min="1" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                </div>
+            </div>
+            
+            <!-- Tiện nghi -->
+            <div>
+                <label for="amenities" class="block text-sm font-medium text-gray-700 mb-1">Tiện nghi <span class="text-red-500">*</span></label>
+                <input type="text" id="amenities" name="amenities" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                       placeholder="Ví dụ: Wifi, Điều hòa, TV">
+                <p class="mt-1 text-xs text-gray-500">Các tiện nghi cách nhau bằng dấu phẩy.</p>
+            </div>
+            
+            <!-- Container for Existing Images (Edit Mode Only) -->
+            <div id="existingImagesSection" class="hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-medium text-gray-700">Ảnh hiện tại</label>
+                    <button type="button" onclick="removeAllExistingImages()" 
+                            class="text-xs text-red-600 hover:text-red-800 flex items-center">
+                        <i class="fas fa-trash-alt mr-1"></i> Xóa tất cả
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3" id="existingImagePreviewContainer">
+                    <!-- Existing images will be populated here -->
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Nhấn nút Xóa để gỡ ảnh từng ảnh hoặc "Xóa tất cả" để gỡ hết ảnh.</p>
+            </div>
+            
+            <!-- Thêm ảnh mới -->
+            <div>
+                <label for="newImages" class="block text-sm font-medium text-gray-700 mb-1">Thêm ảnh mới (Tối đa 5)</label>
+                <div class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative">
+                    <div class="space-y-3 text-center">
+                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl"></i>
+                        <div class="text-sm text-gray-600">
+                            <label for="newImages" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-blue-700 focus-within:outline-none">
+                                <span class="btn bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md">Tải ảnh lên</span>
+                                <input id="newImages" name="newImages" type="file" class="sr-only" multiple accept="image/*" onchange="previewNewImages(event)">
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF tối đa 10MB</p>
+                    </div>
+                </div>
+                <div class="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3" id="imagePreviewGrid">
+                    <!-- Image previews will be shown here -->
+                </div>
+            </div>
+            
+            <div class="border-t pt-4 flex justify-end">
+                <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mr-2">
                     Hủy
                 </button>
+                <button type="submit" id="saveButton" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+                    <i class="fas fa-save mr-1"></i> Lưu
+                </button>
             </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div class="border-b px-6 py-3">
+            <h3 class="text-xl font-semibold text-dark">Xác nhận xóa</h3>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-700">Bạn có chắc chắn muốn xóa homestay <strong id="homestayNameToDelete" class="font-medium"></strong>? Hành động này không thể hoàn tác.</p>
+        </div>
+        <div class="bg-gray-50 px-6 py-3 flex justify-end">
+            <button type="button" onclick="closeDeleteModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mr-2">
+                Hủy
+            </button>
+            <button type="button" id="confirmDeleteButton" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg">
+                Xóa
+            </button>
         </div>
     </div>
 </div>
 
-<script>
-    // Modal functions
+<!-- Keep the existing JavaScript or enhance it if needed -->
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        loadHomestays();
+    });
+    
+    // CSRF setup
+    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    
+    // Placeholder image for failed image loads
+    const placeholderImageBase64 = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2UyZThmMCIvPjxwYXRoIGQ9Ik0zMCA0MGg0MHYyMEgzMHoiIGZpbGw9IiNiNGI0YjQiLz48cGF0aCBkPSJNNDAgMzB2NDBoMjBWMzB6IiBmaWxsPSIjYjRiNGI0Ii8+PC9zdmc+';
+    
+    // Các biến tìm kiếm lưu trữ trạng thái hiện tại
+    let currentSearchLocation = '';
+    let currentPriceRange = '';
+    
+    // Hàm xử lý form tìm kiếm
+    function handleSearchForm(event) {
+        event.preventDefault();
+        
+        // Lấy giá trị tìm kiếm 
+        currentSearchLocation = document.getElementById('searchLocation').value.trim();
+        currentPriceRange = document.getElementById('priceRange').value;
+        
+        console.log("Tìm kiếm với điều kiện:", { 
+            location: currentSearchLocation, 
+            priceRange: currentPriceRange 
+        });
+        
+        // Tải lại danh sách homestay với điều kiện tìm kiếm
+        loadHomestays();
+    }
+    
+    // Hàm reset tìm kiếm
+    function resetSearch() {
+        document.getElementById('searchLocation').value = '';
+        document.getElementById('priceRange').value = '';
+        currentSearchLocation = '';
+        currentPriceRange = '';
+        
+        // Tải lại danh sách homestay không có điều kiện tìm kiếm
+        loadHomestays();
+    }
+    
+    // Hàm load lại danh sách homestay với retry nếu ảnh không tồn tại
+    function loadHomestays() {
+        document.getElementById('loadingTable').classList.remove('hidden');
+        document.getElementById('homestayTableContainer').classList.add('hidden');
+        document.getElementById('noResults').classList.add('hidden');
+        
+        // Xây dựng URL với tham số tìm kiếm nếu có
+        let apiUrl = '/admin/homestay/api/list';
+        let queryParams = [];
+        
+        if (currentSearchLocation) {
+            queryParams.push(`location=${encodeURIComponent(currentSearchLocation)}`);
+        }
+        
+        if (currentPriceRange) {
+            queryParams.push(`priceRange=${encodeURIComponent(currentPriceRange)}`);
+        }
+        
+        if (queryParams.length > 0) {
+            apiUrl += '?' + queryParams.join('&');
+        }
+        
+        console.log("Fetching data from:", apiUrl);
+        
+        // Hiển thị đang loading trong danh sách
+        const tableBody = document.getElementById('homestayTableBody');
+        if (tableBody) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Đang tải dữ liệu...</td></tr>';
+        }
+        
+        fetch(apiUrl, {
+            headers: {
+                [header]: token
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi tải dữ liệu: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Dữ liệu danh sách homestay:", data);
+            
+            const tableBody = document.getElementById('homestayTableBody');
+            tableBody.innerHTML = '';
+            
+            if (!data.data || data.data.length === 0) {
+                document.getElementById('noResults').classList.remove('hidden');
+                document.getElementById('homestayTableContainer').classList.add('hidden');
+            } else {
+                document.getElementById('noResults').classList.add('hidden');
+                document.getElementById('homestayTableContainer').classList.remove('hidden');
+                
+                data.data.forEach(homestay => {
+                    console.log("Homestay ID:", homestay.id, "Image URLs:", homestay.imageUrls || homestay.images || []);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50 transition-colors duration-150 ease-in-out';
+                    
+                    // Name cell with image
+                    const nameCell = document.createElement('td');
+                    nameCell.className = 'px-6 py-4';
+                    
+                    // Xử lý đường dẫn ảnh
+                    let thumbnailUrl = placeholderImageBase64;
+                    let originalUrl = '';
+                    
+                    if (homestay.imageUrls && homestay.imageUrls.length > 0) {
+                        let imgUrl = homestay.imageUrls[0];
+                        originalUrl = imgUrl;
+                        // Kiểm tra nếu URL không bắt đầu bằng http hoặc /
+                        if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                            imgUrl = '/homestay_images/' + imgUrl;
+                        }
+                        thumbnailUrl = imgUrl;
+                    } else if (homestay.images && homestay.images.length > 0) {
+                        let imgUrl = homestay.images[0];
+                        originalUrl = imgUrl;
+                        if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                            imgUrl = '/homestay_images/' + imgUrl;
+                        }
+                        thumbnailUrl = imgUrl;
+                    }
+                    
+                    console.log("Thumbnail URL cho homestay ID", homestay.id, ":", thumbnailUrl);
+                    
+                    // Tạo một unique ID cho ảnh để có thể tham chiếu sau này
+                    const imgId = `homestay-img-${homestay.id}`;
+                    
+                    nameCell.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0">
+                                <img id="${imgId}" class="h-10 w-10 rounded-full object-cover" 
+                                     src="${thumbnailUrl}" 
+                                     data-original="${originalUrl}"
+                                     alt="Homestay thumbnail"
+                                     onerror="retryLoadImage(this, '${thumbnailUrl}', 3)">
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${homestay.name}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Location cell
+                    const locationCell = document.createElement('td');
+                    locationCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                    locationCell.textContent = homestay.location;
+                    
+                    // Price cell
+                    const priceCell = document.createElement('td');
+                    priceCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                    priceCell.textContent = homestay.price ? new Intl.NumberFormat('vi-VN').format(homestay.price) + ' VNĐ' : 'N/A';
+                    
+                    // Capacity cell
+                    const capacityCell = document.createElement('td');
+                    capacityCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                    capacityCell.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-primary mr-2"></i>
+                            ${homestay.capacity} người
+                        </div>
+                    `;
+                    
+                    // Rating cell
+                    const ratingCell = document.createElement('td');
+                    ratingCell.className = 'px-6 py-4 whitespace-nowrap';
+                    
+                    if (homestay.rating) {
+                        const starFull = Math.floor(homestay.rating);
+                        const starHalf = homestay.rating % 1 >= 0.5 ? 1 : 0;
+                        const starEmpty = 5 - starFull - starHalf;
+                        
+                        let stars = '';
+                        for (let i = 0; i < starFull; i++) stars += '<i class="fas fa-star text-yellow-400"></i>';
+                        if (starHalf) stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                        for (let i = 0; i < starEmpty; i++) stars += '<i class="far fa-star text-yellow-400"></i>';
+                        
+                        ratingCell.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">${stars}</div>
+                                <span class="ml-1 text-sm text-gray-600">${homestay.rating.toFixed(1)}</span>
+                                <span class="ml-1 text-sm text-gray-500">(${homestay.booking_count || 0})</span>
+                            </div>
+                        `;
+                    } else {
+                        ratingCell.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa có đánh giá</span>';
+                    }
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    actionsCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium';
+                    actionsCell.innerHTML = `
+                        <a href="/homestay/${homestay.id}" class="text-blue-600 hover:text-blue-900 mr-3" title="Xem chi tiết" target="_blank">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button onclick="editHomestay(${homestay.id})" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Chỉnh sửa">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="showDeleteModal(${homestay.id}, '${homestay.name.replace(/'/g, "\\'")}')" class="text-red-600 hover:text-red-900" title="Xóa">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    `;
+                    
+                    row.appendChild(nameCell);
+                    row.appendChild(locationCell);
+                    row.appendChild(priceCell);
+                    row.appendChild(capacityCell);
+                    row.appendChild(ratingCell);
+                    row.appendChild(actionsCell);
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                document.getElementById('homestayTableContainer').classList.remove('hidden');
+            }
+            
+            document.getElementById('loadingTable').classList.add('hidden');
+        })
+        .catch(error => {
+            console.error('Error loading homestays:', error);
+            showError('Lỗi khi tải danh sách homestay: ' + error.message);
+            document.getElementById('loadingTable').classList.add('hidden');
+            document.getElementById('noResults').classList.remove('hidden');
+        });
+    }
+    
+    // Keep all the existing functions below but don't replace them
+    // This ensures compatibility with the existing JavaScript logic
+    
+    // Function definitions for modals and CRUD operations
     function openAddModal() {
-        document.getElementById('addModal').classList.remove('hidden');
+        // Clear form
+        document.getElementById('homestayForm').reset();
+        document.getElementById('homestayId').value = '';
+        document.getElementById('modalTitle').textContent = 'Thêm Homestay mới';
+        document.getElementById('existingImagesSection').classList.add('hidden');
+        document.getElementById('imagePreviewGrid').innerHTML = '';
+        document.getElementById('homestayModal').classList.remove('hidden');
     }
-
-    function closeAddModal() {
-        document.getElementById('addModal').classList.add('hidden');
+    
+    function closeModal() {
+        console.log("Đóng modal form homestay");
+        document.getElementById('homestayModal').classList.add('hidden');
+        // Reset form khi đóng
+        document.getElementById('homestayForm').reset();
     }
-
-    function openEditModal(button) {
-        const id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
-        const location = button.getAttribute('data-location');
-        const description = button.getAttribute('data-description');
-        const price = button.getAttribute('data-price');
-        const capacity = button.getAttribute('data-capacity');
-        const amenities = button.getAttribute('data-amenities');
-        const imageUrls = button.getAttribute('data-image-urls');
-
-        document.getElementById('editId').value = id;
-        document.getElementById('editName').value = name;
-        document.getElementById('editLocation').value = location;
-        document.getElementById('editDescription').value = description;
-        document.getElementById('editPrice').value = price;
-        document.getElementById('editCapacity').value = capacity;
-        document.getElementById('editAmenities').value = amenities;
-        document.getElementById('editImageUrls').value = imageUrls;
-        document.getElementById('editModal').classList.remove('hidden');
+    
+    function editHomestay(id) {
+        // Khởi tạo mảng lưu trữ các ảnh đã bị xóa
+        window.explicitlyDeletedImages = [];
+        
+        // Fetch homestay details and populate form
+        fetch(`/admin/homestay/api/get/${id}`, {
+            headers: {
+                [header]: token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message || 'Không thể lấy thông tin homestay');
+            }
+            
+            const homestay = data.data;
+            console.log("Homestay data from API:", homestay);
+            
+            // Hiển thị modal trước khi gán giá trị để đảm bảo DOM đã sẵn sàng
+            document.getElementById('modalTitle').textContent = 'Chỉnh sửa Homestay';
+            document.getElementById('homestayModal').classList.remove('hidden');
+            
+            // Đặt timeout ngắn để đảm bảo DOM đã được render
+            setTimeout(() => {
+                // Thiết lập các giá trị cho form
+                document.getElementById('homestayId').value = homestay.id;
+                document.getElementById('name').value = homestay.name || '';
+                
+                // Đặt địa điểm với kiểm tra chắc chắn input đã sẵn sàng
+                const locationInput = document.getElementById('location');
+                if (locationInput) {
+                    if (homestay.location) {
+                        locationInput.value = homestay.location;
+                        console.log("Đã thiết lập địa điểm:", locationInput.value);
+                    } else if (homestay.address) {
+                        locationInput.value = homestay.address;
+                        console.log("Đã sử dụng address thay cho location:", locationInput.value);
+                    }
+                    
+                    // Đảm bảo giá trị không bị mất
+                    if (!locationInput.value && homestay.location) {
+                        locationInput.setAttribute('placeholder', homestay.location);
+                        locationInput.dataset.originalLocation = homestay.location;
+                        console.log("Thiết lập placeholder và data attribute:", homestay.location);
+                    }
+                } else {
+                    console.error("Không tìm thấy input field cho location!");
+                }
+                
+                document.getElementById('description').value = homestay.description || '';
+                document.getElementById('price').value = homestay.price || 0;
+                document.getElementById('capacity').value = homestay.capacity || 1;
+                
+                // Thiết lập tiện nghi
+                const amenitiesStr = homestay.amenities ? homestay.amenities.join(', ') : '';
+                document.getElementById('amenities').value = amenitiesStr;
+                
+                // Display existing images
+                const imageContainer = document.getElementById('existingImagePreviewContainer');
+                imageContainer.innerHTML = '';
+                
+                // Reset mảng ảnh đã xóa khi mở modal mới
+                window.explicitlyDeletedImages = [];
+                
+                // Kiểm tra và xử lý mảng imageUrls
+                let imageUrls = [];
+                if (homestay.imageUrls && homestay.imageUrls.length > 0) {
+                    imageUrls = homestay.imageUrls;
+                } else if (homestay.images && homestay.images.length > 0) {
+                    // Backup nếu server trả về tên trường khác
+                    imageUrls = homestay.images;
+                }
+                
+                console.log("Số lượng ảnh hiện tại:", imageUrls.length);
+                
+                if (imageUrls.length > 0) {
+                    imageUrls.forEach((url, index) => {
+                        // Xử lý URL để lấy tên file
+                        let originalFilename = url;
+                        let displayUrl = url;
+                        
+                        // Kiểm tra nếu URL không bắt đầu bằng http hoặc /
+                        if (!url.startsWith('http') && !url.startsWith('/')) {
+                            displayUrl = '/homestay_images/' + url;
+                            originalFilename = url; // Lưu tên file gốc
+                        } else if (url.includes('/homestay_images/')) {
+                            // Nếu là URL đầy đủ, lấy tên file từ URL
+                            originalFilename = url.split('/homestay_images/')[1];
+                        }
+                        
+                        console.log(`Ảnh ${index + 1}:`, displayUrl, "Original filename:", originalFilename);
+                        
+                        const imgContainer = document.createElement('div');
+                        imgContainer.className = 'relative border border-gray-300 rounded-md p-1 hover:border-gray-400';
+                        imgContainer.dataset.originalFilename = originalFilename;
+                        
+                        const img = document.createElement('img');
+                        img.src = displayUrl;
+                        img.className = 'w-full h-20 object-cover rounded-md';
+                        
+                        // Xử lý khi ảnh không tồn tại
+                        img.onerror = function() {
+                            console.error(`Ảnh không tải được: ${displayUrl} (${originalFilename})`);
+                            img.src = placeholderImageBase64;
+                            img.classList.add('border', 'border-red-300');
+                        };
+                        
+                        // Thêm sự kiện khi ảnh tải thành công
+                        img.onload = function() {
+                            console.log(`Ảnh tải thành công: ${displayUrl}`);
+                        };
+                        
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center -mt-2 -mr-2 shadow';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        removeBtn.onclick = function() {
+                            // Thêm vào mảng ảnh đã xóa
+                            window.explicitlyDeletedImages.push(originalFilename);
+                            console.log(`Đã đánh dấu ảnh để xóa: ${originalFilename}`);
+                            console.log("Danh sách ảnh đã xóa:", window.explicitlyDeletedImages);
+                            
+                            // Thêm hiệu ứng xóa và xóa khỏi DOM
+                            imgContainer.classList.add('opacity-50');
+                            setTimeout(() => {
+                                imgContainer.remove();
+                                
+                                // Kiểm tra nếu không còn ảnh nào thì ẩn section
+                                if (document.querySelectorAll('#existingImagePreviewContainer > div').length === 0) {
+                                    document.getElementById('existingImagesSection').classList.add('hidden');
+                                }
+                                
+                                // Hiển thị thông báo xóa thành công
+                                const notification = document.createElement('div');
+                                notification.className = 'text-sm text-green-600 mt-2 mb-2';
+                                notification.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Đã gỡ ảnh khỏi danh sách';
+                                document.getElementById('existingImagesSection').appendChild(notification);
+                                
+                                // Tự động ẩn thông báo sau 3 giây
+                                setTimeout(() => {
+                                    notification.remove();
+                                }, 3000);
+                            }, 300);
+                        };
+                        
+                        // Thêm filename hoặc index dưới ảnh để dễ nhận biết
+                        const filename = originalFilename;
+                        const fileLabel = document.createElement('div');
+                        fileLabel.className = 'text-xs text-gray-500 truncate text-center mt-1';
+                        fileLabel.textContent = filename || `Ảnh ${index + 1}`;
+                        
+                        imgContainer.appendChild(img);
+                        imgContainer.appendChild(removeBtn);
+                        imgContainer.appendChild(fileLabel);
+                        
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'existingImages';
+                        hiddenInput.value = originalFilename; // Lưu tên file gốc
+                        imgContainer.appendChild(hiddenInput);
+                        
+                        imageContainer.appendChild(imgContainer);
+                    });
+                    
+                    document.getElementById('existingImagesSection').classList.remove('hidden');
+                } else {
+                    document.getElementById('existingImagesSection').classList.add('hidden');
+                }
+                
+                // Clear new image previews
+                document.getElementById('imagePreviewGrid').innerHTML = '';
+                
+                // Kiểm tra lại các giá trị đã thiết lập
+                console.log("Form values after setup:");
+                console.log("ID:", document.getElementById('homestayId').value);
+                console.log("Name:", document.getElementById('name').value);
+                console.log("Location:", document.getElementById('location').value);
+                console.log("Description:", document.getElementById('description').value);
+                console.log("Price:", document.getElementById('price').value);
+                console.log("Capacity:", document.getElementById('capacity').value);
+                console.log("Amenities:", document.getElementById('amenities').value);
+            }, 100);
+        })
+        .catch(error => {
+            showError('Lỗi khi lấy thông tin homestay: ' + error.message);
+        });
     }
-
-    function closeEditModal() {
-        document.getElementById('editModal').classList.add('hidden');
-    }
-
-    let homestayToDelete = null;
-
-    function confirmDelete(id) {
-        homestayToDelete = id;
+    
+    function showDeleteModal(id, name) {
+        document.getElementById('homestayNameToDelete').textContent = name;
+        const confirmButton = document.getElementById('confirmDeleteButton');
+        confirmButton.onclick = function() {
+            deleteHomestay(id);
+        };
         document.getElementById('deleteModal').classList.remove('hidden');
     }
-
+    
     function closeDeleteModal() {
-        homestayToDelete = null;
         document.getElementById('deleteModal').classList.add('hidden');
     }
-
-    // Validation function
-    function validateFormData(formData) {
-        if (formData.amenities.length > 10) {
-            alert('Tối đa 10 tiện nghi!');
-            return false;
-        }
-        if (formData.imageUrls.length > 5) {
-            alert('Tối đa 5 URL ảnh!');
-            return false;
-        }
-        return true;
-    }
-
-    // CRUD operations
-    function addHomestay(event) {
-        event.preventDefault();
-
-        const formData = {
-            name: document.getElementById('name').value,
-            location: document.getElementById('location').value,
-            description: document.getElementById('description').value,
-            price: parseFloat(document.getElementById('price').value),
-            capacity: parseInt(document.getElementById('capacity').value),
-            amenities: document.getElementById('amenities').value.split(',').map(item => item.trim()).filter(Boolean),
-            imageUrls: document.getElementById('imageUrls').value.split(',').map(item => item.trim()).filter(Boolean)
-        };
-
-        if (!validateFormData(formData)) return;
-
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        headers[getCSRFHeaderName()] = getCSRFToken();
-
-        fetch('/admin/homestay/create', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(formData)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text || 'Có lỗi xảy ra khi thêm homestay') });
-                }
-                return response.json();
-            })
-            .then(data => {
-                closeAddModal();
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Lỗi: ' + error.message);
-            });
-    }
-
-    function updateHomestay() {
-        const formData = {
-            id: document.getElementById('editId').value,
-            name: document.getElementById('editName').value,
-            location: document.getElementById('editLocation').value,
-            description: document.getElementById('editDescription').value,
-            price: parseFloat(document.getElementById('editPrice').value),
-            capacity: parseInt(document.getElementById('editCapacity').value),
-            amenities: document.getElementById('editAmenities').value.split(',').map(item => item.trim()).filter(Boolean),
-            imageUrls: document.getElementById('editImageUrls').value.split(',').map(item => item.trim()).filter(Boolean)
-        };
-
-        if (!validateFormData(formData)) return;
-
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        headers[getCSRFHeaderName()] = getCSRFToken();
-
-        fetch(`/admin/homestay/${formData.id}`, {
-            method: 'PUT',
-            headers: headers,
-            body: JSON.stringify(formData)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text || 'Có lỗi xảy ra khi cập nhật homestay') });
-                }
-                return response.json();
-            })
-            .then(data => {
-                closeEditModal();
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Lỗi: ' + error.message);
-            });
-    }
-
-    function deleteHomestay() {
-        if (!homestayToDelete) return;
-
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        headers[getCSRFHeaderName()] = getCSRFToken();
-
-        fetch(`/admin/homestay/${homestayToDelete}`, {
+    
+    function deleteHomestay(id) {
+        fetch(`/admin/homestay/api/delete/${id}`, {
             method: 'DELETE',
-            headers: headers
+            headers: {
+                [header]: token
+            }
         })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text || 'Có lỗi xảy ra khi xóa homestay') });
-                }
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
                 closeDeleteModal();
-                window.location.reload();
+                showSuccess('Homestay đã được xóa thành công');
+                loadHomestays();
+            } else {
+                throw new Error(data.message || 'Không thể xóa homestay');
+            }
+        })
+        .catch(error => {
+            showError('Lỗi khi xóa homestay: ' + error.message);
+        });
+    }
+    
+    function previewNewImages(event) {
+        const files = event.target.files;
+        const previewContainer = document.getElementById('imagePreviewGrid');
+        
+        // Kiểm tra số lượng ảnh
+        const existingImages = document.querySelectorAll('#existingImagePreviewContainer > div').length;
+        if (files.length + existingImages > 5) {
+            showError('Tối đa 5 ảnh có thể được tải lên. Vui lòng xóa một số ảnh hiện tại trước khi thêm mới.');
+            event.target.value = '';
+            return;
+        }
+        
+        // Kiểm tra kích thước file tối đa (10MB)
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > maxFileSize) {
+                showError(`File ${files[i].name} vượt quá kích thước tối đa 10MB.`);
+                event.target.value = '';
+                return;
+            }
+            
+            if (!files[i].type.match('image.*')) {
+                showError(`File ${files[i].name} không phải là ảnh.`);
+                event.target.value = '';
+                return;
+            }
+        }
+        
+        // Clear previous previews
+        previewContainer.innerHTML = '';
+        
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'relative';
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-20 object-cover rounded-md';
+                img.alt = file.name;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center -mt-1 -mr-1';
+                removeBtn.innerHTML = '<i class="fas fa-times text-xs"></i>';
+                removeBtn.onclick = function() {
+                    imgContainer.remove();
+                };
+                
+                const fileNameLabel = document.createElement('span');
+                fileNameLabel.className = 'text-xs text-gray-500 truncate block mt-1';
+                fileNameLabel.textContent = file.name;
+                
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(removeBtn);
+                imgContainer.appendChild(fileNameLabel);
+                previewContainer.appendChild(imgContainer);
+            };
+            
+            reader.onerror = function(e) {
+                console.error('Lỗi khi đọc file:', e);
+                showError(`Không thể đọc file ${file.name}. Vui lòng thử lại.`);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function showError(message) {
+        const errorAlert = document.getElementById('errorAlert');
+        document.getElementById('errorMessage').textContent = message;
+        errorAlert.classList.remove('hidden');
+        setTimeout(() => {
+            errorAlert.classList.add('hidden');
+        }, 5000);
+    }
+    
+    function hideErrorAlert() {
+        document.getElementById('errorAlert').classList.add('hidden');
+    }
+    
+    function showSuccess(message) {
+        const successAlert = document.getElementById('successAlert');
+        document.getElementById('successMessage').textContent = message;
+        successAlert.classList.remove('hidden');
+        setTimeout(() => {
+            successAlert.classList.add('hidden');
+        }, 5000);
+    }
+    
+    function hideSuccessAlert() {
+        document.getElementById('successAlert').classList.add('hidden');
+    }
+    
+    // Add new function to handle form submission
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        // Show loading
+        document.getElementById('loadingTable').classList.remove('hidden');
+        
+        const formData = new FormData();
+        const homestayId = document.getElementById('homestayId').value;
+        
+        // Lưu ID để sử dụng sau này
+        const currentHomestayId = homestayId;
+        
+        // Nếu có mảng các ảnh cần xóa, tiến hành xóa trước
+        if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0 && homestayId) {
+            // Gửi yêu cầu xóa ảnh trực tiếp
+            deleteHomestayImages(homestayId, window.explicitlyDeletedImages)
+            .then(deleteResult => {
+                console.log("Kết quả xóa ảnh:", deleteResult);
+                // Sau khi xóa ảnh thành công, tiếp tục lưu homestay
+                submitHomestayForm(formData, homestayId);
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Lỗi: ' + error.message);
+                console.error("Lỗi khi xóa ảnh:", error);
+                // Nếu xóa ảnh thất bại, vẫn tiếp tục lưu homestay
+                submitHomestayForm(formData, homestayId);
             });
+        } else {
+            // Không có ảnh cần xóa, tiến hành lưu homestay
+            submitHomestayForm(formData, homestayId);
+        }
+        
+        function submitHomestayForm(formData, homestayId) {
+            // Lấy giá trị địa điểm, kiểm tra cả data attribute nếu trường hợp bị mất giá trị
+            const locationInput = document.getElementById('location');
+            let locationValue = locationInput.value.trim();
+            
+            // Nếu không có giá trị, thử lấy từ data attribute
+            if (!locationValue && locationInput.dataset.originalLocation) {
+                locationValue = locationInput.dataset.originalLocation;
+                console.log("Sử dụng giá trị location từ data attribute:", locationValue);
+            }
+            
+            // Kiểm tra các trường bắt buộc
+            if (!document.getElementById('name').value.trim()) {
+                showError('Vui lòng nhập tên homestay');
+                document.getElementById('loadingTable').classList.add('hidden');
+                return;
+            }
+            
+            if (!locationValue) {
+                showError('Vui lòng nhập địa điểm');
+                document.getElementById('loadingTable').classList.add('hidden');
+                return;
+            }
+            
+            if (!document.getElementById('description').value.trim()) {
+                showError('Vui lòng nhập mô tả');
+                document.getElementById('loadingTable').classList.add('hidden');
+                return;
+            }
+            
+            // Add basic information
+            formData.append('name', document.getElementById('name').value.trim());
+            formData.append('location', locationValue);
+            formData.append('description', document.getElementById('description').value.trim());
+            formData.append('price', document.getElementById('price').value);
+            formData.append('capacity', document.getElementById('capacity').value);
+            
+            // Get amenities
+            const amenitiesStr = document.getElementById('amenities').value;
+            const amenities = amenitiesStr.split(',').map(item => item.trim()).filter(item => item);
+            
+            // Gửi từng tiện nghi riêng biệt, không serialize thành JSON
+            amenities.forEach(amenity => {
+                formData.append('amenities', amenity);
+            });
+            
+            // If editing, add homestay ID
+            if (homestayId) {
+                formData.append('homestayId', homestayId);
+            }
+            
+            // Kiểm tra trạng thái ảnh hiện tại
+            const existingImageSection = document.getElementById('existingImagesSection');
+            const remainingInputs = document.querySelectorAll('#existingImagePreviewContainer input[name="existingImages"]');
+            const allImagesRemoved = existingImageSection.classList.contains('hidden') || remainingInputs.length === 0;
+            
+            // Gửi danh sách ảnh đã xóa (nếu có)
+            if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
+                console.log("Gửi danh sách", window.explicitlyDeletedImages.length, "ảnh đã xóa");
+                
+                // Thêm từng tên file đã xóa vào formData riêng lẻ để đảm bảo server đọc đúng
+                window.explicitlyDeletedImages.forEach((filename) => {
+                    formData.append('deletedImages', filename);
+                });
+                
+                // Thêm cả dạng JSON để hỗ trợ các phiên bản API khác
+                formData.append('deletedImagesJson', JSON.stringify(window.explicitlyDeletedImages));
+                
+                // Log chi tiết ảnh đã xóa
+                window.explicitlyDeletedImages.forEach((filename, idx) => {
+                    console.log(`Ảnh đã xóa ${idx+1}: ${filename}`);
+                });
+            }
+            
+            // Đánh dấu rõ ràng khi có ảnh bị xóa 
+            if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
+                formData.append('hasDeletedImages', 'true');
+            }
+            
+            if (allImagesRemoved) {
+                // Nếu tất cả ảnh đã bị xóa (section bị ẩn), gửi mảng rỗng
+                console.log("Tất cả ảnh hiện tại đã bị xóa");
+                formData.append('currentImages', JSON.stringify([]));
+                
+                // Đánh dấu để backend biết người dùng đã cố ý xóa tất cả ảnh
+                formData.append('allImagesRemoved', 'true');
+            } else {
+                // Có ảnh hiện tại, xử lý như bình thường
+                try {
+                    console.log(`Số lượng ảnh còn lại trong DOM: ${remainingInputs.length}`);
+                    
+                    // Lọc bỏ ảnh bị lỗi trước khi gửi
+                    const validImages = Array.from(remainingInputs).filter(input => {
+                        // Kiểm tra nếu ảnh này đã nằm trong danh sách ảnh bị xóa
+                        if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.includes(input.value)) {
+                            console.log(`Bỏ qua ảnh đã xóa: ${input.value}`);
+                            return false;
+                        }
+                        
+                        const imgContainer = input.closest('div');
+                        const img = imgContainer.querySelector('img');
+                        // Nếu ảnh đã được thay thế bằng placeholder (base64), không gửi lên server
+                        return !img.src.startsWith('data:image');
+                    }).map(input => input.value);
+                    
+                    if (validImages.length > 0) {
+                        formData.append('currentImages', JSON.stringify(validImages));
+                        console.log("Gửi " + validImages.length + " ảnh hiện tại");
+                        // Log chi tiết từng ảnh để debug
+                        validImages.forEach((filename, idx) => {
+                            console.log(`Ảnh ${idx+1}: ${filename}`);
+                        });
+                    } else {
+                        // Tất cả ảnh hiện tại đều không hợp lệ hoặc đã bị xóa
+                        formData.append('currentImages', JSON.stringify([]));
+                        formData.append('allImagesRemoved', 'true');
+                        console.log("Không có ảnh hiện tại hợp lệ để gửi");
+                    }
+                } catch (e) {
+                    console.error("Lỗi khi xử lý ảnh hiện tại:", e);
+                    formData.append('currentImages', JSON.stringify([]));
+                }
+            }
+            
+            // Add new images
+            const fileInput = document.getElementById('newImages');
+            let hasImages = false;
+            
+            if (fileInput.files.length > 0) {
+                hasImages = true;
+                console.log(`Đang gửi ${fileInput.files.length} ảnh mới`);
+                
+                // Thêm trường đánh dấu để backend biết có ảnh mới
+                formData.append('hasNewImages', 'true');
+                
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+                    console.log(`Thêm ảnh: ${file.name}, kích thước: ${file.size} bytes, loại: ${file.type}`);
+                    
+                    // Dùng nhiều tên trường để tương thích với nhiều phiên bản API
+                    formData.append('newImages', file);
+                    formData.append('images', file);
+                    
+                    // Nếu là tạo mới homestay, thêm các trường đặc biệt cho việc tạo mới
+                    if (!homestayId) {
+                        formData.append('newHomestayImages', file);
+                        formData.append('files', file);
+                        formData.append('imageFiles', file);
+                    }
+                }
+                
+                // Nếu đang tạo mới homestay, thêm danh sách tên file vào formData
+                if (!homestayId) {
+                    const fileNames = Array.from(fileInput.files).map(f => f.name);
+                    formData.append('imageFileNames', JSON.stringify(fileNames));
+                }
+            }
+            
+            // Kiểm tra nếu không có ảnh nào (cả hiện tại và mới) trong trường hợp thêm mới hoặc đã xóa hết ảnh cũ
+            if ((!homestayId || allImagesRemoved) && !hasImages) {
+                // Hiển thị lỗi trong form với hàm mới
+                showFormError('Vui lòng tải lên ít nhất một ảnh cho homestay');
+                document.getElementById('loadingTable').classList.add('hidden');
+                return;
+            }
+            
+            // Determine the API endpoint based on whether we're creating or updating
+            const url = homestayId ? '/admin/homestay/api/update' : '/admin/homestay/api/create';
+            
+            // Hiển thị dữ liệu gửi đi cho debugging
+            console.log("Sending data to:", url);
+            for (const pair of formData.entries()) {
+                // Không log nội dung file để tránh lỗi màn hình console
+                if (pair[0] === 'newImages' && typeof pair[1] === 'object') {
+                    console.log(pair[0], `[File: ${pair[1].name}]`);
+                } else {
+                    console.log(pair[0], pair[1]);
+                }
+            }
+            
+            // Thêm CSRF token vào header
+            const headers = {
+                [header]: token
+            };
+            
+            // Send the request
+            fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error("Error response:", text);
+                        try {
+                            // Thử parse JSON nếu có thể
+                            const jsonError = JSON.parse(text);
+                            throw new Error(jsonError.message || `Lỗi server: ${response.status} ${response.statusText}`);
+                        } catch (e) {
+                            // Nếu không phải JSON, sử dụng text trực tiếp
+                            throw new Error(`Lỗi server: ${response.status} ${response.statusText}`);
+                        }
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Server response:", data);
+                
+                if (data.success) {
+                    // Đóng modal khi thành công
+                    closeModal();
+                    showSuccess(homestayId ? 'Cập nhật homestay thành công' : 'Thêm homestay mới thành công');
+                    
+                    // In chi tiết dữ liệu homestay sau khi tạo/cập nhật
+                    if (data.data) {
+                        console.log("Chi tiết homestay sau khi lưu:", data.data);
+                        if (data.data.id) {
+                            console.log("ID homestay:", data.data.id);
+                        }
+                        if (data.data.imageUrls) {
+                            console.log("Ảnh homestay:", data.data.imageUrls);
+                        } else if (data.data.images) {
+                            console.log("Ảnh homestay (images):", data.data.images);
+                        }
+                    }
+                    
+                    // Cập nhật UI ngay lập tức nếu đã xóa ảnh
+                    if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
+                        // Xóa hình ảnh khỏi danh sách ngay lập tức
+                        updateHomestayInUI(currentHomestayId, window.explicitlyDeletedImages);
+                    }
+                    
+                    // Đợi một khoảng thời gian trước khi tải lại danh sách
+                    // Đây là để đảm bảo server đã xử lý xong ảnh
+                    setTimeout(() => {
+                        loadHomestays();
+                    }, 2000); // Đợi 2 giây trước khi load lại
+                } else {
+                    throw new Error(data.message || 'Có lỗi xảy ra khi lưu homestay');
+                }
+            })
+            .catch(error => {
+                console.error("Error in form submission:", error);
+                showError('Lỗi khi lưu homestay: ' + error.message);
+            })
+            .finally(() => {
+                document.getElementById('loadingTable').classList.add('hidden');
+                
+                // Đảm bảo đóng form sau khi xử lý xong
+                setTimeout(() => {
+                    if (!document.getElementById('homestayModal').classList.contains('hidden')) {
+                        console.log("Form không tự đóng, đóng thủ công sau 1 giây");
+                        closeModal();
+                    }
+                }, 1000);
+            });
+        }
+    }
+    
+    // Thêm hàm mới để xóa ảnh homestay trực tiếp
+    function deleteHomestayImages(homestayId, imageNames) {
+        console.log(`Đang xóa ${imageNames.length} ảnh của homestay ${homestayId}`);
+        
+        return new Promise((resolve, reject) => {
+            // Tạo formData để gửi danh sách ảnh cần xóa
+            const formData = new FormData();
+            formData.append('homestayId', homestayId);
+            
+            // Thêm từng tên file vào formData
+            imageNames.forEach(imageName => {
+                formData.append('imageNames', imageName);
+            });
+            
+            // Thêm cả dạng JSON
+            formData.append('imageNamesJson', JSON.stringify(imageNames));
+            
+            // Gửi request xóa ảnh
+            fetch('/admin/homestay/api/delete-images', {
+                method: 'POST',
+                headers: {
+                    [header]: token
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error("Error response from delete images:", text);
+                        throw new Error(`Lỗi khi xóa ảnh: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Kết quả xóa ảnh:", data);
+                resolve(data);
+            })
+            .catch(error => {
+                console.error("Lỗi khi xóa ảnh:", error);
+                reject(error);
+            });
+        });
+    }
+    
+    // Hàm cập nhật UI trực tiếp khi đã xóa ảnh
+    function updateHomestayInUI(homestayId, deletedImages) {
+        console.log(`Cập nhật UI cho homestay ${homestayId}, đã xóa ${deletedImages.length} ảnh`);
+        
+        // Reset biến global
+        window.explicitlyDeletedImages = [];
+    }
+    
+    // Thêm hàm xử lý khi người dùng xóa tất cả ảnh hiện tại
+    function removeAllExistingImages() {
+        const imageContainer = document.getElementById('existingImagePreviewContainer');
+        
+        // Đánh dấu tất cả ảnh hiện tại đã bị xóa
+        const allExistingImages = document.querySelectorAll('#existingImagePreviewContainer input[name="existingImages"]');
+        if (!window.explicitlyDeletedImages) {
+            window.explicitlyDeletedImages = [];
+        }
+        
+        allExistingImages.forEach(input => {
+            const filename = input.value;
+            // Thêm vào mảng ảnh đã xóa nếu chưa có
+            if (!window.explicitlyDeletedImages.includes(filename)) {
+                window.explicitlyDeletedImages.push(filename);
+            }
+        });
+        
+        console.log("Đã đánh dấu tất cả ảnh để xóa:", window.explicitlyDeletedImages);
+        
+        // Xóa tất cả ảnh khỏi DOM
+        imageContainer.innerHTML = '';
+        document.getElementById('existingImagesSection').classList.add('hidden');
+        
+        // Hiển thị thông báo
+        const notification = document.createElement('div');
+        notification.className = 'text-sm text-yellow-600 mt-2 mb-2';
+        notification.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Đã xóa tất cả ảnh hiện tại. Vui lòng tải lên ảnh mới.';
+        document.getElementById('homestayForm').insertBefore(notification, document.getElementById('existingImagesSection').nextSibling);
+        
+        // Tự động ẩn thông báo sau 4 giây
+        setTimeout(() => {
+            notification.remove();
+        }, 4000);
+    }
+    
+    // Hiển thị lỗi trong form thay vì bên ngoài
+    function showFormError(message) {
+        // Hiển thị container lỗi
+        const errorContainer = document.getElementById('formErrorContainer');
+        const errorMessage = document.getElementById('formErrorMessage');
+        
+        errorMessage.textContent = message;
+        errorContainer.classList.remove('hidden');
+        
+        // Đảm bảo form cuộn lên đầu
+        document.getElementById('homestayModal').scrollTo(0, 0);
+        
+        // Tự động ẩn thông báo sau 2 giây
+        setTimeout(() => {
+            errorContainer.classList.add('hidden');
+        }, 2000);
     }
 
-    function getCSRFToken() {
-        return document.querySelector("meta[name='_csrf']").getAttribute("content");
-    }
-
-    function getCSRFHeaderName() {
-        return document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+    // Thêm hàm retry để thử tải lại ảnh nếu gặp lỗi 404
+    function retryLoadImage(imgElement, imgUrl, maxRetries, currentRetry = 0) {
+        // Nếu đã hết số lần thử, sử dụng ảnh placeholder
+        if (currentRetry >= maxRetries) {
+            console.error(`Không thể tải ảnh sau ${maxRetries} lần thử: ${imgUrl}`);
+            imgElement.src = placeholderImageBase64;
+            return;
+        }
+        
+        // Log thông tin retry
+        console.log(`Thử tải lại ảnh (lần ${currentRetry + 1}/${maxRetries}): ${imgUrl}`);
+        
+        // Đặt một timeout trước khi thử lại
+        setTimeout(() => {
+            // Thêm timestamp để tránh cache
+            const retrySrc = imgUrl + (imgUrl.includes('?') ? '&' : '?') + 'retry=' + new Date().getTime();
+            
+            // Gán sự kiện onerror mới
+            imgElement.onerror = function() {
+                retryLoadImage(imgElement, imgUrl, maxRetries, currentRetry + 1);
+            };
+            
+            // Thử tải lại ảnh
+            imgElement.src = retrySrc;
+        }, 1000 * (currentRetry + 1)); // Tăng dần thời gian chờ giữa các lần thử
     }
 </script>
 
