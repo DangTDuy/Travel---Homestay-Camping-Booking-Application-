@@ -63,15 +63,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf
-                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                    .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
                 .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/payments",
                                 "/",
                                 "/home",
                                 "/api/auth/**",
@@ -80,18 +79,26 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/assets/**",
-                                "/homestay/**",
                                 "/login",
-                                "/login-processing"
+                                "/login-processing",
+                                "/homestay/**",
+                                "/travel/**",
+                                "/camping/**"
                         ).permitAll()
+                        .requestMatchers("/api/bookings/**", "/api/reviews/**").authenticated()
                         .requestMatchers(
                                 "/user/profile",
-                                "/user/profile/update"
-                        ).hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/user/**").hasAnyAuthority("USER", "ADMIN")
+                                "/user/profile/update",
+                                "/user/bookings",
+                                "/user/reviews",
+                                "/bookings/my-bookings",
+                                "/bookings/{id}/payment",
+                                "/bookings/{id}/cancel",
+                                "/review/edit/**",
+                                "/payments/**"
+                        ).authenticated()
                         .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/user/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/dashboard").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -103,26 +110,12 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/auth/login-user")
+                        .logoutSuccessUrl("/home")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(
-                        ((request, response, chain) -> {
-                            if (request instanceof HttpServletRequest) {
-                                HttpServletRequest httpRequest = (HttpServletRequest) request;
-                                logger.info("Request to: {}", httpRequest.getRequestURI());
-                                Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-                                if (authentication != null && authentication.isAuthenticated()) {
-                                    logger.info("User authenticated: {}", authentication.getName());
-                                } else {
-                                    logger.info("User not authenticated.");
-                                }
-                            }
-                            chain.doFilter(request, response);
-                        }), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
