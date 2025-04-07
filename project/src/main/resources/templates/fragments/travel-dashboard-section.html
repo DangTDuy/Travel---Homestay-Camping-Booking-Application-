@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Travel Stats Section for Dashboard -->
+    <div th:fragment="travel-stats" class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold text-dark mb-4">
+            <i class="fas fa-route text-primary mr-2"></i>
+            Thống kê Tour Du Lịch
+        </h3>
+        <div class="space-y-3">
+            <div class="flex justify-between items-center text-gray-700">
+                <span>Tổng số tour hiện có:</span>
+                <span class="font-bold text-primary text-lg" th:text="${totalTravelCount}">0</span>
+            </div>
+            <!-- Optional: Add more stats like available tours if needed -->
+            <!--
+            <div class="flex justify-between items-center text-gray-700">
+                <span>Số tour còn chỗ:</span>
+                <span class="font-bold text-green-600 text-lg" th:text="${availableTravelCount}">0</span>
+            </div>
+            -->
+        </div>
+        <div class="mt-5">
+            <a th:href="@{/travels}" class="inline-block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                Xem tất cả Tour
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

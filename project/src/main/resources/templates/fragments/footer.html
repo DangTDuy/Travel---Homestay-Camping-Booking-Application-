@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+  <footer th:fragment="footer" class="bg-dark text-light py-4 mt-auto">
+    <div class="container text-center">
+      <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> TravelHomestayCamping. Đã đăng ký bản quyền.</p>
+      <p class="text-sm text-gray-400 mt-2">
+        Liên hệ: support@travelhomestay.com | Điện thoại: 0123 456 789
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html> 

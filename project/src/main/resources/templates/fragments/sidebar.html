@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
 <head>
     <meta charset="utf-8"/>
     <title>Sidebar Fragment</title>
@@ -13,12 +13,12 @@
             </h1>
         </div>
         <div class="px-4 py-6">
-            <div class="flex items-center px-4 py-3 bg-blue-50 rounded-lg mb-6">
+            <div class="flex items-center px-4 py-3 bg-blue-50 rounded-lg mb-6" sec:authorize="isAuthenticated()">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-user-circle text-primary text-2xl"></i>
+                    <i class="fas fa-user-circle text-primary text-3xl"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900" th:text="${username}"></p>
+                    <p class="text-sm font-medium text-gray-900" sec:authentication="name"></p>
                     <p class="text-xs text-gray-500">Tài khoản người dùng</p>
                 </div>
             </div>
@@ -35,6 +35,10 @@
                             <i class="fas fa-search mr-3"></i>
                             Tìm kiếm Homestay
                         </a>
+                        <a href="/travels" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                            <i class="fas fa-route mr-3"></i>
+                            Tìm kiếm Tour
+                        </a>
                         <a href="/user/bookings" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
                             <i class="fas fa-calendar-alt mr-3"></i>
                             Lịch sử đặt phòng
@@ -48,6 +52,10 @@
                         <a href="/admin/homestay" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
                             <i class="fas fa-home mr-3"></i>
                             Quản lý Homestay
+                        </a>
+                        <a href="/admin/travel" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                            <i class="fas fa-route mr-3"></i>
+                            Quản lý Tour du lịch
                         </a>
                         <a href="/admin/users" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
                             <i class="fas fa-users mr-3"></i>
