@@ -44,7 +44,7 @@ public class BookingService {
 
         // Set initial status
         booking.setStatus(Booking.BookingStatus.PENDING);
-        
+
         return bookingRepository.save(booking);
     }
 
@@ -72,15 +72,22 @@ public class BookingService {
     }
 
     public List<Booking> getBookingsByUsername(String username) {
-        return bookingRepository.findByUserUsername(username);
+        // Call the updated repository method with sorting
+        return bookingRepository.findByUserUsernameOrderByCreatedAtDesc(username);
+    }
+
+    public List<Booking> getTop3BookingsByUsername(String username) {
+        return bookingRepository.findTop3ByUserUsernameOrderByCreatedAtDesc(username);
     }
 
     public List<Booking> getBookingsByStatus(Booking.BookingStatus status) {
-        return bookingRepository.findByStatus(status);
+        // Call the updated repository method with sorting
+        return bookingRepository.findByStatusOrderByCreatedAtDesc(status);
     }
 
     public List<Booking> searchBookings(String searchTerm) {
-        return bookingRepository.findByUserUsernameContainingIgnoreCaseOrHomestayNameContainingIgnoreCase(searchTerm);
+        // Call the updated repository method that includes Camping, Travel (tourName), and sorting
+        return bookingRepository.findByUserUsernameContainingIgnoreCaseOrHomestayNameContainingIgnoreCaseOrCampingNameContainingIgnoreCaseOrTravelTourNameContainingIgnoreCaseOrderByCreatedAtDesc(searchTerm);
     }
 
     @Transactional

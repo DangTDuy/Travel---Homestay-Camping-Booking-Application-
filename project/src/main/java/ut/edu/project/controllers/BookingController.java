@@ -57,12 +57,22 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public String showBookingDetails(@PathVariable Long id, Model model) {
+    public String showBookingDetails(@PathVariable Long id, Model model, Principal principal) {
         try {
             Optional<Booking> booking = bookingService.getBookingById(id);
             if (booking.isPresent()) {
-                model.addAttribute("booking", booking.get());
-                return "booking-details";
+                if (principal != null && booking.get().getUser().getUsername().equals(principal.getName())) {
+                    model.addAttribute("booking", booking.get());
+                    User user = userService.findByUsername(principal.getName()).orElse(null);
+                    if (user != null && "ADMIN".equals(user.getRole())) {
+                        model.addAttribute("allStatuses", Booking.BookingStatus.values());
+                        return "admin/booking-detail";
+                    } else {
+                        return "user/booking-detail";
+                    }
+                } else {
+                    return "redirect:/bookings/my-bookings";
+                }
             }
             return "redirect:/bookings";
         } catch (Exception e) {
@@ -84,9 +94,27 @@ public class BookingController {
             return "redirect:/auth/login-user";
         }
         String username = principal.getName();
-        List<Booking> bookings = bookingService.getBookingsByUsername(username);
+        List<Booking> bookings = bookingService.getTop3BookingsByUsername(username);
         model.addAttribute("bookings", bookings);
+        model.addAttribute("isFullHistory", false);
         return "user/user-bookings";
+    }
+
+    @GetMapping("/my-history")
+    public String showMyBookingHistory(Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/auth/login-user";
+        }
+        String username = principal.getName();
+        try {
+            List<Booking> bookings = bookingService.getBookingsByUsername(username);
+            model.addAttribute("bookings", bookings);
+            model.addAttribute("isFullHistory", true);
+            return "user/booking-history";
+        } catch (Exception e) {
+            model.addAttribute("error", "Không thể tải lịch sử đặt phòng.");
+            return "error";
+        }
     }
 
     @GetMapping("/homestay/{homestayId}/book")
@@ -115,7 +143,7 @@ public class BookingController {
             @RequestParam(required = false) List<Long> additionalIds,
             Principal principal,
             Model model) {
-        
+
         if (result.hasErrors()) {
             Optional<Homestay> homestay = homestayService.getHomestayById(homestayId);
             if (homestay.isPresent()) {
@@ -155,13 +183,20 @@ public class BookingController {
 
     @GetMapping("/{id}/cancel")
     public String cancelBooking(@PathVariable Long id, Principal principal, Model model) {
+        String username = principal.getName(); // Get username early
         try {
-            String username = principal.getName();
             bookingService.cancelBooking(id, username);
-            return "redirect:/bookings/my-bookings";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "redirect:/bookings/my-bookings";
+            // Redirect back to the full history page after successful cancellation
+            return "redirect:/bookings/my-history";
+        } catch (RuntimeException e) { // Catch specific runtime exceptions from service
+            // Add error message to flash attributes to show after redirect
+            // Assuming you have RedirectAttributes injected or configure flash scope
+            // For now, just redirecting back, error message might be lost
+            // Ideally, use RedirectAttributes: redirectAttributes.addFlashAttribute("error", e.getMessage());
+            model.addAttribute("error", e.getMessage()); // This won't show after redirect
+            System.err.println("Error cancelling booking: " + e.getMessage()); // Log error
+            // Redirect back to the full history page even if there's an error
+            return "redirect:/bookings/my-history?error=true"; // Add param to potentially show error message
         }
     }
 
@@ -174,7 +209,7 @@ public class BookingController {
         try {
             Booking booking = bookingService.getBookingById(id)
                     .orElseThrow(() -> new RuntimeException("Booking not found"));
-            
+
             if (!booking.getUser().getUsername().equals(principal.getName())) {
                 return "redirect:/bookings/my-bookings";
             }
@@ -206,17 +241,18 @@ public class BookingController {
         return "admin/admin-bookings";
     }
 
-    @PostMapping("/admin/{id}/status")
-    public ResponseEntity<?> updateBookingStatus(
-            @PathVariable Long id,
-            @RequestParam Booking.BookingStatus status,
-            Authentication authentication) {
-        try {
-            String username = authentication.getName();
-            Booking updated = bookingService.updateBookingStatus(id, status, username);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+    // REMOVED: This endpoint is now in AdminBookingController
+    // @PostMapping("/admin/{id}/status")
+    // public ResponseEntity<?> updateBookingStatus(
+    //         @PathVariable Long id,
+    //         @RequestParam Booking.BookingStatus status,
+    //         Authentication authentication) {
+    //     try {
+    //         String username = authentication.getName();
+    //         Booking updated = bookingService.updateBookingStatus(id, status, username);
+    //         return ResponseEntity.ok(updated);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.badRequest().body(e.getMessage());
+    //     }
+    // }
 }

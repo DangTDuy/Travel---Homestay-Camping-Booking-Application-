@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="'Chi tiết Đặt phòng #' + ${booking.id}">Chi tiết Đặt phòng</title>
+
+  <!-- Favicon, Fonts, Tailwind, FontAwesome (như các trang khác) -->
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: '#3B82F6', secondary: '#10B981', tertiary: '#8B5CF6', warning: '#F59E0B', danger: '#EF4444', dark: '#1F2937', light: '#F9FAFB' }, fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Playfair Display', 'serif'] } } } }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Style for status tags (giống dashboard) -->
+  <style>
+    .status-tag { display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; line-height: 1.25rem; border-radius: 9999px; border-width: 1px; }
+    .status-pending { background-color: #FEF3C7; color: #92400E; border-color: #FCD34D; }
+    .status-confirmed { background-color: #DBEAFE; color: #1E40AF; border-color: #93C5FD; }
+    .status-paid { background-color: #D1FAE5; color: #065F46; border-color: #6EE7B7; }
+    .status-completed { background-color: #E0E7FF; color: #3730A3; border-color: #A5B4FC; }
+    .status-cancelled { background-color: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+    .status-refunded { background-color: #E5E7EB; color: #4B5563; border-color: #D1D5DB; }
+    .payment-paid { color: #10B981; }
+    .payment-pending { color: #F59E0B; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<!-- Header -->
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content -->
+<div class="md:ml-64">
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Back Link -->
+    <div class="mb-4">
+      <a th:href="@{/bookings/my-history}" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary">
+        <i class="fas fa-arrow-left mr-2"></i> Quay lại Lịch sử đặt phòng
+      </a>
+    </div>
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6" th:text="'Chi tiết Đặt phòng #' + ${booking.id}"></h1>
+
+    <!-- Flash Messages for Success/Error -->
+    <div th:if="${success}" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+      <p th:text="${success}"></p>
+    </div>
+    <div th:if="${error}" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+      <p th:text="${error}"></p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column: Booking & Service Details -->
+      <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Thông tin Đặt phòng</h3>
+
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">ID Đặt phòng</dt>
+            <dd class="mt-1 text-gray-900 font-semibold" th:text="${booking?.id}"></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Trạng thái</dt>
+            <dd class="mt-1">
+                                <span class="status-tag"
+                                      th:text="${booking?.status?.displayName ?: 'N/A'}"
+                                      th:classappend="${'status-' + #strings.toLowerCase(booking?.status?.name() ?: 'unknown')}"></span>
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Ngày tạo</dt>
+            <dd class="mt-1 text-gray-900" th:text="${booking?.createdAt != null ? #temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Cập nhật lần cuối</dt>
+            <dd class="mt-1 text-gray-900" th:text="${booking?.updatedAt != null ? #temporals.format(booking.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+          </div>
+
+          <div class="sm:col-span-2 pt-4 border-t mt-2">
+            <dt class="font-medium text-gray-500">Loại dịch vụ</dt>
+            <dd class="mt-1 text-gray-900 flex items-center">
+                                <span th:if="${booking?.serviceType != null}" th:switch="${booking.serviceType}">
+                                    <i th:case="${T(ut.edu.project.models.Booking.ServiceType).HOMESTAY}" class="fas fa-home mr-2 text-blue-500" title="Homestay"></i>
+                                    <i th:case="${T(ut.edu.project.models.Booking.ServiceType).CAMPING}" class="fas fa-campground mr-2 text-green-500" title="Camping"></i>
+                                    <i th:case="${T(ut.edu.project.models.Booking.ServiceType).TRAVEL}" class="fas fa-plane mr-2 text-purple-500" title="Travel"></i>
+                                </span>
+              <span th:text="${booking?.serviceType?.displayName ?: 'N/A'}"></span>
+            </dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="font-medium text-gray-500">Tên dịch vụ</dt>
+            <dd class="mt-1 text-gray-900 font-semibold">
+              <span th:if="${booking?.homestay != null}" th:text="${booking.homestay.name}"></span>
+              <span th:if="${booking?.camping != null}" th:text="${booking.camping.name}"></span>
+              <span th:if="${booking?.travel != null}" th:text="${booking.travel.tourName}"></span>
+              <span th:unless="${booking?.homestay != null or booking?.camping != null or booking?.travel != null}">N/A</span>
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Ngày nhận / Bắt đầu</dt>
+            <dd class="mt-1 text-gray-900" th:text="${booking?.checkIn != null ? #temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Ngày trả / Kết thúc</dt>
+            <dd class="mt-1 text-gray-900" th:text="${booking?.checkOut != null ? #temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Số lượng khách</dt>
+            <dd class="mt-1 text-gray-900" th:text="${booking?.guests ?: 'N/A'}"></dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="font-medium text-gray-500">Yêu cầu đặc biệt</dt>
+            <dd class="mt-1 text-gray-900" th:text="${booking?.specialRequests ?: 'Không có'}"></dd>
+          </div>
+        </dl>
+
+        <!-- Payment Information -->
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-4 border-b pb-2">Thông tin Thanh toán</h3>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Tổng tiền</dt>
+            <dd class="mt-1 text-gray-900 font-semibold text-lg text-primary" th:text="${booking?.totalPrice != null ? #numbers.formatCurrency(booking.totalPrice) : 'N/A'}"></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="font-medium text-gray-500">Trạng thái Thanh toán</dt>
+            <dd class="mt-1 font-semibold">
+              <!-- Check status first for REFUNDED -->
+              <span th:if="${booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="text-gray-600"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
+              <!-- Then check isPaid() -->
+              <span th:if="${booking?.isPaid() and booking?.status != T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="payment-paid"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+              <span th:unless="${booking?.isPaid() or booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="payment-pending"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
+            </dd>
+          </div>
+          <!-- Add more payment details if available in Payment entity -->
+          <div th:if="${booking?.payment != null}" class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 border-t pt-4 mt-2">
+            <div class="sm:col-span-1">
+              <dt class="font-medium text-gray-500">Phương thức TT</dt>
+              <dd class="mt-1 text-gray-900" th:text="${booking.payment.paymentMethod ?: 'N/A'}"></dd>
+            </div>
+            <div class="sm:col-span-1">
+              <dt class="font-medium text-gray-500">Ngày thanh toán</dt>
+              <dd class="mt-1 text-gray-900" th:text="${booking.payment.paymentDate != null ? #temporals.format(booking.payment.paymentDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+            </div>
+          </div>
+          <div th:if="${booking?.payment == null}" class="sm:col-span-2 text-gray-500 italic mt-2">
+            (Chưa có thông tin giao dịch thanh toán)
+          </div>
+        </dl>
+      </div>
+
+      <!-- Right Column: User Actions -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- User Actions -->
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Thao tác</h3>
+
+          <div class="space-y-4">
+            <!-- Thanh toán nếu đang chờ -->
+            <div th:if="${!booking.isPaid() and T(ut.edu.project.models.Booking.BookingStatus).PENDING == booking.status}" class="text-center">
+              <a th:href="@{/payment/process/{bookingId}(bookingId=${booking.id})}"
+                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="fas fa-credit-card mr-2"></i> Thanh toán ngay
+              </a>
+            </div>
+
+            <!-- Hủy đặt phòng -->
+            <div th:if="${booking.canCancel()}" class="text-center">
+              <a th:href="@{/bookings/{id}/cancel(id=${booking.id})}"
+                 onclick="return confirm('Bạn có chắc chắn muốn hủy đặt phòng này?')"
+                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-times-circle mr-2"></i> Hủy đặt chỗ
+              </a>
+            </div>
+
+            <!-- Đánh giá -->
+            <div th:if="${booking.canReview()}" class="text-center">
+              <a th:href="@{'/review/add?bookingId=' + ${booking.id}}"
+                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">
+                <i class="fas fa-star mr-2"></i> Viết đánh giá
+              </a>
+            </div>
+
+            <!-- Liên hệ hỗ trợ -->
+            <div class="text-center pt-4 border-t mt-4">
+              <a href="/contact" class="text-sm font-medium text-primary hover:text-blue-700">
+                <i class="fas fa-headset mr-1"></i> Liên hệ hỗ trợ
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thông tin Dịch vụ -->
+        <div th:if="${booking.homestay != null or booking.camping != null or booking.travel != null}" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Thông tin Dịch vụ</h3>
+          <!-- Link đến trang chi tiết dịch vụ -->
+          <div class="text-center">
+            <a th:if="${booking.homestay != null}" th:href="@{'/homestay/' + ${booking.homestay.id}}" class="text-primary hover:text-blue-700 font-medium">
+              <i class="fas fa-home mr-1"></i> Xem chi tiết Homestay
+            </a>
+            <a th:if="${booking.camping != null}" th:href="@{'/camping/' + ${booking.camping.id}}" class="text-secondary hover:text-green-700 font-medium">
+              <i class="fas fa-campground mr-1"></i> Xem chi tiết Khu cắm trại
+            </a>
+            <a th:if="${booking.travel != null}" th:href="@{'/travels/' + ${booking.travel.id}}" class="text-tertiary hover:text-purple-700 font-medium">
+              <i class="fas fa-plane mr-1"></i> Xem chi tiết Chuyến đi
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
