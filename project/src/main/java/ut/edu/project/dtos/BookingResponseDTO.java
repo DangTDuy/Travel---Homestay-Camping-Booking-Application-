@@ -23,9 +23,9 @@ public class BookingResponseDTO {
         this.bookingId = booking.getId();
         // Kiểm tra null trước khi truy cập homestay
         if (booking.getHomestay() != null) {
-             this.homestayName = booking.getHomestay().getName();
+            this.homestayName = booking.getHomestay().getName();
         } else {
-             this.homestayName = "N/A"; // Hoặc giá trị mặc định khác
+            this.homestayName = "N/A"; // Hoặc giá trị mặc định khác
         }
         this.checkIn = booking.getCheckIn();
         this.checkOut = booking.getCheckOut();
@@ -36,7 +36,7 @@ public class BookingResponseDTO {
     }
 
     // Constructor đơn giản hơn nếu không cần message
-     public BookingResponseDTO(Booking booking) {
+    public BookingResponseDTO(Booking booking) {
         this(booking, "Đặt phòng thành công!"); // Default success message
     }
 } 

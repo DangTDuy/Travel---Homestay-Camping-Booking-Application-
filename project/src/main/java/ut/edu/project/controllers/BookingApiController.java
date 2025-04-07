@@ -29,7 +29,7 @@ public class BookingApiController {
                                                       Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                 .body(Map.of("message", "Vui lòng đăng nhập để đặt phòng."));
+                    .body(Map.of("message", "Vui lòng đăng nhập để đặt phòng."));
         }
 
         try {
@@ -41,26 +41,26 @@ public class BookingApiController {
             return ResponseEntity.ok(responseDto);
 
         } catch (IllegalArgumentException e) {
-             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
-             System.err.println("Error creating booking: " + e.getMessage());
-             // Log stack trace for better debugging of unexpected errors
-             // e.printStackTrace();
-             if (e.getMessage().contains("not found")) {
-                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
-             }
-             if (e.getMessage().contains("unavailable") || e.getMessage().contains("conflict")){
+            System.err.println("Error creating booking: " + e.getMessage());
+            // Log stack trace for better debugging of unexpected errors
+            // e.printStackTrace();
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+            }
+            if (e.getMessage().contains("unavailable") || e.getMessage().contains("conflict")){
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
-             }
-             // Catch potential StackOverflowError from circular references if DTO wasn't used
-             // (Should not happen now, but good practice to be aware of)
-             // } catch (StackOverflowError soe) { 
-             //    System.err.println("StackOverflowError during booking creation/serialization: " + soe.getMessage());
-             //    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-             //                         .body(Map.of("message", "Lỗi hệ thống: Vấn đề tham chiếu vòng tròn khi xử lý dữ liệu."));
-             // }
+            }
+            // Catch potential StackOverflowError from circular references if DTO wasn't used
+            // (Should not happen now, but good practice to be aware of)
+            // } catch (StackOverflowError soe) {
+            //    System.err.println("StackOverflowError during booking creation/serialization: " + soe.getMessage());
+            //    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            //                         .body(Map.of("message", "Lỗi hệ thống: Vấn đề tham chiếu vòng tròn khi xử lý dữ liệu."));
+            // }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(Map.of("message", "Lỗi hệ thống khi tạo đặt phòng: " + e.getMessage()));
+                    .body(Map.of("message", "Lỗi hệ thống khi tạo đặt phòng: " + e.getMessage()));
         }
     }
 
@@ -75,11 +75,11 @@ public class BookingApiController {
             boolean isAvailable = bookingService.checkAvailability(homestayId, checkIn, checkOut);
             return ResponseEntity.ok().body(new AvailabilityResponse(isAvailable));
         } catch (IllegalArgumentException e) {
-             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-             System.err.println("Error checking availability: " + e.getMessage());
+            System.err.println("Error checking availability: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(Map.of("message", "Lỗi khi kiểm tra tình trạng phòng: " + e.getMessage()));
+                    .body(Map.of("message", "Lỗi khi kiểm tra tình trạng phòng: " + e.getMessage()));
         }
     }
 

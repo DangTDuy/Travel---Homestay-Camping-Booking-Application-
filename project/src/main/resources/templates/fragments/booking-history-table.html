@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="booking-history (bookingList, isAdmin)">
+    <div class="mt-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold text-gray-700">
+                <span th:if="${isAdmin}">Recent Bookings</span>
+                <span th:unless="${isAdmin}">Đặt chỗ Gần đây</span> <!-- Title for dashboard -->
+            </h2>
+            <!-- Link to full history page for users (only shown on dashboard view) -->
+            <a th:if="${!isAdmin and !isFullHistoryPage}" th:href="@{/bookings/my-history}" class="text-sm font-medium text-primary hover:text-blue-700">
+                Xem tất cả lịch sử &rarr;
+            </a>
+        </div>
+
+        <div class="bg-white shadow-lg overflow-hidden sm:rounded-lg border border-gray-200">
+            <!-- Removed the th:with block, using passed bookingList directly -->
+            <div th:if="${bookingList == null or #lists.isEmpty(bookingList)}">
+                <p class="text-center text-gray-500 py-10 px-6">
+                    <span th:if="${isAdmin}">No recent bookings found.</span>
+                    <span th:unless="${isAdmin}">Bạn chưa có đặt phòng/đặt chỗ nào.</span>
+                </p>
+                <div th:unless="${isAdmin}" class="text-center pb-6">
+                    <a href="/homestay" class="text-primary hover:text-blue-700 font-medium mr-4">Tìm Homestay &rarr;</a>
+                    <a href="/camping" class="text-secondary hover:text-green-700 font-medium mr-4">Tìm Camping &rarr;</a>
+                    <a href="/travels" class="text-tertiary hover:text-purple-700 font-medium">Tìm Chuyến đi &rarr;</a>
+                </div>
+            </div>
+
+            <div th:unless="${bookingList == null or #lists.isEmpty(bookingList)}" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <!-- Table header remains the same -->
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="${isAdmin} ? 'User' : 'Dịch vụ'"></th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="${isAdmin} ? 'Service' : 'Địa điểm/Chuyến đi'"></th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày nhận</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày trả</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Thanh toán</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Loop through the passed bookingList -->
+                    <tr th:each="booking : ${bookingList}">
+                        <!-- Table row content remains the same -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${booking.id}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <span th:if="${isAdmin}" th:text="${booking.user?.username ?: 'N/A'}"></span>
+                            <span th:unless="${isAdmin}" th:switch="${booking.serviceType}">
+                                    <i th:case="${T(ut.edu.project.models.Booking.ServiceType).HOMESTAY}" class="fas fa-home mr-1 text-blue-500" title="Homestay"></i>
+                                    <i th:case="${T(ut.edu.project.models.Booking.ServiceType).CAMPING}" class="fas fa-campground mr-1 text-green-500" title="Camping"></i>
+                                    <i th:case="${T(ut.edu.project.models.Booking.ServiceType).TRAVEL}" class="fas fa-plane mr-1 text-purple-500" title="Travel"></i>
+                                    <span th:text="${booking.serviceType.displayName}">Loại</span>
+                                </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <span th:if="${booking.homestay != null}" th:text="${#strings.abbreviate(booking.homestay.name, 30)}"></span>
+                            <span th:if="${booking.camping != null}" th:text="${#strings.abbreviate(booking.camping.name, 30)}"></span>
+                            <span th:if="${booking.travel != null}" th:text="${#strings.abbreviate(booking.travel.tourName, 30)}"></span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(booking.checkIn, 'dd/MM/yy HH:mm')}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(booking.checkOut, 'dd/MM/yy HH:mm')}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" th:text="${#numbers.formatCurrency(booking.totalPrice)}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span class="status-tag"
+                                      th:text="${booking.status.displayName}"
+                                      th:classappend="${'status-' + #strings.toLowerCase(booking.status.name())}">
+                                      Status
+                                </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <span th:if="${booking.isPaid()}" class="payment-paid font-semibold"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+                            <span th:unless="${booking.isPaid()}" class="payment-pending font-semibold"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                            <!-- Admin Actions -->
+                            <a th:if="${isAdmin}" th:href="@{/admin/bookings/{id}(id=${booking.id})}" class="text-primary hover:text-blue-700 action-button" title="View Details">
+                                <i class="fas fa-eye"></i>View
+                            </a>
+                            <!-- User Actions -->
+                            <th:block th:unless="${isAdmin}">
+                                <a th:if="${!booking.isPaid() and T(ut.edu.project.models.Booking.BookingStatus).PENDING == booking.status}" th:href="@{/payment/process/{bookingId}(bookingId=${booking.id})}" class="action-button inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out" title="Thanh toán ngay"><i class="fas fa-credit-card"></i> Thanh toán</a>
+                                <a th:if="${booking.canCancel()}" th:href="@{/bookings/{id}/cancel(id=${booking.id})}" onclick="return confirm('Bạn có chắc chắn muốn hủy đặt phòng này?')" class="action-button inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out" title="Hủy đặt chỗ"><i class="fas fa-times-circle"></i> Hủy</a>
+                                <a th:if="${booking.canReview()}" th:href="@{'/review/add?bookingId=' + ${booking.id}}" class="action-button inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition duration-150 ease-in-out" title="Viết đánh giá"><i class="fas fa-star"></i> Đánh giá</a>
+                                <a th:href="@{'/bookings/' + ${booking.id}}" class="text-primary hover:text-blue-700 action-button" title="Xem chi tiết"><i class="fas fa-info-circle"></i> Xem</a>
+                            </th:block>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Removed th:with block -->
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>
