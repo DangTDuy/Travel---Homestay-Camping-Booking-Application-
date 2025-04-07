@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master/_layout}">
+<head>
+    <title>Báo cáo doanh thu</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Báo cáo doanh thu</h1>
+            </div>
+
+            <!-- Filter Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lọc theo thời gian</h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/revenue/filter}" method="get" class="row g-3">
+                        <div class="col-md-5">
+                            <label for="startDate" class="form-label">Từ ngày</label>
+                            <input type="datetime-local" class="form-control" id="startDate" name="startDate" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="endDate" class="form-label">Đến ngày</label>
+                            <input type="datetime-local" class="form-control" id="endDate" name="endDate" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Lọc
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row">
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Tổng doanh thu</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">0 VNĐ</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Phí quản lý (20%)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${#numbers.formatDecimal(totalAdminFee, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">0 VNĐ</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Doanh thu chủ sở hữu (80%)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${#numbers.formatDecimal(totalOwnerAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">0 VNĐ</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Table -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Chi tiết doanh thu</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Booking ID</th>
+                                    <th>Loại dịch vụ</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Phí quản lý</th>
+                                    <th>Doanh thu chủ sở hữu</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="revenue : ${revenues}">
+                                    <td th:text="${revenue.id}"></td>
+                                    <td th:text="${revenue.bookingId}"></td>
+                                    <td th:text="${revenue.serviceType}"></td>
+                                    <td th:text="${#numbers.formatDecimal(revenue.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></td>
+                                    <td th:text="${#numbers.formatDecimal(revenue.adminFee, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></td>
+                                    <td th:text="${#numbers.formatDecimal(revenue.ownerAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></td>
+                                    <td th:text="${#temporals.format(revenue.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td>
+                                        <span th:if="${revenue.status == 'COMPLETED'}" class="badge bg-success">Hoàn thành</span>
+                                        <span th:if="${revenue.status == 'PENDING'}" class="badge bg-warning">Đang xử lý</span>
+                                        <span th:if="${revenue.status == 'CANCELLED'}" class="badge bg-danger">Đã hủy</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

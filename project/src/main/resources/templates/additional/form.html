@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{master/_layout}">
+<head>
+    <title th:text="${additional.id == null ? 'Thêm dịch vụ mới' : 'Sửa dịch vụ'}">Thêm/Sửa dịch vụ</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800" th:text="${additional.id == null ? 'Thêm dịch vụ mới' : 'Sửa dịch vụ'}">Thêm/Sửa dịch vụ</h1>
+                <a href="/additional" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <form th:action="${additional.id == null ? @{/additional/create} : @{/additional/edit/{id}(id=${additional.id})}" 
+                          method="post" 
+                          th:object="${additional}"
+                          enctype="multipart/form-data">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Tên dịch vụ</label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="price" class="form-label">Giá (VNĐ)</label>
+                                <input type="number" class="form-control" id="price" th:field="*{price}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">Loại dịch vụ</label>
+                                <select class="form-select" id="category" th:field="*{category.id}" required>
+                                    <option value="">Chọn loại dịch vụ</option>
+                                    <option th:each="cat : ${categories}"
+                                            th:value="${cat.id}"
+                                            th:text="${cat.displayName}">Loại dịch vụ</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="timeSlot" class="form-label">Khung giờ</label>
+                                <select class="form-select" id="timeSlot" th:field="*{timeSlot.id}" required>
+                                    <option value="">Chọn khung giờ</option>
+                                    <option th:each="slot : ${timeSlots}"
+                                            th:value="${slot.id}"
+                                            th:text="${slot.displayName} + ' (' + ${slot.timeRange} + ')'">Khung giờ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="startTime" class="form-label">Giờ bắt đầu</label>
+                                <input type="time" class="form-control" id="startTime" th:field="*{startTime}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endTime" class="form-label">Giờ kết thúc</label>
+                                <input type="time" class="form-control" id="endTime" th:field="*{endTime}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imageUrl" class="form-label">Hình ảnh</label>
+                            <input type="file" class="form-control" id="imageUrl" name="imageFile" accept="image/*">
+                            <div th:if="${additional.imageUrl != null}" class="mt-2">
+                                <img th:src="${additional.imageUrl}" alt="Hình ảnh hiện tại" style="max-width: 200px;">
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="active" th:field="*{active}">
+                            <label class="form-check-label" for="active">Hoạt động</label>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
