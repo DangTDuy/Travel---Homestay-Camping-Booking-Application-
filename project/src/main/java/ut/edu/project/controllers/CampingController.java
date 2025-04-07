@@ -70,7 +70,7 @@ public class CampingController {
     @PostMapping("/api")
     @ResponseBody
     public ResponseEntity<Camping> addCamping(@RequestBody Camping camping) {
-        return ResponseEntity.ok(campingService.addCamping(camping));
+        return ResponseEntity.ok(campingService.createCamping(camping));
     }
 
     @PutMapping("/api/{id}")

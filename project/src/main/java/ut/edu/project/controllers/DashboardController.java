@@ -3,15 +3,17 @@ package ut.edu.project.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ut.edu.project.models.User;
 import ut.edu.project.services.AIRecommendationService;
 import ut.edu.project.services.UserService;
+import ut.edu.project.services.TravelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ut.edu.project.models.Travel;
+import java.util.List;
 
 @Controller
 public class DashboardController {
@@ -22,6 +24,9 @@ public class DashboardController {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TravelService travelService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -47,6 +52,11 @@ public class DashboardController {
         // Lấy danh sách homestay được đề xuất từ AI
         model.addAttribute("recommendedHomestays", 
             aiRecommendationService.generateRecommendations(user, 6, "personalized"));
+            
+        // Add recommended travels (e.g., recent travels)
+        List<Travel> recommendedTravels = travelService.getRecentTravels(); // Or getTopRatedTravels(), etc.
+        model.addAttribute("recommendedTravels", recommendedTravels);
+            
         return "dashboard";
     }
 
