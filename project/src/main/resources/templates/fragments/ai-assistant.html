@@ -7,239 +7,395 @@
     <title>AI Assistant Fragment</title>
 </head>
 <body>
-    <div th:fragment="ai-assistant">
-        <!-- AI Travel Assistant VIP PRO -->
-        <div class="ai-assistant-container">
-            <!-- Floating AI Button -->
-            <div id="ai-assistant-button" class="fixed bottom-6 right-6 z-[60]">
-                <div class="relative group">
-                    <div class="absolute -inset-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-all duration-300 animate-pulse"></div>
-                    <button id="ai-assistant-btn" class="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full shadow-2xl text-white hover:scale-105 transition-all duration-300 border-2 border-white/20 hover:border-white/40">
-                        <i class="fas fa-robot text-xl"></i>
-                        <span id="ai-notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md animate-ping-once transform hover:scale-110 transition-transform">
+<div th:fragment="ai-assistant">
+    <!-- AI Travel Assistant VIP PRO -->
+    <div class="ai-assistant-container">
+        <!-- Floating AI Button -->
+        <div id="ai-assistant-button" class="fixed bottom-6 right-6 z-[60]">
+            <div class="relative group">
+                <div class="absolute -inset-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-all duration-300 animate-pulse"></div>
+                <a href="javascript:void(0)" id="ai-assistant-btn" onclick="toggleAIPanel(); return false;" class="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full shadow-2xl text-white hover:scale-105 transition-all duration-300 border-2 border-white/20 hover:border-white/40" style="cursor: pointer; z-index: 999; display: flex;">
+                    <i class="fas fa-robot text-xl"></i>
+                    <span id="ai-notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md animate-ping-once transform hover:scale-110 transition-transform">
                             <span id="unread-count">3</span>
                         </span>
+                </a>
+            </div>
+            <div class="absolute bottom-full right-0 mb-3 w-max px-3 py-1.5 bg-white rounded-lg shadow-lg text-sm font-medium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                <span class="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent font-bold">Gợi ý thông minh</span>
+                <div class="absolute bottom-0 right-3 w-3 h-3 bg-white transform rotate-45 -translate-y-1/2"></div>
+            </div>
+        </div>
+
+        <!-- AI Panel -->
+        <div id="ai-recommendations-panel" class="fixed inset-0 z-[70]" style="opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out;">
+            <!-- Main Content Overlay -->
+            <div id="ai-panel-overlay" class="fixed inset-0 bg-black/30" style="opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out;" onclick="if(event.target === this) { toggleAIPanel(); return false; }"></div>
+
+            <!-- Panel Content - this is the transform element -->
+            <div class="transform absolute bottom-24 right-6 w-full max-w-md h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200/80 overflow-hidden"
+                 style="transform: translateY(120%); transition: transform 0.7s cubic-bezier(0.22,1,0.36,1); z-index: 999; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <!-- Panel Header -->
+                <div class="relative bg-gradient-to-r from-purple-600 to-indigo-600 p-5 text-white shadow-md">
+                    <div class="flex items-center">
+                        <div class="mr-3 p-2 bg-white/20 rounded-full animate-wiggle">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Gợi ý Thông Minh</h2>
+                            <p class="text-sm opacity-90">Dành riêng cho <span th:text="${username}"></span></p>
+                        </div>
+                    </div>
+                    <button id="close-ai-panel" class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors transform hover:rotate-90" onclick="toggleAIPanel(); return false;">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="absolute bottom-full right-0 mb-3 w-max px-3 py-1.5 bg-white rounded-lg shadow-lg text-sm font-medium opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                    <span class="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent font-bold">Gợi ý thông minh</span>
-                    <div class="absolute bottom-0 right-3 w-3 h-3 bg-white transform rotate-45 -translate-y-1/2"></div>
-                </div>
-            </div>
 
-            <!-- AI Panel -->
-            <div id="ai-recommendations-panel" class="fixed inset-0 z-[70] pointer-events-none opacity-0 transition-all duration-500">
-                <!-- Main Content Overlay -->
-                <div id="ai-panel-overlay" class="fixed inset-0 bg-black/30 opacity-0 transition-opacity duration-500"></div>
-
-                <!-- Panel Content -->
-                <div class="absolute bottom-24 right-6 w-full max-w-md h-[600px] bg-white rounded-2xl shadow-2xl transform translate-y-[120%] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] border border-gray-200/80 overflow-hidden">
-                    <!-- Panel Header -->
-                    <div class="relative bg-gradient-to-r from-purple-600 to-indigo-600 p-5 text-white shadow-md">
-                        <div class="flex items-center">
-                            <div class="mr-3 p-2 bg-white/20 rounded-full animate-wiggle">
-                                <i class="fas fa-robot text-xl"></i>
+                <!-- Panel Body -->
+                <div class="h-full flex flex-col overflow-hidden bg-gradient-to-b from-white to-indigo-50/30">
+                    <!-- AI Message -->
+                    <div class="p-5 border-b border-gray-200 bg-white/80 backdrop-blur-sm ai-message">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0 p-2 bg-purple-100 text-purple-600 rounded-full animate-bounce">
+                                <i class="fas fa-sparkles"></i>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold">Gợi ý Thông Minh</h2>
-                                <p class="text-sm opacity-90">Dành riêng cho <span th:text="${username}"></span></p>
-                            </div>
-                        </div>
-                        <button id="close-ai-panel" class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors transform hover:rotate-90">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-
-                    <!-- Panel Body -->
-                    <div class="h-full flex flex-col overflow-hidden bg-gradient-to-b from-white to-indigo-50/30">
-                        <!-- AI Message -->
-                        <div class="p-5 border-b border-gray-200 bg-white/80 backdrop-blur-sm ai-message">
-                            <div class="flex items-start space-x-3">
-                                <div class="flex-shrink-0 p-2 bg-purple-100 text-purple-600 rounded-full animate-bounce">
-                                    <i class="fas fa-sparkles"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-800">Xin chào! Tôi đã tìm thấy những homestay phù hợp với bạn:</p>
-                                    <div class="flex items-center text-sm text-gray-500 mt-1">
-                                        <span>Cập nhật vừa xong</span>
-                                        <span class="mx-2">•</span>
-                                        <span class="text-purple-600 font-medium">98% phù hợp</span>
-                                        <span class="mx-2">•</span>
-                                        <span class="flex items-center">
+                                <p class="font-medium text-gray-800">Xin chào! Tôi đã tìm thấy những homestay phù hợp với bạn:</p>
+                                <div class="flex items-center text-sm text-gray-500 mt-1">
+                                    <span>Cập nhật vừa xong</span>
+                                    <span class="mx-2">•</span>
+                                    <span class="text-purple-600 font-medium">98% phù hợp</span>
+                                    <span class="mx-2">•</span>
+                                    <span class="flex items-center">
                                             <i class="fas fa-users mr-1"></i>
                                             <span id="total-viewers">12 người đang xem</span>
                                         </span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Recommendation Tabs -->
-                        <div class="px-5 pt-4 pb-2 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-                            <div class="flex space-x-1 bg-gray-100 p-1 rounded-xl">
-                                <button class="tab-button active flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-white shadow-sm text-purple-600 flex items-center justify-center" data-type="personalized">
-                                    <i class="fas fa-heart mr-2 text-pink-500"></i>Phù hợp nhất
-                                </button>
-                                <button class="tab-button flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-white/50 text-gray-600 flex items-center justify-center" data-type="trending">
-                                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>Xu hướng
-                                </button>
-                                <button class="tab-button flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-white/50 text-gray-600 flex items-center justify-center" data-type="deals">
-                                    <i class="fas fa-bolt mr-2 text-yellow-500"></i>Giá tốt
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Recommendations List -->
-                        <div class="flex-1 overflow-y-auto pb-5">
-                            <div id="recommendations-content" class="space-y-4 p-5">
-                                <!-- Loading State -->
-                                <div class="loading-state hidden">
-                                    <div class="flex items-center justify-center py-8">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Error State -->
-                                <div class="error-state hidden">
-                                    <div class="text-center py-8">
-                                        <div class="text-red-500 mb-4">
-                                            <i class="fas fa-exclamation-circle text-4xl"></i>
-                                        </div>
-                                        <p class="text-gray-600 font-medium">Đã có lỗi xảy ra</p>
-                                        <p class="text-sm text-gray-400 mt-1">Vui lòng thử lại sau</p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Empty State -->
-                                <div class="empty-state hidden">
-                                    <div class="text-center py-8">
-                                        <div class="text-gray-400 mb-4">
-                                            <i class="fas fa-search text-4xl"></i>
-                                        </div>
-                                        <p class="text-gray-600 font-medium">Không tìm thấy gợi ý phù hợp</p>
-                                        <p class="text-sm text-gray-400 mt-1">Hãy thử làm mới hoặc thay đổi tiêu chí</p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Recommendations will be loaded here dynamically -->
-                            </div>
-                        </div>
-
-                        <!-- Refresh Button -->
-                        <div class="px-5 py-3 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
-                            <button id="refreshRecommendations" class="w-full flex items-center justify-center py-3 px-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
-                                <div class="relative mr-3">
-                                    <i class="fas fa-sync-alt text-purple-600"></i>
-                                    <div class="absolute -inset-1.5 bg-purple-100 rounded-full -z-10"></div>
-                                </div>
-                                <span class="font-medium text-gray-700">Cập nhật gợi ý</span>
+                    <!-- Recommendation Tabs -->
+                    <div class="px-5 pt-4 pb-2 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+                        <div class="flex space-x-1 bg-gray-100 p-1 rounded-xl" style="border-radius: 0.75rem; overflow: hidden;">
+                            <button class="tab-button active flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-white shadow-sm text-purple-600 flex items-center justify-center" data-type="personalized" style="border-radius: 0.5rem;">
+                                <i class="fas fa-heart mr-2 text-pink-500"></i>Phù hợp nhất
+                            </button>
+                            <button class="tab-button flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-white/50 text-gray-600 flex items-center justify-center" data-type="trending" style="border-radius: 0.5rem;">
+                                <i class="fas fa-chart-line mr-2 text-blue-500"></i>Xu hướng
+                            </button>
+                            <button class="tab-button flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-white/50 text-gray-600 flex items-center justify-center" data-type="deals" style="border-radius: 0.5rem;">
+                                <i class="fas fa-bolt mr-2 text-yellow-500"></i>Giá tốt
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Recommendations List -->
+                    <div class="flex-1 overflow-y-auto pb-5">
+                        <div id="recommendations-content" class="space-y-4 p-5" style="border-radius: 0.75rem; overflow: hidden;">
+                            <!-- Loading State -->
+                            <div class="loading-state hidden">
+                                <div class="flex items-center justify-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                                </div>
+                            </div>
+
+                            <!-- Error State -->
+                            <div class="error-state hidden">
+                                <div class="text-center py-8">
+                                    <div class="text-red-500 mb-4">
+                                        <i class="fas fa-exclamation-circle text-4xl"></i>
+                                    </div>
+                                    <p class="text-gray-600 font-medium">Đã có lỗi xảy ra</p>
+                                    <p class="text-sm text-gray-400 mt-1">Vui lòng thử lại sau</p>
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="empty-state hidden">
+                                <div class="text-center py-8">
+                                    <div class="text-gray-400 mb-4">
+                                        <i class="fas fa-search text-4xl"></i>
+                                    </div>
+                                    <p class="text-gray-600 font-medium">Không tìm thấy gợi ý phù hợp</p>
+                                    <p class="text-sm text-gray-400 mt-1">Hãy thử làm mới hoặc thay đổi tiêu chí</p>
+                                </div>
+                            </div>
+
+                            <!-- Recommendations will be loaded here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <div class="px-5 py-3 border-t border-gray-200 bg-white/80 backdrop-blur-sm">
+                        <button id="refreshRecommendations" class="w-full flex items-center justify-center py-3 px-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5" style="border-radius: 0.75rem; transition: all 0.3s ease;">
+                            <div class="relative mr-3">
+                                <i class="fas fa-sync-alt text-purple-600"></i>
+                                <div class="absolute -inset-1.5 bg-purple-100 rounded-full -z-10"></div>
+                            </div>
+                            <span class="font-medium text-gray-700">Cập nhật gợi ý</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Recommendation Card Template -->
-        <template id="recommendation-card-template">
-            <div class="group relative">
-                <!-- Premium Ribbon -->
-                <div class="absolute -top-2 -right-2 z-10 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg flex items-center transform rotate-6">
-                    <i class="fas fa-crown mr-1.5"></i>
-                    <span>AI CHỌN</span>
+    <!-- Recommendation Card Template -->
+    <template id="recommendation-card-template">
+        <div class="group relative">
+            <!-- Premium Ribbon -->
+            <div class="absolute -top-2 -right-2 z-10 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg flex items-center transform rotate-6" style="border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <i class="fas fa-crown mr-1.5"></i>
+                <span>AI CHỌN</span>
+            </div>
+
+            <!-- Card Container -->
+            <div class="relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-purple-300 overflow-hidden h-full flex flex-col" style="border-radius: 1rem;">
+                <!-- Image with hover effect -->
+                <div class="relative overflow-hidden h-48 flex-shrink-0" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="" alt="Homestay">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
+                    <!-- Viewers Counter -->
+                    <div class="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                        <i class="fas fa-eye mr-1"></i>
+                        <span class="viewers-count">12 viewing</span>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="absolute bottom-3 left-3 text-white">
+                        <div class="flex items-center text-sm font-medium">
+                            <i class="fas fa-map-marker-alt mr-1.5"></i>
+                            <span class="location line-clamp-1"></span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Card Container -->
-                <div class="relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-purple-300 overflow-hidden h-full flex flex-col">
-                    <!-- Image with hover effect -->
-                    <div class="relative overflow-hidden h-48 flex-shrink-0">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="" alt="Homestay">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-
-                        <!-- Viewers Counter -->
-                        <div class="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center">
-                            <i class="fas fa-eye mr-1"></i>
-                            <span class="viewers-count">12 viewing</span>
-                        </div>
-
-                        <!-- Location -->
-                        <div class="absolute bottom-3 left-3 text-white">
-                            <div class="flex items-center text-sm font-medium">
-                                <i class="fas fa-map-marker-alt mr-1.5"></i>
-                                <span class="location line-clamp-1"></span>
-                            </div>
+                <!-- Homestay Info -->
+                <div class="p-4 flex-grow flex flex-col" style="border-radius: 0 0 1rem 1rem;">
+                    <div class="flex justify-between items-start">
+                        <h3 class="name font-bold text-gray-800 group-hover:text-purple-600 transition-colors line-clamp-2"></h3>
+                        <div class="flex items-center bg-purple-50 text-purple-600 px-2 py-1 rounded-full text-xs font-bold">
+                            <span class="rating"></span>
+                            <i class="fas fa-star ml-1"></i>
                         </div>
                     </div>
 
-                    <!-- Homestay Info -->
-                    <div class="p-4 flex-grow flex flex-col">
-                        <div class="flex justify-between items-start">
-                            <h3 class="name font-bold text-gray-800 group-hover:text-purple-600 transition-colors line-clamp-2"></h3>
-                            <div class="flex items-center bg-purple-50 text-purple-600 px-2 py-1 rounded-full text-xs font-bold">
-                                <span class="rating"></span>
-                                <i class="fas fa-star ml-1"></i>
-                            </div>
-                        </div>
-
-                        <!-- Price -->
-                        <div class="mt-2 flex items-center">
-                            <span class="price text-lg font-bold text-gray-900"></span>
-                            <span class="text-sm text-gray-500 ml-1">/đêm</span>
-                            <span class="ml-auto text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full discount-badge hidden">
+                    <!-- Price -->
+                    <div class="mt-2 flex items-center">
+                        <span class="price text-lg font-bold text-gray-900"></span>
+                        <span class="text-sm text-gray-500 ml-1">/đêm</span>
+                        <span class="ml-auto text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full discount-badge hidden">
                                 <i class="fas fa-bolt mr-1"></i>
                                 <span class="discount-value"></span>% OFF
                             </span>
-                        </div>
+                    </div>
 
-                        <!-- Features -->
-                        <div class="mt-3 flex flex-wrap gap-2 amenities-container">
-                            <!-- Amenities will be added here -->
-                        </div>
+                    <!-- Features -->
+                    <div class="mt-3 flex flex-wrap gap-2 amenities-container">
+                        <!-- Amenities will be added here -->
+                    </div>
 
-                        <!-- Match Percentage -->
-                        <div class="mt-auto pt-4 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="relative w-12 h-12 mr-3">
-                                    <svg class="w-full h-full" viewBox="0 0 36 36">
-                                        <path d="M18 2.0845
+                    <!-- Match Percentage -->
+                    <div class="mt-auto pt-4 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="relative w-12 h-12 mr-3">
+                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845
                                               a 15.9155 15.9155 0 0 1 0 31.831
                                               a 15.9155 15.9155 0 0 1 0 -31.831"
-                                              fill="none"
-                                              stroke="#E5E7EB"
-                                              stroke-width="3"
-                                              stroke-dasharray="100, 100"/>
-                                        <path class="match-circle" d="M18 2.0845
+                                          fill="none"
+                                          stroke="#E5E7EB"
+                                          stroke-width="3"
+                                          stroke-dasharray="100, 100"/>
+                                    <path class="match-circle" d="M18 2.0845
                                               a 15.9155 15.9155 0 0 1 0 31.831
                                               a 15.9155 15.9155 0 0 1 0 -31.831"
-                                              fill="none"
-                                              stroke="#8B5CF6"
-                                              stroke-width="3"
-                                              stroke-dasharray="0, 100"/>
-                                    </svg>
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="match-percentage text-sm font-bold text-purple-600"></span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">Độ phù hợp</p>
-                                    <p class="text-xs text-gray-500">Dựa trên sở thích của bạn</p>
+                                          fill="none"
+                                          stroke="#8B5CF6"
+                                          stroke-width="3"
+                                          stroke-dasharray="0, 100"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="match-percentage text-sm font-bold text-purple-600"></span>
                                 </div>
                             </div>
-                            <button class="view-details-btn px-4 py-2 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition-colors">
-                                Chi tiết
-                            </button>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">Độ phù hợp</p>
+                                <p class="text-xs text-gray-500">Dựa trên sở thích của bạn</p>
+                            </div>
                         </div>
+                        <button class="view-details-btn px-4 py-2 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition-colors" style="border-radius: 0.5rem; transition: all 0.3s ease;">
+                            Chi tiết
+                        </button>
                     </div>
                 </div>
             </div>
-        </template>
-    </div>
+        </div>
+    </template>
+</div>
+
+<!-- Add inline script directly to ensure functionality -->
+<script>
+    // Đảm bảo hàm toggleAIPanel được đặt trong global window object
+    window.toggleAIPanel = function() {
+        try {
+            const panel = document.getElementById('ai-recommendations-panel');
+            if (!panel) {
+                return;
+            }
+
+            // Kiểm tra nếu panel đang hiển thị (có class visible)
+            const isVisible = panel.classList.contains('visible');
+
+            if (isVisible) {
+                // Ẩn panel
+                hideAIPanel();
+            } else {
+                // Hiện panel
+                showAIPanel();
+            }
+        } catch (err) {
+            console.error('Error toggling AI panel:', err);
+        }
+    };
+
+    // Hàm hiện AI Panel
+    function showAIPanel() {
+        try {
+            const panel = document.getElementById('ai-recommendations-panel');
+            const overlay = document.getElementById('ai-panel-overlay');
+            const panelContent = panel.querySelector('.transform');
+            const badge = document.getElementById('ai-notification-badge');
+
+            // Hiện panel và overlay với inline styles
+            panel.style.opacity = '1';
+            panel.style.pointerEvents = 'auto';
+
+            if (overlay) {
+                overlay.style.opacity = '1';
+                overlay.style.pointerEvents = 'auto';
+            }
+
+            // Animate panel sliding up with inline transform
+            if (panelContent) {
+                panelContent.style.transform = 'translateY(0)';
+            }
+
+            // Ẩn badge thông báo
+            if (badge) {
+                badge.style.display = 'none';
+            }
+
+            // Khóa scroll của body
+            document.body.style.overflow = 'hidden';
+
+            // Thêm class để theo dõi trạng thái
+            panel.classList.add('visible');
+        } catch (err) {
+            console.error('Error showing AI panel:', err);
+        }
+    }
+
+    // Hàm ẩn AI Panel
+    function hideAIPanel() {
+        try {
+            const panel = document.getElementById('ai-recommendations-panel');
+            const overlay = document.getElementById('ai-panel-overlay');
+            const panelContent = panel.querySelector('.transform');
+
+            // Ẩn overlay với inline styles
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            }
+
+            // Animate panel sliding down với inline transform
+            if (panelContent) {
+                panelContent.style.transform = 'translateY(120%)';
+            }
+
+            // Sau khi animation hoàn thành, ẩn panel hoàn toàn
+            setTimeout(function() {
+                panel.style.opacity = '0';
+                panel.style.pointerEvents = 'none';
+                panel.classList.remove('visible');
+            }, 300);
+
+            // Mở khóa scroll của body
+            document.body.style.overflow = '';
+        } catch (err) {
+            console.error('Error hiding AI panel:', err);
+        }
+    }
+
+    // Ensure the DOM is loaded and attach event handlers
+    function initAI() {
+        try {
+            // Register click handlers
+            const closeButton = document.getElementById('close-ai-panel');
+            if (closeButton) {
+                closeButton.onclick = function(e) {
+                    e.preventDefault();
+                    window.toggleAIPanel();
+                };
+            }
+
+            const overlay = document.getElementById('ai-panel-overlay');
+            if (overlay) {
+                overlay.onclick = function(e) {
+                    if (e.target === overlay) {
+                        window.toggleAIPanel();
+                    }
+                };
+            }
+        } catch (err) {
+            console.error('Error initializing AI assistant:', err);
+        }
+    }
+
+    // Wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAI);
+    } else {
+        initAI();
+    }
+
+    // Đảm bảo AI Assistant sẵn sàng khi trang load
+    window.onload = function() {
+        try {
+            // Đảm bảo nút AI có event listener
+            const aiButton = document.getElementById('ai-assistant-btn');
+            if (aiButton) {
+                aiButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleAIPanel();
+                    return false;
+                });
+            }
+
+            // Thêm phím tắt Escape để đóng panel
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const panel = document.getElementById('ai-recommendations-panel');
+                    if (panel && panel.classList.contains('visible')) {
+                        toggleAIPanel();
+                    }
+                }
+            });
+        } catch(err) {
+            console.error('Error initializing AI Assistant on window load:', err);
+        }
+    };
+</script>
 </body>
 </html>
 
 <!-- Amenity Badge Template -->
 <template id="amenity-badge-template">
-    <span class="inline-flex items-center bg-gray-50 text-gray-600 px-2.5 py-1 rounded-full text-xs">
+    <span class="inline-flex items-center bg-gray-50 text-gray-600 px-2.5 py-1 rounded-full text-xs" style="border-radius: 9999px; transition: all 0.2s ease-in-out;">
         <i class="fas fa-check-circle text-green-500 mr-1.5"></i>
         <span class="amenity-name"></span>
     </span>

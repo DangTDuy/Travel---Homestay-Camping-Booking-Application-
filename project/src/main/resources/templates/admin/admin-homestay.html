@@ -40,7 +40,7 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- Custom styles for admin pages -->
     <style>
         .sidebar {
@@ -116,7 +116,7 @@
                                 <i class="fas fa-dollar-sign text-gray-400"></i>
                             </span>
                             <select id="priceRange" name="priceRange"
-                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white appearance-none">
+                                    class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white appearance-none">
                                 <option value="">Tất cả giá</option>
                                 <option value="0-500000">Dưới 500K</option>
                                 <option value="500000-1000000">500K - 1 triệu</option>
@@ -147,25 +147,25 @@
                 <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
                 <span class="ml-3 text-gray-600">Đang tải dữ liệu...</span>
             </div>
-            
+
             <div id="homestayTableContainer" class="overflow-x-auto hidden">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sức chứa</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đánh giá</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                        </tr>
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sức chứa</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đánh giá</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                    </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="homestayTableBody">
-                        <!-- Dynamic rows will be added here by JavaScript -->
+                    <!-- Dynamic rows will be added here by JavaScript -->
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- No Results Message -->
             <div id="noResults" class="text-center py-16 px-4 hidden">
                 <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
@@ -188,7 +188,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <!-- Thêm khu vực cố định cho thông báo lỗi trong form -->
         <div id="formErrorContainer" class="px-6 pt-3 hidden sticky top-0 z-10">
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-md">
@@ -196,10 +196,10 @@
                 <span class="block sm:inline" id="formErrorMessage"></span>
             </div>
         </div>
-        
+
         <form id="homestayForm" class="px-6 py-4 space-y-4" onsubmit="handleFormSubmit(event)">
             <input type="hidden" id="homestayId">
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Tên homestay -->
                 <div>
@@ -207,7 +207,7 @@
                     <input type="text" id="name" name="name" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
-                
+
                 <!-- Địa điểm -->
                 <div>
                     <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm <span class="text-red-500">*</span></label>
@@ -215,14 +215,14 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
             </div>
-            
+
             <!-- Mô tả -->
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
                 <textarea id="description" name="description" rows="3" required
                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Giá mỗi đêm -->
                 <div>
@@ -230,7 +230,7 @@
                     <input type="number" id="price" name="price" min="0" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
-                
+
                 <!-- Sức chứa -->
                 <div>
                     <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Sức chứa <span class="text-red-500">*</span></label>
@@ -238,7 +238,7 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
             </div>
-            
+
             <!-- Tiện nghi -->
             <div>
                 <label for="amenities" class="block text-sm font-medium text-gray-700 mb-1">Tiện nghi <span class="text-red-500">*</span></label>
@@ -247,12 +247,12 @@
                        placeholder="Ví dụ: Wifi, Điều hòa, TV">
                 <p class="mt-1 text-xs text-gray-500">Các tiện nghi cách nhau bằng dấu phẩy.</p>
             </div>
-            
+
             <!-- Container for Existing Images (Edit Mode Only) -->
             <div id="existingImagesSection" class="hidden">
                 <div class="flex justify-between items-center mb-2">
                     <label class="text-sm font-medium text-gray-700">Ảnh hiện tại</label>
-                    <button type="button" onclick="removeAllExistingImages()" 
+                    <button type="button" onclick="removeAllExistingImages()"
                             class="text-xs text-red-600 hover:text-red-800 flex items-center">
                         <i class="fas fa-trash-alt mr-1"></i> Xóa tất cả
                     </button>
@@ -262,7 +262,7 @@
                 </div>
                 <p class="mt-1 text-xs text-gray-500">Nhấn nút Xóa để gỡ ảnh từng ảnh hoặc "Xóa tất cả" để gỡ hết ảnh.</p>
             </div>
-            
+
             <!-- Thêm ảnh mới -->
             <div>
                 <label for="newImages" class="block text-sm font-medium text-gray-700 mb-1">Thêm ảnh mới (Tối đa 5)</label>
@@ -282,7 +282,7 @@
                     <!-- Image previews will be shown here -->
                 </div>
             </div>
-            
+
             <div class="border-t pt-4 flex justify-end">
                 <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mr-2">
                     Hủy
@@ -320,141 +320,141 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadHomestays();
     });
-    
+
     // CSRF setup
     const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
     const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-    
+
     // Placeholder image for failed image loads
     const placeholderImageBase64 = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2UyZThmMCIvPjxwYXRoIGQ9Ik0zMCA0MGg0MHYyMEgzMHoiIGZpbGw9IiNiNGI0YjQiLz48cGF0aCBkPSJNNDAgMzB2NDBoMjBWMzB6IiBmaWxsPSIjYjRiNGI0Ii8+PC9zdmc+';
-    
+
     // Các biến tìm kiếm lưu trữ trạng thái hiện tại
     let currentSearchLocation = '';
     let currentPriceRange = '';
-    
+
     // Hàm xử lý form tìm kiếm
     function handleSearchForm(event) {
         event.preventDefault();
-        
-        // Lấy giá trị tìm kiếm 
+
+        // Lấy giá trị tìm kiếm
         currentSearchLocation = document.getElementById('searchLocation').value.trim();
         currentPriceRange = document.getElementById('priceRange').value;
-        
-        console.log("Tìm kiếm với điều kiện:", { 
-            location: currentSearchLocation, 
-            priceRange: currentPriceRange 
+
+        console.log("Tìm kiếm với điều kiện:", {
+            location: currentSearchLocation,
+            priceRange: currentPriceRange
         });
-        
+
         // Tải lại danh sách homestay với điều kiện tìm kiếm
         loadHomestays();
     }
-    
+
     // Hàm reset tìm kiếm
     function resetSearch() {
         document.getElementById('searchLocation').value = '';
         document.getElementById('priceRange').value = '';
         currentSearchLocation = '';
         currentPriceRange = '';
-        
+
         // Tải lại danh sách homestay không có điều kiện tìm kiếm
         loadHomestays();
     }
-    
+
     // Hàm load lại danh sách homestay với retry nếu ảnh không tồn tại
     function loadHomestays() {
         document.getElementById('loadingTable').classList.remove('hidden');
         document.getElementById('homestayTableContainer').classList.add('hidden');
         document.getElementById('noResults').classList.add('hidden');
-        
+
         // Xây dựng URL với tham số tìm kiếm nếu có
         let apiUrl = '/admin/homestay/api/list';
         let queryParams = [];
-        
+
         if (currentSearchLocation) {
             queryParams.push(`location=${encodeURIComponent(currentSearchLocation)}`);
         }
-        
+
         if (currentPriceRange) {
             queryParams.push(`priceRange=${encodeURIComponent(currentPriceRange)}`);
         }
-        
+
         if (queryParams.length > 0) {
             apiUrl += '?' + queryParams.join('&');
         }
-        
+
         console.log("Fetching data from:", apiUrl);
-        
+
         // Hiển thị đang loading trong danh sách
         const tableBody = document.getElementById('homestayTableBody');
         if (tableBody) {
             tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Đang tải dữ liệu...</td></tr>';
         }
-        
+
         fetch(apiUrl, {
             headers: {
                 [header]: token
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Lỗi khi tải dữ liệu: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Dữ liệu danh sách homestay:", data);
-            
-            const tableBody = document.getElementById('homestayTableBody');
-            tableBody.innerHTML = '';
-            
-            if (!data.data || data.data.length === 0) {
-                document.getElementById('noResults').classList.remove('hidden');
-                document.getElementById('homestayTableContainer').classList.add('hidden');
-            } else {
-                document.getElementById('noResults').classList.add('hidden');
-                document.getElementById('homestayTableContainer').classList.remove('hidden');
-                
-                data.data.forEach(homestay => {
-                    console.log("Homestay ID:", homestay.id, "Image URLs:", homestay.imageUrls || homestay.images || []);
-                    
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50 transition-colors duration-150 ease-in-out';
-                    
-                    // Name cell with image
-                    const nameCell = document.createElement('td');
-                    nameCell.className = 'px-6 py-4';
-                    
-                    // Xử lý đường dẫn ảnh
-                    let thumbnailUrl = placeholderImageBase64;
-                    let originalUrl = '';
-                    
-                    if (homestay.imageUrls && homestay.imageUrls.length > 0) {
-                        let imgUrl = homestay.imageUrls[0];
-                        originalUrl = imgUrl;
-                        // Kiểm tra nếu URL không bắt đầu bằng http hoặc /
-                        if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
-                            imgUrl = '/homestay_images/' + imgUrl;
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi khi tải dữ liệu: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Dữ liệu danh sách homestay:", data);
+
+                const tableBody = document.getElementById('homestayTableBody');
+                tableBody.innerHTML = '';
+
+                if (!data.data || data.data.length === 0) {
+                    document.getElementById('noResults').classList.remove('hidden');
+                    document.getElementById('homestayTableContainer').classList.add('hidden');
+                } else {
+                    document.getElementById('noResults').classList.add('hidden');
+                    document.getElementById('homestayTableContainer').classList.remove('hidden');
+
+                    data.data.forEach(homestay => {
+                        console.log("Homestay ID:", homestay.id, "Image URLs:", homestay.imageUrls || homestay.images || []);
+
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-gray-50 transition-colors duration-150 ease-in-out';
+
+                        // Name cell with image
+                        const nameCell = document.createElement('td');
+                        nameCell.className = 'px-6 py-4';
+
+                        // Xử lý đường dẫn ảnh
+                        let thumbnailUrl = placeholderImageBase64;
+                        let originalUrl = '';
+
+                        if (homestay.imageUrls && homestay.imageUrls.length > 0) {
+                            let imgUrl = homestay.imageUrls[0];
+                            originalUrl = imgUrl;
+                            // Kiểm tra nếu URL không bắt đầu bằng http hoặc /
+                            if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                                imgUrl = '/homestay_images/' + imgUrl;
+                            }
+                            thumbnailUrl = imgUrl;
+                        } else if (homestay.images && homestay.images.length > 0) {
+                            let imgUrl = homestay.images[0];
+                            originalUrl = imgUrl;
+                            if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                                imgUrl = '/homestay_images/' + imgUrl;
+                            }
+                            thumbnailUrl = imgUrl;
                         }
-                        thumbnailUrl = imgUrl;
-                    } else if (homestay.images && homestay.images.length > 0) {
-                        let imgUrl = homestay.images[0];
-                        originalUrl = imgUrl;
-                        if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
-                            imgUrl = '/homestay_images/' + imgUrl;
-                        }
-                        thumbnailUrl = imgUrl;
-                    }
-                    
-                    console.log("Thumbnail URL cho homestay ID", homestay.id, ":", thumbnailUrl);
-                    
-                    // Tạo một unique ID cho ảnh để có thể tham chiếu sau này
-                    const imgId = `homestay-img-${homestay.id}`;
-                    
-                    nameCell.innerHTML = `
+
+                        console.log("Thumbnail URL cho homestay ID", homestay.id, ":", thumbnailUrl);
+
+                        // Tạo một unique ID cho ảnh để có thể tham chiếu sau này
+                        const imgId = `homestay-img-${homestay.id}`;
+
+                        nameCell.innerHTML = `
                         <div class="flex items-center">
                             <div class="h-10 w-10 flex-shrink-0">
-                                <img id="${imgId}" class="h-10 w-10 rounded-full object-cover" 
-                                     src="${thumbnailUrl}" 
+                                <img id="${imgId}" class="h-10 w-10 rounded-full object-cover"
+                                     src="${thumbnailUrl}"
                                      data-original="${originalUrl}"
                                      alt="Homestay thumbnail"
                                      onerror="retryLoadImage(this, '${thumbnailUrl}', 3)">
@@ -464,56 +464,56 @@
                             </div>
                         </div>
                     `;
-                    
-                    // Location cell
-                    const locationCell = document.createElement('td');
-                    locationCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-                    locationCell.textContent = homestay.location;
-                    
-                    // Price cell
-                    const priceCell = document.createElement('td');
-                    priceCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-                    priceCell.textContent = homestay.price ? new Intl.NumberFormat('vi-VN').format(homestay.price) + ' VNĐ' : 'N/A';
-                    
-                    // Capacity cell
-                    const capacityCell = document.createElement('td');
-                    capacityCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-                    capacityCell.innerHTML = `
+
+                        // Location cell
+                        const locationCell = document.createElement('td');
+                        locationCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                        locationCell.textContent = homestay.location;
+
+                        // Price cell
+                        const priceCell = document.createElement('td');
+                        priceCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                        priceCell.textContent = homestay.price ? new Intl.NumberFormat('vi-VN').format(homestay.price) + ' VNĐ' : 'N/A';
+
+                        // Capacity cell
+                        const capacityCell = document.createElement('td');
+                        capacityCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                        capacityCell.innerHTML = `
                         <div class="flex items-center">
                             <i class="fas fa-users text-primary mr-2"></i>
                             ${homestay.capacity} người
                         </div>
                     `;
-                    
-                    // Rating cell
-                    const ratingCell = document.createElement('td');
-                    ratingCell.className = 'px-6 py-4 whitespace-nowrap';
-                    
-                    if (homestay.rating) {
-                        const starFull = Math.floor(homestay.rating);
-                        const starHalf = homestay.rating % 1 >= 0.5 ? 1 : 0;
-                        const starEmpty = 5 - starFull - starHalf;
-                        
-                        let stars = '';
-                        for (let i = 0; i < starFull; i++) stars += '<i class="fas fa-star text-yellow-400"></i>';
-                        if (starHalf) stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-                        for (let i = 0; i < starEmpty; i++) stars += '<i class="far fa-star text-yellow-400"></i>';
-                        
-                        ratingCell.innerHTML = `
+
+                        // Rating cell
+                        const ratingCell = document.createElement('td');
+                        ratingCell.className = 'px-6 py-4 whitespace-nowrap';
+
+                        if (homestay.rating) {
+                            const starFull = Math.floor(homestay.rating);
+                            const starHalf = homestay.rating % 1 >= 0.5 ? 1 : 0;
+                            const starEmpty = 5 - starFull - starHalf;
+
+                            let stars = '';
+                            for (let i = 0; i < starFull; i++) stars += '<i class="fas fa-star text-yellow-400"></i>';
+                            if (starHalf) stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                            for (let i = 0; i < starEmpty; i++) stars += '<i class="far fa-star text-yellow-400"></i>';
+
+                            ratingCell.innerHTML = `
                             <div class="flex items-center">
                                 <div class="text-yellow-400 flex">${stars}</div>
                                 <span class="ml-1 text-sm text-gray-600">${homestay.rating.toFixed(1)}</span>
                                 <span class="ml-1 text-sm text-gray-500">(${homestay.booking_count || 0})</span>
                             </div>
                         `;
-                    } else {
-                        ratingCell.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa có đánh giá</span>';
-                    }
-                    
-                    // Actions cell
-                    const actionsCell = document.createElement('td');
-                    actionsCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium';
-                    actionsCell.innerHTML = `
+                        } else {
+                            ratingCell.innerHTML = '<span class="text-gray-400 italic text-xs">Chưa có đánh giá</span>';
+                        }
+
+                        // Actions cell
+                        const actionsCell = document.createElement('td');
+                        actionsCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium';
+                        actionsCell.innerHTML = `
                         <a href="/homestay/${homestay.id}" class="text-blue-600 hover:text-blue-900 mr-3" title="Xem chi tiết" target="_blank">
                             <i class="fas fa-eye"></i>
                         </a>
@@ -524,33 +524,33 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     `;
-                    
-                    row.appendChild(nameCell);
-                    row.appendChild(locationCell);
-                    row.appendChild(priceCell);
-                    row.appendChild(capacityCell);
-                    row.appendChild(ratingCell);
-                    row.appendChild(actionsCell);
-                    
-                    tableBody.appendChild(row);
-                });
-                
-                document.getElementById('homestayTableContainer').classList.remove('hidden');
-            }
-            
-            document.getElementById('loadingTable').classList.add('hidden');
-        })
-        .catch(error => {
-            console.error('Error loading homestays:', error);
-            showError('Lỗi khi tải danh sách homestay: ' + error.message);
-            document.getElementById('loadingTable').classList.add('hidden');
-            document.getElementById('noResults').classList.remove('hidden');
-        });
+
+                        row.appendChild(nameCell);
+                        row.appendChild(locationCell);
+                        row.appendChild(priceCell);
+                        row.appendChild(capacityCell);
+                        row.appendChild(ratingCell);
+                        row.appendChild(actionsCell);
+
+                        tableBody.appendChild(row);
+                    });
+
+                    document.getElementById('homestayTableContainer').classList.remove('hidden');
+                }
+
+                document.getElementById('loadingTable').classList.add('hidden');
+            })
+            .catch(error => {
+                console.error('Error loading homestays:', error);
+                showError('Lỗi khi tải danh sách homestay: ' + error.message);
+                document.getElementById('loadingTable').classList.add('hidden');
+                document.getElementById('noResults').classList.remove('hidden');
+            });
     }
-    
+
     // Keep all the existing functions below but don't replace them
     // This ensures compatibility with the existing JavaScript logic
-    
+
     // Function definitions for modals and CRUD operations
     function openAddModal() {
         // Clear form
@@ -561,203 +561,203 @@
         document.getElementById('imagePreviewGrid').innerHTML = '';
         document.getElementById('homestayModal').classList.remove('hidden');
     }
-    
+
     function closeModal() {
         console.log("Đóng modal form homestay");
         document.getElementById('homestayModal').classList.add('hidden');
         // Reset form khi đóng
         document.getElementById('homestayForm').reset();
     }
-    
+
     function editHomestay(id) {
         // Khởi tạo mảng lưu trữ các ảnh đã bị xóa
         window.explicitlyDeletedImages = [];
-        
+
         // Fetch homestay details and populate form
         fetch(`/admin/homestay/api/get/${id}`, {
             headers: {
                 [header]: token
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                throw new Error(data.message || 'Không thể lấy thông tin homestay');
-            }
-            
-            const homestay = data.data;
-            console.log("Homestay data from API:", homestay);
-            
-            // Hiển thị modal trước khi gán giá trị để đảm bảo DOM đã sẵn sàng
-            document.getElementById('modalTitle').textContent = 'Chỉnh sửa Homestay';
-            document.getElementById('homestayModal').classList.remove('hidden');
-            
-            // Đặt timeout ngắn để đảm bảo DOM đã được render
-            setTimeout(() => {
-                // Thiết lập các giá trị cho form
-                document.getElementById('homestayId').value = homestay.id;
-                document.getElementById('name').value = homestay.name || '';
-                
-                // Đặt địa điểm với kiểm tra chắc chắn input đã sẵn sàng
-                const locationInput = document.getElementById('location');
-                if (locationInput) {
-                    if (homestay.location) {
-                        locationInput.value = homestay.location;
-                        console.log("Đã thiết lập địa điểm:", locationInput.value);
-                    } else if (homestay.address) {
-                        locationInput.value = homestay.address;
-                        console.log("Đã sử dụng address thay cho location:", locationInput.value);
-                    }
-                    
-                    // Đảm bảo giá trị không bị mất
-                    if (!locationInput.value && homestay.location) {
-                        locationInput.setAttribute('placeholder', homestay.location);
-                        locationInput.dataset.originalLocation = homestay.location;
-                        console.log("Thiết lập placeholder và data attribute:", homestay.location);
-                    }
-                } else {
-                    console.error("Không tìm thấy input field cho location!");
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Không thể lấy thông tin homestay');
                 }
-                
-                document.getElementById('description').value = homestay.description || '';
-                document.getElementById('price').value = homestay.price || 0;
-                document.getElementById('capacity').value = homestay.capacity || 1;
-                
-                // Thiết lập tiện nghi
-                const amenitiesStr = homestay.amenities ? homestay.amenities.join(', ') : '';
-                document.getElementById('amenities').value = amenitiesStr;
-                
-                // Display existing images
-                const imageContainer = document.getElementById('existingImagePreviewContainer');
-                imageContainer.innerHTML = '';
-                
-                // Reset mảng ảnh đã xóa khi mở modal mới
-                window.explicitlyDeletedImages = [];
-                
-                // Kiểm tra và xử lý mảng imageUrls
-                let imageUrls = [];
-                if (homestay.imageUrls && homestay.imageUrls.length > 0) {
-                    imageUrls = homestay.imageUrls;
-                } else if (homestay.images && homestay.images.length > 0) {
-                    // Backup nếu server trả về tên trường khác
-                    imageUrls = homestay.images;
-                }
-                
-                console.log("Số lượng ảnh hiện tại:", imageUrls.length);
-                
-                if (imageUrls.length > 0) {
-                    imageUrls.forEach((url, index) => {
-                        // Xử lý URL để lấy tên file
-                        let originalFilename = url;
-                        let displayUrl = url;
-                        
-                        // Kiểm tra nếu URL không bắt đầu bằng http hoặc /
-                        if (!url.startsWith('http') && !url.startsWith('/')) {
-                            displayUrl = '/homestay_images/' + url;
-                            originalFilename = url; // Lưu tên file gốc
-                        } else if (url.includes('/homestay_images/')) {
-                            // Nếu là URL đầy đủ, lấy tên file từ URL
-                            originalFilename = url.split('/homestay_images/')[1];
+
+                const homestay = data.data;
+                console.log("Homestay data from API:", homestay);
+
+                // Hiển thị modal trước khi gán giá trị để đảm bảo DOM đã sẵn sàng
+                document.getElementById('modalTitle').textContent = 'Chỉnh sửa Homestay';
+                document.getElementById('homestayModal').classList.remove('hidden');
+
+                // Đặt timeout ngắn để đảm bảo DOM đã được render
+                setTimeout(() => {
+                    // Thiết lập các giá trị cho form
+                    document.getElementById('homestayId').value = homestay.id;
+                    document.getElementById('name').value = homestay.name || '';
+
+                    // Đặt địa điểm với kiểm tra chắc chắn input đã sẵn sàng
+                    const locationInput = document.getElementById('location');
+                    if (locationInput) {
+                        if (homestay.location) {
+                            locationInput.value = homestay.location;
+                            console.log("Đã thiết lập địa điểm:", locationInput.value);
+                        } else if (homestay.address) {
+                            locationInput.value = homestay.address;
+                            console.log("Đã sử dụng address thay cho location:", locationInput.value);
                         }
-                        
-                        console.log(`Ảnh ${index + 1}:`, displayUrl, "Original filename:", originalFilename);
-                        
-                        const imgContainer = document.createElement('div');
-                        imgContainer.className = 'relative border border-gray-300 rounded-md p-1 hover:border-gray-400';
-                        imgContainer.dataset.originalFilename = originalFilename;
-                        
-                        const img = document.createElement('img');
-                        img.src = displayUrl;
-                        img.className = 'w-full h-20 object-cover rounded-md';
-                        
-                        // Xử lý khi ảnh không tồn tại
-                        img.onerror = function() {
-                            console.error(`Ảnh không tải được: ${displayUrl} (${originalFilename})`);
-                            img.src = placeholderImageBase64;
-                            img.classList.add('border', 'border-red-300');
-                        };
-                        
-                        // Thêm sự kiện khi ảnh tải thành công
-                        img.onload = function() {
-                            console.log(`Ảnh tải thành công: ${displayUrl}`);
-                        };
-                        
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.className = 'absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center -mt-2 -mr-2 shadow';
-                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                        removeBtn.onclick = function() {
-                            // Thêm vào mảng ảnh đã xóa
-                            window.explicitlyDeletedImages.push(originalFilename);
-                            console.log(`Đã đánh dấu ảnh để xóa: ${originalFilename}`);
-                            console.log("Danh sách ảnh đã xóa:", window.explicitlyDeletedImages);
-                            
-                            // Thêm hiệu ứng xóa và xóa khỏi DOM
-                            imgContainer.classList.add('opacity-50');
-                            setTimeout(() => {
-                                imgContainer.remove();
-                                
-                                // Kiểm tra nếu không còn ảnh nào thì ẩn section
-                                if (document.querySelectorAll('#existingImagePreviewContainer > div').length === 0) {
-                                    document.getElementById('existingImagesSection').classList.add('hidden');
-                                }
-                                
-                                // Hiển thị thông báo xóa thành công
-                                const notification = document.createElement('div');
-                                notification.className = 'text-sm text-green-600 mt-2 mb-2';
-                                notification.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Đã gỡ ảnh khỏi danh sách';
-                                document.getElementById('existingImagesSection').appendChild(notification);
-                                
-                                // Tự động ẩn thông báo sau 3 giây
+
+                        // Đảm bảo giá trị không bị mất
+                        if (!locationInput.value && homestay.location) {
+                            locationInput.setAttribute('placeholder', homestay.location);
+                            locationInput.dataset.originalLocation = homestay.location;
+                            console.log("Thiết lập placeholder và data attribute:", homestay.location);
+                        }
+                    } else {
+                        console.error("Không tìm thấy input field cho location!");
+                    }
+
+                    document.getElementById('description').value = homestay.description || '';
+                    document.getElementById('price').value = homestay.price || 0;
+                    document.getElementById('capacity').value = homestay.capacity || 1;
+
+                    // Thiết lập tiện nghi
+                    const amenitiesStr = homestay.amenities ? homestay.amenities.join(', ') : '';
+                    document.getElementById('amenities').value = amenitiesStr;
+
+                    // Display existing images
+                    const imageContainer = document.getElementById('existingImagePreviewContainer');
+                    imageContainer.innerHTML = '';
+
+                    // Reset mảng ảnh đã xóa khi mở modal mới
+                    window.explicitlyDeletedImages = [];
+
+                    // Kiểm tra và xử lý mảng imageUrls
+                    let imageUrls = [];
+                    if (homestay.imageUrls && homestay.imageUrls.length > 0) {
+                        imageUrls = homestay.imageUrls;
+                    } else if (homestay.images && homestay.images.length > 0) {
+                        // Backup nếu server trả về tên trường khác
+                        imageUrls = homestay.images;
+                    }
+
+                    console.log("Số lượng ảnh hiện tại:", imageUrls.length);
+
+                    if (imageUrls.length > 0) {
+                        imageUrls.forEach((url, index) => {
+                            // Xử lý URL để lấy tên file
+                            let originalFilename = url;
+                            let displayUrl = url;
+
+                            // Kiểm tra nếu URL không bắt đầu bằng http hoặc /
+                            if (!url.startsWith('http') && !url.startsWith('/')) {
+                                displayUrl = '/homestay_images/' + url;
+                                originalFilename = url; // Lưu tên file gốc
+                            } else if (url.includes('/homestay_images/')) {
+                                // Nếu là URL đầy đủ, lấy tên file từ URL
+                                originalFilename = url.split('/homestay_images/')[1];
+                            }
+
+                            console.log(`Ảnh ${index + 1}:`, displayUrl, "Original filename:", originalFilename);
+
+                            const imgContainer = document.createElement('div');
+                            imgContainer.className = 'relative border border-gray-300 rounded-md p-1 hover:border-gray-400';
+                            imgContainer.dataset.originalFilename = originalFilename;
+
+                            const img = document.createElement('img');
+                            img.src = displayUrl;
+                            img.className = 'w-full h-20 object-cover rounded-md';
+
+                            // Xử lý khi ảnh không tồn tại
+                            img.onerror = function() {
+                                console.error(`Ảnh không tải được: ${displayUrl} (${originalFilename})`);
+                                img.src = placeholderImageBase64;
+                                img.classList.add('border', 'border-red-300');
+                            };
+
+                            // Thêm sự kiện khi ảnh tải thành công
+                            img.onload = function() {
+                                console.log(`Ảnh tải thành công: ${displayUrl}`);
+                            };
+
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button';
+                            removeBtn.className = 'absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center -mt-2 -mr-2 shadow';
+                            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            removeBtn.onclick = function() {
+                                // Thêm vào mảng ảnh đã xóa
+                                window.explicitlyDeletedImages.push(originalFilename);
+                                console.log(`Đã đánh dấu ảnh để xóa: ${originalFilename}`);
+                                console.log("Danh sách ảnh đã xóa:", window.explicitlyDeletedImages);
+
+                                // Thêm hiệu ứng xóa và xóa khỏi DOM
+                                imgContainer.classList.add('opacity-50');
                                 setTimeout(() => {
-                                    notification.remove();
-                                }, 3000);
-                            }, 300);
-                        };
-                        
-                        // Thêm filename hoặc index dưới ảnh để dễ nhận biết
-                        const filename = originalFilename;
-                        const fileLabel = document.createElement('div');
-                        fileLabel.className = 'text-xs text-gray-500 truncate text-center mt-1';
-                        fileLabel.textContent = filename || `Ảnh ${index + 1}`;
-                        
-                        imgContainer.appendChild(img);
-                        imgContainer.appendChild(removeBtn);
-                        imgContainer.appendChild(fileLabel);
-                        
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'existingImages';
-                        hiddenInput.value = originalFilename; // Lưu tên file gốc
-                        imgContainer.appendChild(hiddenInput);
-                        
-                        imageContainer.appendChild(imgContainer);
-                    });
-                    
-                    document.getElementById('existingImagesSection').classList.remove('hidden');
-                } else {
-                    document.getElementById('existingImagesSection').classList.add('hidden');
-                }
-                
-                // Clear new image previews
-                document.getElementById('imagePreviewGrid').innerHTML = '';
-                
-                // Kiểm tra lại các giá trị đã thiết lập
-                console.log("Form values after setup:");
-                console.log("ID:", document.getElementById('homestayId').value);
-                console.log("Name:", document.getElementById('name').value);
-                console.log("Location:", document.getElementById('location').value);
-                console.log("Description:", document.getElementById('description').value);
-                console.log("Price:", document.getElementById('price').value);
-                console.log("Capacity:", document.getElementById('capacity').value);
-                console.log("Amenities:", document.getElementById('amenities').value);
-            }, 100);
-        })
-        .catch(error => {
-            showError('Lỗi khi lấy thông tin homestay: ' + error.message);
-        });
+                                    imgContainer.remove();
+
+                                    // Kiểm tra nếu không còn ảnh nào thì ẩn section
+                                    if (document.querySelectorAll('#existingImagePreviewContainer > div').length === 0) {
+                                        document.getElementById('existingImagesSection').classList.add('hidden');
+                                    }
+
+                                    // Hiển thị thông báo xóa thành công
+                                    const notification = document.createElement('div');
+                                    notification.className = 'text-sm text-green-600 mt-2 mb-2';
+                                    notification.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Đã gỡ ảnh khỏi danh sách';
+                                    document.getElementById('existingImagesSection').appendChild(notification);
+
+                                    // Tự động ẩn thông báo sau 3 giây
+                                    setTimeout(() => {
+                                        notification.remove();
+                                    }, 3000);
+                                }, 300);
+                            };
+
+                            // Thêm filename hoặc index dưới ảnh để dễ nhận biết
+                            const filename = originalFilename;
+                            const fileLabel = document.createElement('div');
+                            fileLabel.className = 'text-xs text-gray-500 truncate text-center mt-1';
+                            fileLabel.textContent = filename || `Ảnh ${index + 1}`;
+
+                            imgContainer.appendChild(img);
+                            imgContainer.appendChild(removeBtn);
+                            imgContainer.appendChild(fileLabel);
+
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'existingImages';
+                            hiddenInput.value = originalFilename; // Lưu tên file gốc
+                            imgContainer.appendChild(hiddenInput);
+
+                            imageContainer.appendChild(imgContainer);
+                        });
+
+                        document.getElementById('existingImagesSection').classList.remove('hidden');
+                    } else {
+                        document.getElementById('existingImagesSection').classList.add('hidden');
+                    }
+
+                    // Clear new image previews
+                    document.getElementById('imagePreviewGrid').innerHTML = '';
+
+                    // Kiểm tra lại các giá trị đã thiết lập
+                    console.log("Form values after setup:");
+                    console.log("ID:", document.getElementById('homestayId').value);
+                    console.log("Name:", document.getElementById('name').value);
+                    console.log("Location:", document.getElementById('location').value);
+                    console.log("Description:", document.getElementById('description').value);
+                    console.log("Price:", document.getElementById('price').value);
+                    console.log("Capacity:", document.getElementById('capacity').value);
+                    console.log("Amenities:", document.getElementById('amenities').value);
+                }, 100);
+            })
+            .catch(error => {
+                showError('Lỗi khi lấy thông tin homestay: ' + error.message);
+            });
     }
-    
+
     function showDeleteModal(id, name) {
         document.getElementById('homestayNameToDelete').textContent = name;
         const confirmButton = document.getElementById('confirmDeleteButton');
@@ -766,11 +766,11 @@
         };
         document.getElementById('deleteModal').classList.remove('hidden');
     }
-    
+
     function closeDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
     }
-    
+
     function deleteHomestay(id) {
         fetch(`/admin/homestay/api/delete/${id}`, {
             method: 'DELETE',
@@ -778,30 +778,30 @@
                 [header]: token
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                closeDeleteModal();
-                showSuccess('Homestay đã được xóa thành công');
-                loadHomestays();
-            } else {
-                throw new Error(data.message || 'Không thể xóa homestay');
-            }
-        })
-        .catch(error => {
-            showError('Lỗi khi xóa homestay: ' + error.message);
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    closeDeleteModal();
+                    showSuccess('Homestay đã được xóa thành công');
+                    loadHomestays();
+                } else {
+                    throw new Error(data.message || 'Không thể xóa homestay');
+                }
+            })
+            .catch(error => {
+                showError('Lỗi khi xóa homestay: ' + error.message);
+            });
     }
-    
+
     function previewNewImages(event) {
         const files = event.target.files;
         const previewContainer = document.getElementById('imagePreviewGrid');
-        
+
         // Kiểm tra số lượng ảnh
         const existingImages = document.querySelectorAll('#existingImagePreviewContainer > div').length;
         if (files.length + existingImages > 5) {
@@ -809,7 +809,7 @@
             event.target.value = '';
             return;
         }
-        
+
         // Kiểm tra kích thước file tối đa (10MB)
         const maxFileSize = 10 * 1024 * 1024; // 10MB
         for (let i = 0; i < files.length; i++) {
@@ -818,28 +818,28 @@
                 event.target.value = '';
                 return;
             }
-            
+
             if (!files[i].type.match('image.*')) {
                 showError(`File ${files[i].name} không phải là ảnh.`);
                 event.target.value = '';
                 return;
             }
         }
-        
+
         // Clear previous previews
         previewContainer.innerHTML = '';
-        
+
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const imgContainer = document.createElement('div');
                 imgContainer.className = 'relative';
-                
+
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.className = 'w-full h-20 object-cover rounded-md';
                 img.alt = file.name;
-                
+
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center -mt-1 -mr-1';
@@ -847,26 +847,26 @@
                 removeBtn.onclick = function() {
                     imgContainer.remove();
                 };
-                
+
                 const fileNameLabel = document.createElement('span');
                 fileNameLabel.className = 'text-xs text-gray-500 truncate block mt-1';
                 fileNameLabel.textContent = file.name;
-                
+
                 imgContainer.appendChild(img);
                 imgContainer.appendChild(removeBtn);
                 imgContainer.appendChild(fileNameLabel);
                 previewContainer.appendChild(imgContainer);
             };
-            
+
             reader.onerror = function(e) {
                 console.error('Lỗi khi đọc file:', e);
                 showError(`Không thể đọc file ${file.name}. Vui lòng thử lại.`);
             };
-            
+
             reader.readAsDataURL(file);
         });
     }
-    
+
     function showError(message) {
         const errorAlert = document.getElementById('errorAlert');
         document.getElementById('errorMessage').textContent = message;
@@ -875,11 +875,11 @@
             errorAlert.classList.add('hidden');
         }, 5000);
     }
-    
+
     function hideErrorAlert() {
         document.getElementById('errorAlert').classList.add('hidden');
     }
-    
+
     function showSuccess(message) {
         const successAlert = document.getElementById('successAlert');
         document.getElementById('successMessage').textContent = message;
@@ -888,134 +888,134 @@
             successAlert.classList.add('hidden');
         }, 5000);
     }
-    
+
     function hideSuccessAlert() {
         document.getElementById('successAlert').classList.add('hidden');
     }
-    
+
     // Add new function to handle form submission
     function handleFormSubmit(event) {
         event.preventDefault();
-        
+
         // Show loading
         document.getElementById('loadingTable').classList.remove('hidden');
-        
+
         const formData = new FormData();
         const homestayId = document.getElementById('homestayId').value;
-        
+
         // Lưu ID để sử dụng sau này
         const currentHomestayId = homestayId;
-        
+
         // Nếu có mảng các ảnh cần xóa, tiến hành xóa trước
         if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0 && homestayId) {
             // Gửi yêu cầu xóa ảnh trực tiếp
             deleteHomestayImages(homestayId, window.explicitlyDeletedImages)
-            .then(deleteResult => {
-                console.log("Kết quả xóa ảnh:", deleteResult);
-                // Sau khi xóa ảnh thành công, tiếp tục lưu homestay
-                submitHomestayForm(formData, homestayId);
-            })
-            .catch(error => {
-                console.error("Lỗi khi xóa ảnh:", error);
-                // Nếu xóa ảnh thất bại, vẫn tiếp tục lưu homestay
-                submitHomestayForm(formData, homestayId);
-            });
+                .then(deleteResult => {
+                    console.log("Kết quả xóa ảnh:", deleteResult);
+                    // Sau khi xóa ảnh thành công, tiếp tục lưu homestay
+                    submitHomestayForm(formData, homestayId);
+                })
+                .catch(error => {
+                    console.error("Lỗi khi xóa ảnh:", error);
+                    // Nếu xóa ảnh thất bại, vẫn tiếp tục lưu homestay
+                    submitHomestayForm(formData, homestayId);
+                });
         } else {
             // Không có ảnh cần xóa, tiến hành lưu homestay
             submitHomestayForm(formData, homestayId);
         }
-        
+
         function submitHomestayForm(formData, homestayId) {
             // Lấy giá trị địa điểm, kiểm tra cả data attribute nếu trường hợp bị mất giá trị
             const locationInput = document.getElementById('location');
             let locationValue = locationInput.value.trim();
-            
+
             // Nếu không có giá trị, thử lấy từ data attribute
             if (!locationValue && locationInput.dataset.originalLocation) {
                 locationValue = locationInput.dataset.originalLocation;
                 console.log("Sử dụng giá trị location từ data attribute:", locationValue);
             }
-            
+
             // Kiểm tra các trường bắt buộc
             if (!document.getElementById('name').value.trim()) {
                 showError('Vui lòng nhập tên homestay');
                 document.getElementById('loadingTable').classList.add('hidden');
                 return;
             }
-            
+
             if (!locationValue) {
                 showError('Vui lòng nhập địa điểm');
                 document.getElementById('loadingTable').classList.add('hidden');
                 return;
             }
-            
+
             if (!document.getElementById('description').value.trim()) {
                 showError('Vui lòng nhập mô tả');
                 document.getElementById('loadingTable').classList.add('hidden');
                 return;
             }
-            
+
             // Add basic information
             formData.append('name', document.getElementById('name').value.trim());
             formData.append('location', locationValue);
             formData.append('description', document.getElementById('description').value.trim());
             formData.append('price', document.getElementById('price').value);
             formData.append('capacity', document.getElementById('capacity').value);
-            
+
             // Get amenities
             const amenitiesStr = document.getElementById('amenities').value;
             const amenities = amenitiesStr.split(',').map(item => item.trim()).filter(item => item);
-            
+
             // Gửi từng tiện nghi riêng biệt, không serialize thành JSON
             amenities.forEach(amenity => {
                 formData.append('amenities', amenity);
             });
-            
+
             // If editing, add homestay ID
             if (homestayId) {
                 formData.append('homestayId', homestayId);
             }
-            
+
             // Kiểm tra trạng thái ảnh hiện tại
             const existingImageSection = document.getElementById('existingImagesSection');
             const remainingInputs = document.querySelectorAll('#existingImagePreviewContainer input[name="existingImages"]');
             const allImagesRemoved = existingImageSection.classList.contains('hidden') || remainingInputs.length === 0;
-            
+
             // Gửi danh sách ảnh đã xóa (nếu có)
             if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
                 console.log("Gửi danh sách", window.explicitlyDeletedImages.length, "ảnh đã xóa");
-                
+
                 // Thêm từng tên file đã xóa vào formData riêng lẻ để đảm bảo server đọc đúng
                 window.explicitlyDeletedImages.forEach((filename) => {
                     formData.append('deletedImages', filename);
                 });
-                
+
                 // Thêm cả dạng JSON để hỗ trợ các phiên bản API khác
                 formData.append('deletedImagesJson', JSON.stringify(window.explicitlyDeletedImages));
-                
+
                 // Log chi tiết ảnh đã xóa
                 window.explicitlyDeletedImages.forEach((filename, idx) => {
                     console.log(`Ảnh đã xóa ${idx+1}: ${filename}`);
                 });
             }
-            
-            // Đánh dấu rõ ràng khi có ảnh bị xóa 
+
+            // Đánh dấu rõ ràng khi có ảnh bị xóa
             if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
                 formData.append('hasDeletedImages', 'true');
             }
-            
+
             if (allImagesRemoved) {
                 // Nếu tất cả ảnh đã bị xóa (section bị ẩn), gửi mảng rỗng
                 console.log("Tất cả ảnh hiện tại đã bị xóa");
                 formData.append('currentImages', JSON.stringify([]));
-                
+
                 // Đánh dấu để backend biết người dùng đã cố ý xóa tất cả ảnh
                 formData.append('allImagesRemoved', 'true');
             } else {
                 // Có ảnh hiện tại, xử lý như bình thường
                 try {
                     console.log(`Số lượng ảnh còn lại trong DOM: ${remainingInputs.length}`);
-                    
+
                     // Lọc bỏ ảnh bị lỗi trước khi gửi
                     const validImages = Array.from(remainingInputs).filter(input => {
                         // Kiểm tra nếu ảnh này đã nằm trong danh sách ảnh bị xóa
@@ -1023,13 +1023,13 @@
                             console.log(`Bỏ qua ảnh đã xóa: ${input.value}`);
                             return false;
                         }
-                        
+
                         const imgContainer = input.closest('div');
                         const img = imgContainer.querySelector('img');
                         // Nếu ảnh đã được thay thế bằng placeholder (base64), không gửi lên server
                         return !img.src.startsWith('data:image');
                     }).map(input => input.value);
-                    
+
                     if (validImages.length > 0) {
                         formData.append('currentImages', JSON.stringify(validImages));
                         console.log("Gửi " + validImages.length + " ảnh hiện tại");
@@ -1048,26 +1048,26 @@
                     formData.append('currentImages', JSON.stringify([]));
                 }
             }
-            
+
             // Add new images
             const fileInput = document.getElementById('newImages');
             let hasImages = false;
-            
+
             if (fileInput.files.length > 0) {
                 hasImages = true;
                 console.log(`Đang gửi ${fileInput.files.length} ảnh mới`);
-                
+
                 // Thêm trường đánh dấu để backend biết có ảnh mới
                 formData.append('hasNewImages', 'true');
-                
+
                 for (let i = 0; i < fileInput.files.length; i++) {
                     const file = fileInput.files[i];
                     console.log(`Thêm ảnh: ${file.name}, kích thước: ${file.size} bytes, loại: ${file.type}`);
-                    
+
                     // Dùng nhiều tên trường để tương thích với nhiều phiên bản API
                     formData.append('newImages', file);
                     formData.append('images', file);
-                    
+
                     // Nếu là tạo mới homestay, thêm các trường đặc biệt cho việc tạo mới
                     if (!homestayId) {
                         formData.append('newHomestayImages', file);
@@ -1075,14 +1075,14 @@
                         formData.append('imageFiles', file);
                     }
                 }
-                
+
                 // Nếu đang tạo mới homestay, thêm danh sách tên file vào formData
                 if (!homestayId) {
                     const fileNames = Array.from(fileInput.files).map(f => f.name);
                     formData.append('imageFileNames', JSON.stringify(fileNames));
                 }
             }
-            
+
             // Kiểm tra nếu không có ảnh nào (cả hiện tại và mới) trong trường hợp thêm mới hoặc đã xóa hết ảnh cũ
             if ((!homestayId || allImagesRemoved) && !hasImages) {
                 // Hiển thị lỗi trong form với hàm mới
@@ -1090,10 +1090,10 @@
                 document.getElementById('loadingTable').classList.add('hidden');
                 return;
             }
-            
+
             // Determine the API endpoint based on whether we're creating or updating
             const url = homestayId ? '/admin/homestay/api/update' : '/admin/homestay/api/create';
-            
+
             // Hiển thị dữ liệu gửi đi cho debugging
             console.log("Sending data to:", url);
             for (const pair of formData.entries()) {
@@ -1104,105 +1104,105 @@
                     console.log(pair[0], pair[1]);
                 }
             }
-            
+
             // Thêm CSRF token vào header
             const headers = {
                 [header]: token
             };
-            
+
             // Send the request
             fetch(url, {
                 method: 'POST',
                 headers: headers,
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error("Error response:", text);
-                        try {
-                            // Thử parse JSON nếu có thể
-                            const jsonError = JSON.parse(text);
-                            throw new Error(jsonError.message || `Lỗi server: ${response.status} ${response.statusText}`);
-                        } catch (e) {
-                            // Nếu không phải JSON, sử dụng text trực tiếp
-                            throw new Error(`Lỗi server: ${response.status} ${response.statusText}`);
-                        }
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Server response:", data);
-                
-                if (data.success) {
-                    // Đóng modal khi thành công
-                    closeModal();
-                    showSuccess(homestayId ? 'Cập nhật homestay thành công' : 'Thêm homestay mới thành công');
-                    
-                    // In chi tiết dữ liệu homestay sau khi tạo/cập nhật
-                    if (data.data) {
-                        console.log("Chi tiết homestay sau khi lưu:", data.data);
-                        if (data.data.id) {
-                            console.log("ID homestay:", data.data.id);
-                        }
-                        if (data.data.imageUrls) {
-                            console.log("Ảnh homestay:", data.data.imageUrls);
-                        } else if (data.data.images) {
-                            console.log("Ảnh homestay (images):", data.data.images);
-                        }
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error("Error response:", text);
+                            try {
+                                // Thử parse JSON nếu có thể
+                                const jsonError = JSON.parse(text);
+                                throw new Error(jsonError.message || `Lỗi server: ${response.status} ${response.statusText}`);
+                            } catch (e) {
+                                // Nếu không phải JSON, sử dụng text trực tiếp
+                                throw new Error(`Lỗi server: ${response.status} ${response.statusText}`);
+                            }
+                        });
                     }
-                    
-                    // Cập nhật UI ngay lập tức nếu đã xóa ảnh
-                    if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
-                        // Xóa hình ảnh khỏi danh sách ngay lập tức
-                        updateHomestayInUI(currentHomestayId, window.explicitlyDeletedImages);
-                    }
-                    
-                    // Đợi một khoảng thời gian trước khi tải lại danh sách
-                    // Đây là để đảm bảo server đã xử lý xong ảnh
-                    setTimeout(() => {
-                        loadHomestays();
-                    }, 2000); // Đợi 2 giây trước khi load lại
-                } else {
-                    throw new Error(data.message || 'Có lỗi xảy ra khi lưu homestay');
-                }
-            })
-            .catch(error => {
-                console.error("Error in form submission:", error);
-                showError('Lỗi khi lưu homestay: ' + error.message);
-            })
-            .finally(() => {
-                document.getElementById('loadingTable').classList.add('hidden');
-                
-                // Đảm bảo đóng form sau khi xử lý xong
-                setTimeout(() => {
-                    if (!document.getElementById('homestayModal').classList.contains('hidden')) {
-                        console.log("Form không tự đóng, đóng thủ công sau 1 giây");
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Server response:", data);
+
+                    if (data.success) {
+                        // Đóng modal khi thành công
                         closeModal();
+                        showSuccess(homestayId ? 'Cập nhật homestay thành công' : 'Thêm homestay mới thành công');
+
+                        // In chi tiết dữ liệu homestay sau khi tạo/cập nhật
+                        if (data.data) {
+                            console.log("Chi tiết homestay sau khi lưu:", data.data);
+                            if (data.data.id) {
+                                console.log("ID homestay:", data.data.id);
+                            }
+                            if (data.data.imageUrls) {
+                                console.log("Ảnh homestay:", data.data.imageUrls);
+                            } else if (data.data.images) {
+                                console.log("Ảnh homestay (images):", data.data.images);
+                            }
+                        }
+
+                        // Cập nhật UI ngay lập tức nếu đã xóa ảnh
+                        if (window.explicitlyDeletedImages && window.explicitlyDeletedImages.length > 0) {
+                            // Xóa hình ảnh khỏi danh sách ngay lập tức
+                            updateHomestayInUI(currentHomestayId, window.explicitlyDeletedImages);
+                        }
+
+                        // Đợi một khoảng thời gian trước khi tải lại danh sách
+                        // Đây là để đảm bảo server đã xử lý xong ảnh
+                        setTimeout(() => {
+                            loadHomestays();
+                        }, 2000); // Đợi 2 giây trước khi load lại
+                    } else {
+                        throw new Error(data.message || 'Có lỗi xảy ra khi lưu homestay');
                     }
-                }, 1000);
-            });
+                })
+                .catch(error => {
+                    console.error("Error in form submission:", error);
+                    showError('Lỗi khi lưu homestay: ' + error.message);
+                })
+                .finally(() => {
+                    document.getElementById('loadingTable').classList.add('hidden');
+
+                    // Đảm bảo đóng form sau khi xử lý xong
+                    setTimeout(() => {
+                        if (!document.getElementById('homestayModal').classList.contains('hidden')) {
+                            console.log("Form không tự đóng, đóng thủ công sau 1 giây");
+                            closeModal();
+                        }
+                    }, 1000);
+                });
         }
     }
-    
+
     // Thêm hàm mới để xóa ảnh homestay trực tiếp
     function deleteHomestayImages(homestayId, imageNames) {
         console.log(`Đang xóa ${imageNames.length} ảnh của homestay ${homestayId}`);
-        
+
         return new Promise((resolve, reject) => {
             // Tạo formData để gửi danh sách ảnh cần xóa
             const formData = new FormData();
             formData.append('homestayId', homestayId);
-            
+
             // Thêm từng tên file vào formData
             imageNames.forEach(imageName => {
                 formData.append('imageNames', imageName);
             });
-            
+
             // Thêm cả dạng JSON
             formData.append('imageNamesJson', JSON.stringify(imageNames));
-            
+
             // Gửi request xóa ảnh
             fetch('/admin/homestay/api/delete-images', {
                 method: 'POST',
@@ -1211,44 +1211,44 @@
                 },
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error("Error response from delete images:", text);
-                        throw new Error(`Lỗi khi xóa ảnh: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Kết quả xóa ảnh:", data);
-                resolve(data);
-            })
-            .catch(error => {
-                console.error("Lỗi khi xóa ảnh:", error);
-                reject(error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error("Error response from delete images:", text);
+                            throw new Error(`Lỗi khi xóa ảnh: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Kết quả xóa ảnh:", data);
+                    resolve(data);
+                })
+                .catch(error => {
+                    console.error("Lỗi khi xóa ảnh:", error);
+                    reject(error);
+                });
         });
     }
-    
+
     // Hàm cập nhật UI trực tiếp khi đã xóa ảnh
     function updateHomestayInUI(homestayId, deletedImages) {
         console.log(`Cập nhật UI cho homestay ${homestayId}, đã xóa ${deletedImages.length} ảnh`);
-        
+
         // Reset biến global
         window.explicitlyDeletedImages = [];
     }
-    
+
     // Thêm hàm xử lý khi người dùng xóa tất cả ảnh hiện tại
     function removeAllExistingImages() {
         const imageContainer = document.getElementById('existingImagePreviewContainer');
-        
+
         // Đánh dấu tất cả ảnh hiện tại đã bị xóa
         const allExistingImages = document.querySelectorAll('#existingImagePreviewContainer input[name="existingImages"]');
         if (!window.explicitlyDeletedImages) {
             window.explicitlyDeletedImages = [];
         }
-        
+
         allExistingImages.forEach(input => {
             const filename = input.value;
             // Thêm vào mảng ảnh đã xóa nếu chưa có
@@ -1256,37 +1256,37 @@
                 window.explicitlyDeletedImages.push(filename);
             }
         });
-        
+
         console.log("Đã đánh dấu tất cả ảnh để xóa:", window.explicitlyDeletedImages);
-        
+
         // Xóa tất cả ảnh khỏi DOM
         imageContainer.innerHTML = '';
         document.getElementById('existingImagesSection').classList.add('hidden');
-        
+
         // Hiển thị thông báo
         const notification = document.createElement('div');
         notification.className = 'text-sm text-yellow-600 mt-2 mb-2';
         notification.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Đã xóa tất cả ảnh hiện tại. Vui lòng tải lên ảnh mới.';
         document.getElementById('homestayForm').insertBefore(notification, document.getElementById('existingImagesSection').nextSibling);
-        
+
         // Tự động ẩn thông báo sau 4 giây
         setTimeout(() => {
             notification.remove();
         }, 4000);
     }
-    
+
     // Hiển thị lỗi trong form thay vì bên ngoài
     function showFormError(message) {
         // Hiển thị container lỗi
         const errorContainer = document.getElementById('formErrorContainer');
         const errorMessage = document.getElementById('formErrorMessage');
-        
+
         errorMessage.textContent = message;
         errorContainer.classList.remove('hidden');
-        
+
         // Đảm bảo form cuộn lên đầu
         document.getElementById('homestayModal').scrollTo(0, 0);
-        
+
         // Tự động ẩn thông báo sau 2 giây
         setTimeout(() => {
             errorContainer.classList.add('hidden');
@@ -1301,20 +1301,20 @@
             imgElement.src = placeholderImageBase64;
             return;
         }
-        
+
         // Log thông tin retry
         console.log(`Thử tải lại ảnh (lần ${currentRetry + 1}/${maxRetries}): ${imgUrl}`);
-        
+
         // Đặt một timeout trước khi thử lại
         setTimeout(() => {
             // Thêm timestamp để tránh cache
             const retrySrc = imgUrl + (imgUrl.includes('?') ? '&' : '?') + 'retry=' + new Date().getTime();
-            
+
             // Gán sự kiện onerror mới
             imgElement.onerror = function() {
                 retryLoadImage(imgElement, imgUrl, maxRetries, currentRetry + 1);
             };
-            
+
             // Thử tải lại ảnh
             imgElement.src = retrySrc;
         }, 1000 * (currentRetry + 1)); // Tăng dần thời gian chờ giữa các lần thử

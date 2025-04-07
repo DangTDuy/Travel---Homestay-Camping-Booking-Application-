@@ -199,8 +199,8 @@ public class CampingService {
     private boolean isAvailableForDates(Camping camping, LocalDate start, LocalDate end) {
         for (Booking booking : camping.getBookings()) {
             if (booking.getStatus() != Booking.BookingStatus.CANCELLED &&
-                !(end.isBefore(booking.getCheckIn().toLocalDate()) || 
-                  start.isAfter(booking.getCheckOut().toLocalDate()))) {
+                    !(end.isBefore(booking.getCheckIn().toLocalDate()) ||
+                            start.isAfter(booking.getCheckOut().toLocalDate()))) {
                 return false;
             }
         }

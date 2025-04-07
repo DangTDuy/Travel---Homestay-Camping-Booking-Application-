@@ -100,13 +100,13 @@ public class HomestayService {
 
     public List<Homestay> searchHomestays(String location, String priceRange, String rating) {
         try {
-            log.info("Searching homestays with location: {}, priceRange: {}, rating: {}", 
+            log.info("Searching homestays with location: {}, priceRange: {}, rating: {}",
                     location, priceRange, rating);
-            
+
             // If no search parameters, return all homestays
-            if ((location == null || location.isEmpty()) && 
-                (priceRange == null || priceRange.isEmpty()) && 
-                (rating == null || rating.isEmpty())) {
+            if ((location == null || location.isEmpty()) &&
+                    (priceRange == null || priceRange.isEmpty()) &&
+                    (rating == null || rating.isEmpty())) {
                 log.info("No search parameters, returning all homestays");
                 return getAllHomestays();
             }
@@ -118,7 +118,7 @@ public class HomestayService {
             // Parse price range
             if (priceRange != null && !priceRange.isEmpty()) {
                 String[] prices = priceRange.split("-");
-                
+
                 // Trường hợp "X-" - từ X trở lên
                 if (prices.length == 2) {
                     try {
@@ -127,7 +127,7 @@ public class HomestayService {
                             minPrice = Double.parseDouble(prices[0]);
                             log.info("Min price set to: {}", minPrice);
                         }
-                        
+
                         // Lấy giá trị max nếu có
                         if (!prices[1].isEmpty()) {
                             maxPrice = Double.parseDouble(prices[1]);
@@ -159,17 +159,17 @@ public class HomestayService {
                     log.warn("Invalid rating format: {}", rating, e);
                 }
             }
-            
-            log.info("Searching with parameters - location: {}, minPrice: {}, maxPrice: {}, minRating: {}", 
+
+            log.info("Searching with parameters - location: {}, minPrice: {}, maxPrice: {}, minRating: {}",
                     location, minPrice, maxPrice, minRating);
 
             List<Homestay> results = homestayRepository.searchHomestays(
-                location,
-                minPrice,
-                maxPrice,
-                minRating
+                    location,
+                    minPrice,
+                    maxPrice,
+                    minRating
             );
-            
+
             log.info("Found {} homestays matching search criteria", results.size());
             return results;
         } catch (Exception e) {
@@ -182,7 +182,7 @@ public class HomestayService {
         try {
             log.info("Getting homestay by id: {}", id);
             Optional<Homestay> homestayOpt = homestayRepository.findById(id);
-            
+
             // Initialize lazy collections needed by the detail view
             homestayOpt.ifPresent(homestay -> {
                 Hibernate.initialize(homestay.getReviews());
@@ -239,7 +239,7 @@ public class HomestayService {
                     }
                 }
             }
-        homestay.setImageUrls(updatedHomestay.getImageUrls());
+            homestay.setImageUrls(updatedHomestay.getImageUrls());
         }
 
         return homestayRepository.save(homestay);
@@ -273,32 +273,40 @@ public class HomestayService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<Homestay> getAllHomestays() {
         try {
-            log.info("Getting all homestays from repository");
+            log.info("Attempting to get all homestays from repository...");
             List<Homestay> homestays = homestayRepository.findAll();
-            log.info("Found {} homestays", homestays.size());
-            
-            // Ensure all collections are initialized
-            homestays.forEach(homestay -> {
-                if (homestay.getAmenities() == null) homestay.setAmenities(new ArrayList<>());
-                if (homestay.getImageUrls() == null) homestay.setImageUrls(new ArrayList<>());
-                if (homestay.getImages() == null) homestay.setImages(new ArrayList<>());
-                if (homestay.getBookings() == null) homestay.setBookings(new ArrayList<>());
-                
-                // Parse JSON fields
+            log.info("Initial fetch from repository found {} homestays.", homestays.size());
+
+            // Ensure all necessary collections are initialized within the transaction
+            for (Homestay homestay : homestays) {
                 try {
-                    homestay.getTagsList(); // This will initialize tags if needed
-                    homestay.getSeasonsList(); // This will initialize seasons if needed
+                    // Initialize LAZY collections
+                    Hibernate.initialize(homestay.getAmenities());
+                    Hibernate.initialize(homestay.getImages());
+                    Hibernate.initialize(homestay.getBookings());
+                    Hibernate.initialize(homestay.getReviews());
+                    // Không cần initialize imageUrls vì nó là @ElementCollection FetchType.EAGER (mặc định) hoặc được load cùng Homestay
+
+                    // Initialize JSON fields if necessary (nếu logic getter phức tạp)
+                    homestay.getTagsList(); // Gọi để đảm bảo parse
+                    homestay.getSeasonsList(); // Gọi để đảm bảo parse
                 } catch (Exception e) {
-                    log.error("Error parsing JSON fields for homestay {}: {}", homestay.getId(), e.getMessage());
+                    // Log lỗi cho từng homestay thay vì dừng toàn bộ quá trình
+                    log.error("Error initializing collections or parsing JSON for homestay ID {}: {}", homestay.getId(), e.getMessage());
+                    // Cân nhắc: Có nên loại bỏ homestay này khỏi danh sách trả về không?
+                    // Hoặc để Jackson xử lý lỗi sau này (có thể dẫn đến lỗi JSON response)
                 }
-            });
-            
+            }
+
+            log.info("Finished initializing collections. Returning {} homestays.", homestays.size());
             return homestays;
         } catch (Exception e) {
-            log.error("Error getting all homestays: {}", e.getMessage(), e);
-            throw new RuntimeException("Lỗi khi lấy danh sách homestay: " + e.getMessage());
+            log.error("Critical error getting all homestays: {}", e.getMessage(), e);
+            // Ném lại lỗi để Controller có thể bắt và trả về lỗi 500
+            throw new RuntimeException("Lỗi nghiêm trọng khi lấy danh sách homestay: " + e.getMessage());
         }
     }
 
@@ -339,7 +347,7 @@ public class HomestayService {
                 String originalFilename = image.getOriginalFilename();
                 String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
-                
+
                 Path targetPath = rootLocation.resolve(filename);
 
                 // Create directories if they don't exist
@@ -380,8 +388,8 @@ public class HomestayService {
     @Transactional
     public Homestay updateHomestayImages(Homestay homestay, List<String> currentImages, MultipartFile[] newImages) throws IOException {
         // Validate total number of images
-        int totalImages = (currentImages != null ? currentImages.size() : 0) + 
-                         (newImages != null ? newImages.length : 0);
+        int totalImages = (currentImages != null ? currentImages.size() : 0) +
+                (newImages != null ? newImages.length : 0);
         if (totalImages > 5) {
             throw new IllegalArgumentException("Tổng số ảnh không được vượt quá 5");
         }
@@ -414,10 +422,10 @@ public class HomestayService {
                     String originalFilename = image.getOriginalFilename();
                     String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                     String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
-                    
+
                     Path targetPath = rootLocation.resolve(filename);
                     Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    
+
                     newFilenames.add(filename);
                     newUrls.add("/homestay_images/" + filename);
                 }
