@@ -171,4 +171,9 @@ public class UserService implements UserDetailsService {
         return new UserDTO(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng.")));
     }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+    }
 }

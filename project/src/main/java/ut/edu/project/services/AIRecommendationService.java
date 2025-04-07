@@ -358,4 +358,8 @@ public class AIRecommendationService {
 
         return userPreferenceRepository.save(userPreference);
     }
+
+    public List<Review> getReviewsByHomestay(Homestay homestay) {
+        return reviewRepository.findByHomestay(homestay);
+    }
 }

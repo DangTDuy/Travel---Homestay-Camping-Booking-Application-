@@ -2,12 +2,20 @@ package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ut.edu.project.models.Booking;
-import ut.edu.project.models.Payment;
+import org.springframework.transaction.annotation.Transactional;
+import ut.edu.project.models.*;
 import ut.edu.project.repositories.BookingRepository;
 import ut.edu.project.repositories.PaymentRepository;
+import ut.edu.project.repositories.UserRepository;
+import ut.edu.project.repositories.HomestayRepository;
+import ut.edu.project.dtos.BookingRequestDTO;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,8 +28,28 @@ public class BookingService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    public Booking saveBooking(Booking booking, String paymentMethod) {
+    @Autowired
+    private UserRepository userRepository;
 
+    @Autowired
+    private HomestayRepository homestayRepository;
+
+    @Transactional
+    public Booking createBooking(Booking booking) {
+        // Validate booking
+        validateBooking(booking);
+
+        // Calculate total price including additional services
+        calculateTotalPrice(booking);
+
+        // Set initial status
+        booking.setStatus(Booking.BookingStatus.PENDING);
+        
+        return bookingRepository.save(booking);
+    }
+
+    @Transactional
+    public Booking saveBooking(Booking booking, String paymentMethod) {
         Booking savedBooking = bookingRepository.save(booking);
 
         // Create Payment
@@ -43,27 +71,167 @@ public class BookingService {
         return bookingRepository.findAll();
     }
 
-    public void deleteBooking(Long id) {
-        bookingRepository.deleteById(id);
+    public List<Booking> getBookingsByUsername(String username) {
+        return bookingRepository.findByUserUsername(username);
     }
 
-    public Booking updateBookingStatus(Long id, String status) {
-        Optional<Booking> optionalBooking = bookingRepository.findById(id);
-        if (optionalBooking.isPresent()) {
-            Booking booking = optionalBooking.get();
-            booking.setStatus(status);
-            return bookingRepository.save(booking);
-        } else {
-            return null; // or throw an exception
+    public List<Booking> getBookingsByStatus(Booking.BookingStatus status) {
+        return bookingRepository.findByStatus(status);
+    }
+
+    public List<Booking> searchBookings(String searchTerm) {
+        return bookingRepository.findByUserUsernameContainingIgnoreCaseOrHomestayNameContainingIgnoreCase(searchTerm);
+    }
+
+    @Transactional
+    public void cancelBooking(Long id, String username) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("You don't have permission to cancel this booking");
+        }
+
+        if (!booking.canCancel()) {
+            throw new RuntimeException("This booking cannot be cancelled");
+        }
+
+        booking.setStatus(Booking.BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
+    }
+
+    @Transactional
+    public Booking updateBookingStatus(Long id, Booking.BookingStatus status, String username) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().equals("ADMIN")) {
+            throw new RuntimeException("Only admin can update booking status");
+        }
+
+        booking.setStatus(status);
+        return bookingRepository.save(booking);
+    }
+
+    public boolean checkAvailability(Long homestayId, String checkIn, String checkOut) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime checkInDate = LocalDateTime.parse(checkIn, formatter);
+        LocalDateTime checkOutDate = LocalDateTime.parse(checkOut, formatter);
+
+        // Validate dates
+        if (checkInDate.isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Check-in date cannot be in the past");
+        }
+        if (checkOutDate.isBefore(checkInDate)) {
+            throw new RuntimeException("Check-out date must be after check-in date");
+        }
+
+        // Check for overlapping bookings
+        List<Booking> overlappingBookings = bookingRepository
+                .findOverlappingBookings(homestayId, checkInDate, checkOutDate);
+
+        return overlappingBookings.isEmpty();
+    }
+
+    @Transactional
+    public Booking createBookingFromApi(BookingRequestDTO request, String username) {
+        // 1. Fetch User and Homestay
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        Homestay homestay = homestayRepository.findById(request.getHomestayId())
+                .orElseThrow(() -> new RuntimeException("Homestay not found with ID: " + request.getHomestayId()));
+
+        // 2. Parse and Validate Dates
+        LocalDate checkInDate;
+        LocalDate checkOutDate;
+        try {
+            checkInDate = LocalDate.parse(request.getCheckInDate());
+            checkOutDate = LocalDate.parse(request.getCheckOutDate());
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Định dạng ngày không hợp lệ. Vui lòng sử dụng yyyy-MM-dd.");
+        }
+
+        if (checkInDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Ngày nhận phòng không thể là ngày trong quá khứ.");
+        }
+        if (!checkOutDate.isAfter(checkInDate)) {
+            throw new IllegalArgumentException("Ngày trả phòng phải sau ngày nhận phòng.");
+        }
+
+        // Combine with default time (e.g., check-in at 14:00, check-out at 12:00)
+        // Adjust these times as needed for your business logic
+        LocalDateTime checkInDateTime = checkInDate.atTime(14, 0);
+        LocalDateTime checkOutDateTime = checkOutDate.atTime(12, 0);
+
+        // 3. Validate Guests
+        if (request.getGuests() <= 0) {
+            throw new IllegalArgumentException("Số lượng khách phải lớn hơn 0.");
+        }
+        if (request.getGuests() > homestay.getCapacity()) {
+            throw new IllegalArgumentException("Số lượng khách vượt quá sức chứa của homestay (" + homestay.getCapacity() + ").");
+        }
+
+        // 4. Check Availability (Overlap)
+        List<Booking> overlappingBookings = bookingRepository
+                .findOverlappingBookings(homestay.getId(), checkInDateTime, checkOutDateTime);
+        if (!overlappingBookings.isEmpty()) {
+            throw new RuntimeException("Homestay không có sẵn trong khoảng thời gian đã chọn."); // Or HttpStatus.CONFLICT in Controller
+        }
+
+        // 5. Calculate Total Price
+        long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        if (nights <= 0) nights = 1; // Minimum 1 night stay
+        double totalPrice = homestay.getPrice() * nights;
+
+        // 6. Create and Save Booking
+        Booking newBooking = new Booking();
+        newBooking.setUser(user);
+        newBooking.setHomestay(homestay);
+        newBooking.setCheckIn(checkInDateTime);
+        newBooking.setCheckOut(checkOutDateTime);
+        newBooking.setGuests(request.getGuests());
+        newBooking.setSpecialRequests(request.getSpecialRequests());
+        newBooking.setTotalPrice(totalPrice);
+        newBooking.setStatus(Booking.BookingStatus.PENDING); // Initial status
+        newBooking.setServiceType(Booking.ServiceType.HOMESTAY);
+        newBooking.setCreatedAt(LocalDateTime.now());
+
+        return bookingRepository.save(newBooking);
+    }
+
+    private void validateBooking(Booking booking) {
+        if (booking.getCheckIn().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Check-in date cannot be in the past");
+        }
+        if (booking.getCheckOut().isBefore(booking.getCheckIn())) {
+            throw new RuntimeException("Check-out date must be after check-in date");
+        }
+        if (booking.getGuests() <= 0) {
+            throw new RuntimeException("Number of guests must be positive");
         }
     }
 
-    public List<Booking> getBookingsByUser(Long userId) {
-        return bookingRepository.findByUserId(userId);
-    }
+    private void calculateTotalPrice(Booking booking) {
+        double totalPrice = booking.getHomestay().getPrice(); // Base price per night
 
-    // Additional methods based on requirements can be added here.
-    public List<Booking> getBookingsByStatus(String status){
-        return bookingRepository.findByStatus(status);
+        // Calculate number of nights
+        long nights = java.time.temporal.ChronoUnit.DAYS.between(
+                booking.getCheckIn().toLocalDate(),
+                booking.getCheckOut().toLocalDate()
+        );
+        totalPrice *= nights;
+
+        // Add additional services price
+        if (booking.getAdditionalServices() != null) {
+            for (Additional service : booking.getAdditionalServices()) {
+                totalPrice += service.getPrice().doubleValue() * service.getQuantity();
+            }
+        }
+
+        booking.setTotalPrice(totalPrice);
     }
 }
