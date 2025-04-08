@@ -101,18 +101,24 @@ public class BookingController {
     }
 
     @GetMapping("/my-history")
-    public String showMyBookingHistory(Model model, Principal principal) {
+    public String showMyBookingHistory(
+            Model model, 
+            Principal principal,
+            @RequestParam(defaultValue = "0") int page) {
         if (principal == null) {
             return "redirect:/auth/login-user";
         }
-        String username = principal.getName();
         try {
-            List<Booking> bookings = bookingService.getBookingsByUsername(username);
+            String username = principal.getName();
+            // Get bookings with pagination (20 records per page)
+            List<Booking> bookings = bookingService.getBookingsByUsername(username, page, 20);
             model.addAttribute("bookings", bookings);
             model.addAttribute("isFullHistory", true);
+            model.addAttribute("username", username);
+            model.addAttribute("page", page);
             return "user/booking-history";
         } catch (Exception e) {
-            model.addAttribute("error", "Không thể tải lịch sử đặt phòng.");
+            model.addAttribute("error", "Có lỗi khi tải lịch sử đặt phòng: " + e.getMessage());
             return "error";
         }
     }

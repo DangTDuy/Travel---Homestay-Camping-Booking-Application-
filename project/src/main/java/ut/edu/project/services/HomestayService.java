@@ -178,23 +178,25 @@ public class HomestayService {
         }
     }
 
+    @Transactional
     public Optional<Homestay> getHomestayById(Long id) {
         try {
-            log.info("Getting homestay by id: {}", id);
-            Optional<Homestay> homestayOpt = homestayRepository.findById(id);
-
-            // Initialize lazy collections needed by the detail view
-            homestayOpt.ifPresent(homestay -> {
-                Hibernate.initialize(homestay.getReviews());
-                Hibernate.initialize(homestay.getImages()); // Initialize images as well if needed elsewhere
-                Hibernate.initialize(homestay.getAmenities()); // Initialize amenities
-            });
-
-            log.info("Found homestay: {}", homestayOpt.isPresent());
-            return homestayOpt;
+            Homestay homestay = homestayRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Homestay not found"));
+            
+            // Initialize lazy-loaded collections
+            Hibernate.initialize(homestay.getImages());
+            Hibernate.initialize(homestay.getImageUrls());
+            Hibernate.initialize(homestay.getAmenities());
+            Hibernate.initialize(homestay.getReviews());
+            
+            // Initialize owner
+            Hibernate.initialize(homestay.getOwner());
+            
+            return Optional.of(homestay);
         } catch (Exception e) {
-            log.error("Error getting homestay by id: {}", id, e);
-            throw new RuntimeException("Lỗi khi lấy thông tin homestay: " + e.getMessage());
+            log.error("Error getting homestay: {}", e.getMessage(), e);
+            return Optional.empty();
         }
     }
 

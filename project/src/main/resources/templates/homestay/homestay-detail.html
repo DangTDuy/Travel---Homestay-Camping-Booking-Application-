@@ -59,14 +59,14 @@
                 Xin chào, <span sec:authentication="name" class="font-medium ml-1"></span>
             </span>
             <form th:if="${_csrf}" id="logoutForm" th:action="@{/logout}" method="POST" class="ml-4" sec:authorize="isAuthenticated()">
-                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                 <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition duration-150 ease-in-out shadow-sm hover:shadow-md text-sm font-medium flex items-center">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition duration-150 ease-in-out shadow-sm hover:shadow-md text-sm font-medium flex items-center">
                     <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
-                 </button>
+                </button>
             </form>
             <a th:href="@{/auth/login-user}" sec:authorize="!isAuthenticated()"
                class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition duration-150 ease-in-out shadow-sm hover:shadow-md text-sm font-medium flex items-center">
-               <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
+                <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
             </a>
         </div>
 
@@ -121,7 +121,7 @@
 
                     <div class="mb-8">
                         <h3 class="text-xl font-semibold text-dark mb-3">Tiện nghi</h3>
-                         <div th:if="${homestay.amenities != null and not #lists.isEmpty(homestay.amenities)}"
+                        <div th:if="${homestay.amenities != null and not #lists.isEmpty(homestay.amenities)}"
                              class="flex flex-wrap gap-3">
                             <span th:each="amenity : ${homestay.amenities}"
                                   class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center shadow-sm">
@@ -139,13 +139,12 @@
 
                         <!-- Average Rating & Count -->
                         <div class="flex items-center mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
-                             <span class="text-yellow-500 flex items-center mr-3 text-xl" th:if="${homestay.rating != null and homestay.rating > 0}">
-                                <i th:each="i : ${#numbers.sequence(1, T(Math).floor(homestay.rating))}" class="fas fa-star"></i>
-                                <i th:if="${homestay.rating % 1 >= 0.5}" class="fas fa-star-half-alt"></i>
-                                <i th:each="i : ${#numbers.sequence(T(Math).ceil(homestay.rating) + 1, 5)}" class="far fa-star"></i>
+                            <span class="text-yellow-500 flex items-center mr-3 text-xl" th:if="${homestay.rating != null and homestay.rating > 0}">
+                                <!-- Hiển thị đánh giá đơn giản hơn -->
+                                <i class="fas fa-star"></i>
                                 <span class="text-dark font-bold ml-2" th:text="${#numbers.formatDecimal(homestay.rating, 1, 1)}"></span>
-                             </span>
-                             <span th:unless="${homestay.rating != null and homestay.rating > 0}" class="text-gray-500 italic text-lg mr-3">Chưa có đánh giá</span>
+                            </span>
+                            <span th:unless="${homestay.rating != null and homestay.rating > 0}" class="text-gray-500 italic text-lg mr-3">Chưa có đánh giá</span>
                             <span class="text-gray-700 text-base" th:text="'· ' + (${homestay.reviews != null ? #lists.size(homestay.reviews) : 0}) + ' đánh giá'"></span>
                         </div>
 
@@ -194,30 +193,30 @@
                             <!-- Empty State for Reviews -->
                             <div th:if="${homestay.reviews == null or #lists.isEmpty(homestay.reviews)}"
                                  class="text-center py-10 px-4 bg-gray-50 rounded-lg border border-gray-200">
-                                 <i class="far fa-comment-dots text-5xl text-gray-400 mb-3"></i>
-                                 <p class="text-gray-600 font-medium">Chưa có đánh giá nào.</p>
-                                 <p class="text-sm text-gray-500 mt-1">Hãy là người đầu tiên để lại nhận xét!</p>
+                                <i class="far fa-comment-dots text-5xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Chưa có đánh giá nào.</p>
+                                <p class="text-sm text-gray-500 mt-1">Hãy là người đầu tiên để lại nhận xét!</p>
                             </div>
 
                             <!-- Individual Review Card -->
                             <div th:each="review : ${homestay.reviews}" th:if="${homestay.reviews != null and not #lists.isEmpty(homestay.reviews)}"
                                  class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm flex space-x-4">
-                                 <!-- Avatar -->
-                                 <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 flex items-center justify-center">
-                                     <i class="fas fa-user text-xl text-blue-600"></i> <!-- Or use user-specific avatar -->
-                                 </div>
-                                 <!-- Review Content -->
+                                <!-- Avatar -->
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 flex items-center justify-center">
+                                    <i class="fas fa-user text-xl text-blue-600"></i> <!-- Or use user-specific avatar -->
+                                </div>
+                                <!-- Review Content -->
                                 <div class="flex-grow">
                                     <div class="flex items-center justify-between mb-1">
                                         <h6 class="text-base font-semibold text-gray-800" th:text="${review.user?.username} ?: 'Người dùng ẩn danh'">Username</h6>
-                                         <small class="text-xs text-gray-500 flex-shrink-0 ml-4"
+                                        <small class="text-xs text-gray-500 flex-shrink-0 ml-4"
                                                th:if="${review.createdAt != null}"
                                                th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày đăng</small>
                                     </div>
-                                    <!-- Display review rating stars -->
+                                    <!-- Display review rating stars - simplified version -->
                                     <div class="rating text-yellow-400 text-sm mb-2 flex items-center">
-                                        <i th:each="i : ${#numbers.sequence(1, review.rating)}" class="fas fa-star text-xs"></i>
-                                        <i th:each="i : ${#numbers.sequence(review.rating + 1, 5)}" class="far fa-star text-xs"></i>
+                                        <!-- Show fixed number of stars with simple display -->
+                                        <i class="fas fa-star text-xs"></i>
                                         <span class="text-gray-600 font-medium ml-1.5 text-xs" th:text="${review.rating} + '.0'"></span>
                                     </div>
                                     <p class="text-sm text-gray-700 leading-relaxed" th:text="${review.comment}">Bình luận</p>
@@ -237,24 +236,23 @@
                                 <span class="text-2xl font-bold text-primary" th:text="${#numbers.formatCurrency(homestay.price)}"></span>
                                 <span class="text-gray-500 text-sm">/ đêm</span>
                             </div>
-                             <!-- Optional: Add discount info if available -->
+                            <!-- Optional: Add discount info if available -->
                         </div>
 
                         <!-- Rating & Review Count -->
                         <div class="flex items-center mb-4">
                             <span class="text-yellow-500 flex items-center mr-2" th:if="${homestay.rating != null and homestay.rating > 0}">
-                                <i th:each="i : ${#numbers.sequence(1, T(Math).floor(homestay.rating))}" class="fas fa-star text-sm"></i>
-                                <i th:if="${homestay.rating % 1 >= 0.5}" class="fas fa-star-half-alt text-sm"></i>
-                                <i th:each="i : ${#numbers.sequence(T(Math).ceil(homestay.rating) + 1, 5)}" class="far fa-star text-sm"></i>
+                                <!-- Simple star display -->
+                                <i class="fas fa-star text-sm"></i>
                                 <span class="text-gray-700 font-semibold ml-1.5 text-sm" th:text="${#numbers.formatDecimal(homestay.rating, 1, 1)}"></span>
                             </span>
-                             <span th:unless="${homestay.rating != null and homestay.rating > 0}" class="text-gray-400 italic text-sm mr-2">Chưa có đánh giá</span>
+                            <span th:unless="${homestay.rating != null and homestay.rating > 0}" class="text-gray-400 italic text-sm mr-2">Chưa có đánh giá</span>
                             <span class="text-gray-600 text-sm" th:text="'· ' + (${homestay.reviews != null ? #lists.size(homestay.reviews) : 0}) + ' đánh giá'"></span>
                         </div>
 
                         <!-- Key Info (Capacity, etc.) -->
                         <div class="mb-6 space-y-2 text-sm">
-                             <div class="flex justify-between items-center text-gray-700">
+                            <div class="flex justify-between items-center text-gray-700">
                                 <span class="flex items-center">
                                     <i class="fas fa-users mr-2 w-4 text-center text-gray-500"></i>Sức chứa:
                                 </span>
@@ -272,7 +270,7 @@
                         </div>
 
                         <!-- Booking Button - Add hover/active effects -->
-                         <button onclick="openBookingModal()"
+                        <button onclick="openBookingModal()"
                                 class="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:scale-105 active:scale-95 transition duration-200 flex items-center justify-center">
                             <i class="fas fa-calendar-check mr-2"></i> Đặt ngay
                         </button>
@@ -334,16 +332,16 @@
                         <!-- Thông báo lỗi -->
                         <div id="bookingError" class="hidden">
                         </div>
-                        
+
                         <!-- Thông báo thành công -->
                         <div id="bookingSuccess" class="hidden">
                         </div>
-                        
+
                         <!-- Thông báo ngày không hợp lệ -->
                         <div id="invalidDates" class="hidden mb-3 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
                             Ngày trả phòng phải sau ngày nhận phòng
                         </div>
-                        
+
                         <!-- Chi tiết giá -->
                         <div id="priceDetails" class="hidden space-y-2 mb-3">
                             <div class="flex justify-between items-center text-sm">
@@ -356,7 +354,7 @@
                             </div>
                             <div class="border-t border-gray-200 my-2 pt-2"></div>
                         </div>
-                        
+
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700 font-medium">Tổng cộng:</span>
                             <span class="text-xl font-bold text-primary" id="totalPrice">0 VND</span>
@@ -424,7 +422,7 @@
         const checkOutDate = new Date(document.getElementById('checkOutDate').value);
         const pricePerNight = parseFloat(document.getElementById('homestayPrice').value);
         const guests = parseInt(document.getElementById('guests').value) || 1;
-        
+
         // Update min date for checkout based on checkin
         const checkInStr = document.getElementById('checkInDate').value;
         if (checkInStr) {
@@ -436,33 +434,33 @@
         if (checkInDate && checkOutDate && checkOutDate > checkInDate) {
             const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
             const subtotal = nights * pricePerNight;
-            
+
             // Giả sử có phí dịch vụ 5%
             const serviceFee = subtotal * 0.05;
             const total = subtotal + serviceFee;
-            
+
             // Hiển thị chi tiết giá
             document.getElementById('nightsCount').textContent = nights;
             document.getElementById('pricePerNight').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
             }).format(pricePerNight);
-            
+
             document.getElementById('subtotal').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
             }).format(subtotal);
-            
+
             document.getElementById('serviceFee').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
             }).format(serviceFee);
-            
+
             document.getElementById('totalPrice').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
             }).format(total);
-            
+
             // Hiển thị chi tiết giá
             document.getElementById('priceDetails').classList.remove('hidden');
             document.getElementById('invalidDates').classList.add('hidden');
@@ -486,12 +484,12 @@
         // Validate dates
         const checkInDate = new Date(document.getElementById('checkInDate').value);
         const checkOutDate = new Date(document.getElementById('checkOutDate').value);
-        
+
         if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) {
             showErrorMessage('Vui lòng chọn ngày nhận phòng và trả phòng hợp lệ. Ngày trả phòng phải sau ngày nhận phòng.');
             return;
         }
-        
+
         const formData = {
             homestayId: document.getElementById('homestayId').value,
             checkInDate: document.getElementById('checkInDate').value,
@@ -509,13 +507,13 @@
         }
 
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         document.getElementById('bookingSubmitBtn').disabled = true;
         document.getElementById('bookingSubmitBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
         document.getElementById('bookingError').classList.add('hidden');
         document.getElementById('bookingSuccess').classList.add('hidden');
-        
+
         fetch('/api/bookings', {
             method: 'POST',
             credentials: 'include', // Gửi cookie với request
@@ -525,40 +523,40 @@
             },
             body: JSON.stringify(formData)
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            // Thử lấy thông báo lỗi từ response
-            return response.json().catch(() => {
-                // Nếu không parse được JSON, trả về lỗi mặc định
-                throw new Error('Có lỗi xảy ra khi đặt phòng: ' + response.status + ' ' + response.statusText);
-            }).then(data => {
-                throw new Error(data.message || 'Có lỗi xảy ra khi đặt phòng');
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                // Thử lấy thông báo lỗi từ response
+                return response.json().catch(() => {
+                    // Nếu không parse được JSON, trả về lỗi mặc định
+                    throw new Error('Có lỗi xảy ra khi đặt phòng: ' + response.status + ' ' + response.statusText);
+                }).then(data => {
+                    throw new Error(data.message || 'Có lỗi xảy ra khi đặt phòng');
+                });
+            })
+            .then(data => {
+                // Hiển thị thông báo thành công
+                showSuccessMessage('Đặt phòng thành công! Bạn sẽ nhận được email xác nhận trong ít phút.');
+
+                // Sau 2 giây thì đóng modal
+                setTimeout(() => {
+                    closeBookingModal();
+                    // Redirect to bookings page
+                    window.location.href = '/bookings/my-history';
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorMessage(error.message || 'Có lỗi xảy ra khi đặt phòng');
+            })
+            .finally(() => {
+                // Ẩn loading
+                document.getElementById('bookingSubmitBtn').disabled = false;
+                document.getElementById('bookingSubmitBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng';
             });
-        })
-        .then(data => {
-            // Hiển thị thông báo thành công
-            showSuccessMessage('Đặt phòng thành công! Bạn sẽ nhận được email xác nhận trong ít phút.');
-            
-            // Sau 2 giây thì đóng modal
-            setTimeout(() => {
-                closeBookingModal();
-                // Redirect to bookings page
-                window.location.href = '/bookings/my-history';
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showErrorMessage(error.message || 'Có lỗi xảy ra khi đặt phòng');
-        })
-        .finally(() => {
-            // Ẩn loading
-            document.getElementById('bookingSubmitBtn').disabled = false;
-            document.getElementById('bookingSubmitBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng';
-        });
     }
-    
+
     // Hiển thị thông báo lỗi
     function showErrorMessage(message) {
         const errorElement = document.getElementById('bookingError');
@@ -566,10 +564,10 @@
         errorElement.classList.remove('hidden');
         errorElement.classList.add('p-3', 'bg-red-100', 'border-2', 'border-red-500', 'text-red-700', 'rounded-lg', 'mb-4', 'flex', 'items-center');
         errorElement.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-2 text-xl"></i> ' + message;
-        
+
         // Scroll to error message
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
+
         // Highlight form fields with error
         const dateInputs = [document.getElementById('checkInDate'), document.getElementById('checkOutDate')];
         dateInputs.forEach(input => {
@@ -579,14 +577,14 @@
             }, { once: true });
         });
     }
-    
+
     // Hiển thị thông báo thành công
     function showSuccessMessage(message) {
         const successElement = document.getElementById('bookingSuccess');
         successElement.classList.remove('hidden');
         successElement.classList.add('p-3', 'bg-green-100', 'border-2', 'border-green-500', 'text-green-700', 'rounded-lg', 'mb-4', 'flex', 'items-center');
         successElement.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2 text-xl"></i> ' + message;
-    
+
     }
 
     // Rating input

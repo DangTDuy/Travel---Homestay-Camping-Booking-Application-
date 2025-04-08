@@ -71,9 +71,9 @@ public class BookingService {
         return bookingRepository.findAll();
     }
 
-    public List<Booking> getBookingsByUsername(String username) {
-        // Call the updated repository method with sorting
-        return bookingRepository.findByUserUsernameOrderByCreatedAtDesc(username);
+    public List<Booking> getBookingsByUsername(String username, int page, int size) {
+        int offset = page * size;
+        return bookingRepository.findByUserUsernameOrderByCreatedAtDesc(username, offset, size);
     }
 
     public List<Booking> getTop3BookingsByUsername(String username) {
