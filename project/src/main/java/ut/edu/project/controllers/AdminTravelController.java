@@ -58,9 +58,11 @@ public class AdminTravelController {
             
             // Thêm travel mới cho form
             model.addAttribute("travel", new Travel());
+            model.addAttribute("currentPage", "admin/travel");
             
         } catch (Exception e) {
             model.addAttribute("error", "Không thể tải danh sách tour: " + e.getMessage());
+            model.addAttribute("currentPage", "admin/travel");
             log.error("Error loading travels", e);
         }
         return "admin/admin-travel";
@@ -194,6 +196,7 @@ public class AdminTravelController {
                 .filter(user -> "GUIDE".equals(user.getRole()))
                 .collect(Collectors.toList()));
             model.addAttribute("error", "Lỗi khi cập nhật tour du lịch: " + e.getMessage());
+            model.addAttribute("currentPage", "admin/travel");
             log.error("Error updating travel", e);
             return "admin/admin-travel-form";
         }

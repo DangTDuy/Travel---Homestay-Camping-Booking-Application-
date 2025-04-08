@@ -1,6 +1,7 @@
 package ut.edu.project.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,51 @@ public class AdminBookingController {
         this.userService = userService;
     }
 
+    // Endpoint to show all bookings for admin with pagination and filtering
+    @GetMapping
+    public String showAllBookings(
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String serviceType,
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        
+        // Convert string parameters to enum if needed
+        Booking.BookingStatus statusEnum = null;
+        if (!status.isEmpty()) {
+            try {
+                statusEnum = Booking.BookingStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                // Invalid status, ignore filter
+            }
+        }
+        
+        // Get paginated bookings with filters
+        Page<Booking> bookingsPage = bookingService.getAdminBookings(statusEnum, serviceType, dateFrom, dateTo, page, size);
+        
+        model.addAttribute("bookings", bookingsPage.getContent());
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("totalItems", bookingsPage.getTotalElements());
+        model.addAttribute("totalPages", bookingsPage.getTotalPages());
+        model.addAttribute("hasNext", bookingsPage.hasNext());
+        model.addAttribute("hasPrevious", bookingsPage.hasPrevious());
+        
+        // Add selected filters to model for form restoration
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedServiceType", serviceType);
+        model.addAttribute("selectedDateFrom", dateFrom);
+        model.addAttribute("selectedDateTo", dateTo);
+        
+        // Add isAdmin attribute for the template
+        model.addAttribute("isAdmin", true);
+        model.addAttribute("currentPage", "admin/bookings");
+        
+        return "admin/bookings";
+    }
+    
     // Endpoint to show the booking detail page for Admin
     @GetMapping("/{id}")
     public String showAdminBookingDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
@@ -34,6 +80,7 @@ public class AdminBookingController {
 
             model.addAttribute("booking", booking);
             model.addAttribute("allStatuses", Booking.BookingStatus.values()); // For the status update dropdown
+            model.addAttribute("currentPage", "admin/bookings");
             return "admin/booking-detail"; // Path to the new template
 
         } catch (RuntimeException e) {

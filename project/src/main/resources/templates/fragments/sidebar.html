@@ -5,7 +5,7 @@
     <title>Sidebar Fragment</title>
 </head>
 <body>
-<aside th:fragment="sidebar" class="sidebar fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform md:translate-x-0 transition-transform duration-300 ease-in-out">
+<aside th:fragment="sidebar" class="sidebar fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform md:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
     <div class="flex items-center justify-center h-16 px-4 bg-primary">
         <h1 class="text-xl font-bold text-white flex items-center">
             <i class="fas fa-home mr-2"></i>
@@ -27,19 +27,19 @@
             <div class="mb-4">
                 <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menu chính</h3>
                 <div class="mt-2 space-y-1">
-                    <a href="/dashboard" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-primary bg-blue-50 rounded-lg">
+                    <a href="/dashboard" th:classappend="${#strings.equals(currentPage, 'dashboard') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-tachometer-alt mr-3"></i>
                         Bảng điều khiển
                     </a>
-                    <a href="/homestay" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                    <a href="/homestay" th:classappend="${#strings.startsWith(currentPage, 'homestay') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-search mr-3"></i>
                         Tìm kiếm Homestay
                     </a>
-                    <a href="/travels" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                    <a href="/travels" th:classappend="${#strings.startsWith(currentPage, 'travels') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-route mr-3"></i>
                         Tìm kiếm Tour
                     </a>
-                    <a th:href="@{/bookings/my-history}" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                    <a th:href="@{/bookings/my-history}" th:classappend="${#strings.startsWith(currentPage, 'bookings') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg" sec:authorize="!hasAuthority('ADMIN')">
                         <i class="fas fa-calendar-alt mr-3"></i>
                         Lịch sử đặt phòng
                     </a>
@@ -49,17 +49,21 @@
             <div sec:authorize="hasAuthority('ADMIN')" class="mb-4">
                 <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quản trị</h3>
                 <div class="mt-2 space-y-1">
-                    <a href="/admin/homestay" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                    <a href="/admin/homestay" th:classappend="${#strings.startsWith(currentPage, 'admin/homestay') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-home mr-3"></i>
                         Quản lý Homestay
                     </a>
-                    <a href="/admin/travel" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                    <a href="/admin/travel" th:classappend="${#strings.startsWith(currentPage, 'admin/travel') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-route mr-3"></i>
                         Quản lý Tour du lịch
                     </a>
-                    <a href="/admin/users" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-lg">
+                    <a href="/admin/users" th:classappend="${#strings.startsWith(currentPage, 'admin/users') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-users mr-3"></i>
                         Quản lý người dùng
+                    </a>
+                    <a href="/admin/bookings" th:classappend="${#strings.startsWith(currentPage, 'admin/bookings') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
+                        <i class="fas fa-calendar-check mr-3"></i>
+                        Quản lý đặt phòng
                     </a>
                 </div>
             </div>

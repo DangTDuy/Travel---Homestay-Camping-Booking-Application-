@@ -116,6 +116,7 @@ public class BookingController {
             model.addAttribute("isFullHistory", true);
             model.addAttribute("username", username);
             model.addAttribute("page", page);
+            model.addAttribute("currentPage", "bookings");
             return "user/booking-history";
         } catch (Exception e) {
             model.addAttribute("error", "Có lỗi khi tải lịch sử đặt phòng: " + e.getMessage());
@@ -138,6 +139,7 @@ public class BookingController {
         model.addAttribute("homestay", homestay.get());
         model.addAttribute("additionals", additionals);
         model.addAttribute("booking", new Booking());
+        model.addAttribute("currentPage", "bookings");
         return "booking/homestay-booking-form";
     }
 

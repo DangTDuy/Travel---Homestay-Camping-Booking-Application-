@@ -77,6 +77,7 @@ public class DashboardController {
             boolean isAdmin = user.getRole().equals("ADMIN");
             model.addAttribute("isAdmin", isAdmin);
             model.addAttribute("currentUser", user);
+            model.addAttribute("currentPage", "dashboard");
 
             if (isAdmin) {
                 logger.info("Loading data for ADMIN dashboard");
@@ -125,6 +126,7 @@ public class DashboardController {
         } catch (Exception e) {
             logger.error("Error loading dashboard: {}", e.getMessage(), e);
             model.addAttribute("error", "Có lỗi xảy ra khi tải trang tổng quan. Vui lòng thử lại sau.");
+            model.addAttribute("currentPage", "dashboard");
             return "error";
         }
     }

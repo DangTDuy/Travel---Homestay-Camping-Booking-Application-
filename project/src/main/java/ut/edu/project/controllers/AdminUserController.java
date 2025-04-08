@@ -21,6 +21,7 @@ public class AdminUserController {
     public String getAllUsers(Model model) {
         List<UserDTO> users = userService.findAll();
         model.addAttribute("users", users);
+        model.addAttribute("currentPage", "admin/users");
         return "admin/admin-user";
     }
 
@@ -28,6 +29,7 @@ public class AdminUserController {
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("user", new UserDTO());
+        model.addAttribute("currentPage", "admin/users");
         return "admin/admin-user-form";
     }
 
@@ -51,6 +53,7 @@ public class AdminUserController {
         try {
             UserDTO user = userService.getUserById(id);
             model.addAttribute("user", user);
+            model.addAttribute("currentPage", "admin/users");
             return "admin/admin-user-form";
         } catch (RuntimeException e) {
             return "redirect:/admin/users?error=user_not_found";
@@ -79,6 +82,7 @@ public class AdminUserController {
         try {
             UserDTO user = userService.getUserById(id);
             model.addAttribute("user", user);
+            model.addAttribute("currentPage", "admin/users");
             return "admin/admin-user-detail";
         } catch (RuntimeException e) {
             return "redirect:/admin/users?error=user_not_found";

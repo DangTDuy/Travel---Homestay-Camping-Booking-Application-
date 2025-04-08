@@ -88,22 +88,242 @@
         <!-- Welcome Banner -->
         <th:block th:replace="~{fragments/welcome-banner :: welcome-banner}"></th:block>
 
-        <!-- Admin Only Stats -->
-        <th:block th:if="${isAdmin}" th:replace="~{fragments/quick-stats :: quick-stats}"></th:block>
+        <!-- Thống kê hoạt động gần đây -->
+        <div th:if="${isAdmin}" class="mt-6 mb-8">
+            <h2 class="text-2xl font-serif font-bold text-dark mb-4">
+                <i class="fas fa-chart-bar text-primary mr-2"></i>
+                Hoạt động gần đây
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Biểu đồ đặt phòng theo trạng thái -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Đặt phòng theo trạng thái</h3>
+                    <div class="space-y-3">
+                        <div th:each="status, stat : ${bookingStatuses}" class="flex items-center">
+                            <div th:class="'w-full h-3 rounded-full bg-gray-200 mr-2'">
+                                <div th:class="'h-3 rounded-full ' + (${stat.index % 4 == 0} ? 'bg-blue-500' : (${stat.index % 4 == 1} ? 'bg-green-500' : (${stat.index % 4 == 2} ? 'bg-yellow-500' : 'bg-red-500')))" 
+                                     th:style="'width: ' + (${bookingStatusCounts.get(status) != null ? bookingStatusCounts.get(status) * 100 / (totalBookings > 0 ? totalBookings : 1) : 0}) + '%'"></div>
+                            </div>
+                            <div class="flex justify-between w-full">
+                                <span class="text-sm text-gray-600" th:text="${status}">PENDING</span>
+                                <span class="text-sm font-medium" th:text="${bookingStatusCounts.get(status) ?: 0}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="/admin/bookings" class="text-primary text-sm font-medium hover:underline">Xem chi tiết</a>
+                    </div>
+                </div>
+                
+                <!-- Người dùng mới -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Người dùng mới</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user text-primary text-sm"></i>
+                                </div>
+                                <span class="text-sm">Người dùng mới hôm nay</span>
+                            </div>
+                            <span class="font-medium">5</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user-check text-green-600 text-sm"></i>
+                                </div>
+                                <span class="text-sm">Người dùng đã xác thực</span>
+                            </div>
+                            <span class="font-medium">42</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user-clock text-yellow-600 text-sm"></i>
+                                </div>
+                                <span class="text-sm">Đang chờ xác thực</span>
+                            </div>
+                            <span class="font-medium">3</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="/admin/users" class="text-primary text-sm font-medium hover:underline">Xem chi tiết</a>
+                    </div>
+                </div>
+                
+                <!-- Hoạt động gần đây -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-bold mb-3 text-gray-800">Hoạt động hệ thống</h3>
+                    <div class="space-y-3">
+                        <div class="border-l-2 border-blue-500 pl-3 py-1">
+                            <p class="text-sm">Cập nhật homestay mới</p>
+                            <p class="text-xs text-gray-500">Hôm nay, 10:45</p>
+                        </div>
+                        <div class="border-l-2 border-green-500 pl-3 py-1">
+                            <p class="text-sm">Đặt phòng mới #1082</p>
+                            <p class="text-xs text-gray-500">Hôm nay, 09:30</p>
+                        </div>
+                        <div class="border-l-2 border-yellow-500 pl-3 py-1">
+                            <p class="text-sm">Đánh giá mới cho Homestay</p>
+                            <p class="text-xs text-gray-500">Hôm qua, 18:22</p>
+                        </div>
+                        <div class="border-l-2 border-purple-500 pl-3 py-1">
+                            <p class="text-sm">Thêm tour du lịch mới</p>
+                            <p class="text-xs text-gray-500">Hôm qua, 15:10</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- Booking History Table (Loaded from fragment) -->
-        <th:block th:replace="~{fragments/booking-history-table :: booking-history (bookingList=${isAdmin ? recentBookings : recentUserBookings}, isAdmin=${isAdmin}, isFullHistoryPage=false)}"></th:block>
-
-        <!-- User Only Sections -->
-        <th:block th:unless="${isAdmin}">
-            <th:block th:replace="~{fragments/user-section :: user-section}"></th:block>
+        <!-- Nội dung Dashboard cho Admin - Sử dụng th:if và th:with để đảm bảo chỉ hiển thị cho admin -->
+        <th:block th:if="${isAdmin}">
+            <div class="mt-8 mb-12">
+                <h2 class="text-3xl font-serif font-bold text-dark mb-6 pb-2 border-b-2 border-primary inline-block">
+                    <i class="fas fa-chart-line text-primary mr-2"></i>
+                    Tổng quan hệ thống
+                </h2>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Phần thống kê -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-4 text-gray-800">Thống kê nhanh</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                        <i class="fas fa-home text-primary text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Tổng số Homestay</p>
+                                        <p class="text-2xl font-bold text-gray-800" th:text="${totalHomestays ?: 0}">0</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                                        <i class="fas fa-route text-green-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Tổng số Tour</p>
+                                        <p class="text-2xl font-bold text-gray-800" th:text="${totalTravels ?: 0}">0</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                        <i class="fas fa-users text-purple-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Tổng số người dùng</p>
+                                        <p class="text-2xl font-bold text-gray-800" th:text="${totalUsers ?: 0}">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Phần thông tin hệ thống -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-4 text-gray-800">Thông tin hệ thống</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Phiên bản:</span>
+                                        <span class="font-medium">1.0.0</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cập nhật gần nhất:</span>
+                                        <span class="font-medium">09/04/2025</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Trạng thái hệ thống:</span>
+                                        <span class="text-green-600 font-medium">Hoạt động</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cơ sở dữ liệu:</span>
+                                        <span class="text-green-600 font-medium">Kết nối</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Assistant - Available for all users -->
+                <th:block th:replace="~{fragments/ai-assistant :: ai-assistant}"></th:block>
+            </div>
         </th:block>
 
-        <!-- AI Assistant - Available for all users -->
-        <th:block th:replace="~{fragments/ai-assistant :: ai-assistant}"></th:block>
-
-        <!-- Admin Only Section -->
-        <th:block th:if="${isAdmin}" th:replace="~{fragments/admin-section :: admin-section}"></th:block>
+        <!-- Nội dung Dashboard cho người dùng thường -->
+        <div th:unless="${isAdmin}" class="mt-8 mb-12">
+            <h2 class="text-3xl font-serif font-bold text-dark mb-6 pb-2 border-b-2 border-primary inline-block">
+                <i class="fas fa-compass text-primary mr-2"></i>
+                Khám phá và Đặt chỗ
+            </h2>
+            
+            <!-- Đề xuất Homestay -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Đề xuất dành cho bạn</h3>
+                    <a href="/homestay" class="text-primary hover:underline text-sm font-medium">Xem tất cả</a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Các đề xuất Homestay -->
+                    <div th:each="homestay, stat : ${recommendedHomestays}" th:if="${stat.index < 3}" class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div class="h-48 overflow-hidden">
+                            <img th:if="${homestay.images != null && !homestay.images.isEmpty() && homestay.images[0].startsWith('/')}" 
+                                 th:src="${homestay.images[0]}" alt="Homestay" class="w-full h-full object-cover">
+                            <img th:if="${homestay.images != null && !homestay.images.isEmpty() && !homestay.images[0].startsWith('/')}" 
+                                 th:src="@{'/homestay_images/' + ${homestay.images[0]}}" alt="Homestay" class="w-full h-full object-cover">
+                            <img th:unless="${homestay.images != null && !homestay.images.isEmpty()}" 
+                                 src="/homestay_images/default-homestay.jpg" alt="Homestay" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-lg mb-2 truncate" th:text="${homestay.name}">Tên Homestay</h4>
+                            <p class="text-gray-600 text-sm mb-2 truncate" th:text="${homestay.location}">Vị trí</p>
+                            <div class="flex justify-between items-center">
+                                <p class="font-bold text-primary" th:text="${#numbers.formatDecimal(homestay.price, 0, 'COMMA', 0, 'POINT')} + ' VND/đêm'">Giá</p>
+                                <a th:href="@{'/homestay/' + ${homestay.id}}" class="text-white bg-primary hover:bg-primary-dark px-3 py-1 rounded-full text-sm">Chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Đề xuất Tour du lịch -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Tour du lịch nổi bật</h3>
+                    <a href="/travels" class="text-primary hover:underline text-sm font-medium">Xem tất cả</a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Các đề xuất Tour -->
+                    <div th:each="travel, stat : ${featuredTravels}" th:if="${stat.index < 3}" class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div class="h-48 overflow-hidden">
+                            <img th:if="${travel.images != null && !travel.images.isEmpty() && travel.images[0].startsWith('/')}" 
+                                 th:src="${travel.images[0]}" alt="Tour" class="w-full h-full object-cover">
+                            <img th:if="${travel.images != null && !travel.images.isEmpty() && !travel.images[0].startsWith('/')}" 
+                                 th:src="@{'/uploads/travel/' + ${travel.images[0]}}" alt="Tour" class="w-full h-full object-cover">
+                            <img th:unless="${travel.images != null && !travel.images.isEmpty()}" 
+                                 src="/images/default-travel.jpg" alt="Tour" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-bold text-lg mb-2 truncate" th:text="${travel.name}">Tên Tour</h4>
+                            <p class="text-gray-600 text-sm mb-2 truncate" th:text="${travel.location}">Vị trí</p>
+                            <div class="flex justify-between items-center">
+                                <p class="font-bold text-primary" th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">Giá</p>
+                                <a th:href="@{'/travels/' + ${travel.id}}" class="text-white bg-primary hover:bg-primary-dark px-3 py-1 rounded-full text-sm">Chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Assistant - Available for all users -->
+            <th:block th:replace="~{fragments/ai-assistant :: ai-assistant}"></th:block>
+        </div>
 
     </main>
 </div>

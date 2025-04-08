@@ -1,5 +1,7 @@
 package ut.edu.project.repositories;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -79,4 +81,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("username") String username,
             @Param("offset") int offset,
             @Param("size") int size);
+            
+    // Tìm kiếm và lọc đặt phòng cho admin với phân trang
+    @Query("SELECT b FROM Booking b WHERE " +
+            "(:status IS NULL OR b.status = :status) AND " +
+            "(:serviceType IS NULL OR b.serviceType = :serviceType) AND " +
+            "(:dateFrom IS NULL OR b.checkIn >= :dateFrom) AND " +
+            "(:dateTo IS NULL OR b.checkOut <= :dateTo) " +
+            "ORDER BY b.createdAt DESC")
+    Page<Booking> findBookingsWithFilters(
+            @Param("status") BookingStatus status,
+            @Param("serviceType") Booking.ServiceType serviceType,
+            @Param("dateFrom") LocalDateTime dateFrom,
+            @Param("dateTo") LocalDateTime dateTo,
+            Pageable pageable);
 }

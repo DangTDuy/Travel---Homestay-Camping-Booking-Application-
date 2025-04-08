@@ -22,6 +22,7 @@ public class TravelController {
     public String showTravelList(Model model) {
         List<Travel> travels = travelService.getAllTravels(); // Lấy danh sách tour du lịch
         model.addAttribute("travels", travels);
+        model.addAttribute("currentPage", "travels");
         return "travel/travel"; // Điều hướng đến file templates/travel/travel.html
     }
 
@@ -31,6 +32,7 @@ public class TravelController {
         Travel travel = travelService.getTravelById(id)
                 .orElseThrow(() -> new RuntimeException("Travel not found with id: " + id)); // Or handle appropriately
         model.addAttribute("travel", travel);
+        model.addAttribute("currentPage", "travels");
         // Optionally add CSRF token if needed for forms on the detail page later
         // if (csrfToken != null) {
         //     model.addAttribute("_csrf", csrfToken);

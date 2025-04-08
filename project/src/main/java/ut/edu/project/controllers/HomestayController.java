@@ -45,10 +45,12 @@ public class HomestayController {
             model.addAttribute("location", location);
             model.addAttribute("priceRange", priceRange);
             model.addAttribute("rating", rating);
+            model.addAttribute("currentPage", "homestay");
             return "homestay/homestay";
         } catch (Exception e) {
             log.error("Error getting homestays: {}", e.getMessage(), e);
             model.addAttribute("error", "Không thể tải danh sách homestay: " + e.getMessage());
+            model.addAttribute("currentPage", "homestay");
             return "homestay/homestay";
         }
     }
@@ -73,6 +75,7 @@ public class HomestayController {
 
         model.addAttribute("homestay", homestay);
         model.addAttribute("reviews", reviews);
+        model.addAttribute("currentPage", "homestay");
         model.addAttribute("averageRating", averageRating != null ? averageRating : 0.0);
         model.addAttribute("reviewCount", reviewCount);
         model.addAttribute("hasBookedHomestay", hasBookedHomestay);
@@ -89,6 +92,7 @@ public class HomestayController {
         Homestay homestay = homestayService.getHomestayById(id)
                 .orElseThrow(() -> new RuntimeException("Homestay not found"));
         model.addAttribute("homestay", homestay);
+        model.addAttribute("currentPage", "homestay");
         return "booking/booking-form";
     }
 
@@ -119,6 +123,7 @@ public class HomestayController {
 
         model.addAttribute("homestay", homestay);
         model.addAttribute("review", new Review());
+        model.addAttribute("currentPage", "homestay");
         return "homestay/review-form";
     }
 

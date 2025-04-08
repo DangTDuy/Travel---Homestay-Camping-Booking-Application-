@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Travel-Homestay-Camping - Quản lý đặt phòng">
+    <meta name="keywords" content="Homestay, Booking, Admin, Travel-Homestay-Camping">
+    <title>Quản lý đặt phòng | Travel-Homestay-Camping</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6', /* Blue */
+                        secondary: '#10B981', /* Green */
+                        tertiary: '#8B5CF6', /* Purple */
+                        warning: '#F59E0B', /* Amber */
+                        danger: '#EF4444', /* Red */
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom styles for booking status tags */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.25rem;
+            border-radius: 9999px;
+            border-width: 1px;
+        }
+        .status-pending { background-color: #FEF3C7; color: #92400E; border-color: #FCD34D; }
+        .status-confirmed { background-color: #DBEAFE; color: #1E40AF; border-color: #93C5FD; }
+        .status-paid { background-color: #D1FAE5; color: #065F46; border-color: #6EE7B7; }
+        .status-completed { background-color: #E0E7FF; color: #3730A3; border-color: #A5B4FC; }
+        .status-cancelled { background-color: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+        .status-refunded { background-color: #E5E7EB; color: #4B5563; border-color: #D1D5DB; }
+
+        /* Style for payment status */
+        .payment-paid { color: #10B981; }
+        .payment-pending { color: #F59E0B; }
+
+        .action-button i {
+            margin-right: 0.35rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans flex">
+
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-primary">
+                <i class="fas fa-calendar-check mr-2"></i>
+                Quản lý đặt phòng
+            </h1>
+            <div class="flex space-x-2">
+                <a href="/admin/bookings/export" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out text-sm font-medium flex items-center shadow-sm">
+                    <i class="fas fa-file-export mr-2"></i>Xuất báo cáo
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
+            <form method="GET" action="/admin/bookings" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                    <select id="status" name="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="PENDING">Chờ xác nhận</option>
+                        <option value="CONFIRMED">Đã xác nhận</option>
+                        <option value="CANCELLED">Đã hủy</option>
+                        <option value="COMPLETED">Hoàn thành</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="serviceType" class="block text-sm font-medium text-gray-700 mb-1">Loại dịch vụ</label>
+                    <select id="serviceType" name="serviceType" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">Tất cả dịch vụ</option>
+                        <option value="HOMESTAY">Homestay</option>
+                        <option value="CAMPING">Camping</option>
+                        <option value="TRAVEL">Travel</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="dateFrom" class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                    <input type="date" id="dateFrom" name="dateFrom" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                </div>
+                <div>
+                    <label for="dateTo" class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                    <input type="date" id="dateTo" name="dateTo" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                </div>
+                <div class="md:col-span-4 flex justify-end">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out text-sm font-medium flex items-center shadow-sm">
+                        <i class="fas fa-filter mr-2"></i>Lọc kết quả
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Booking History Table -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-xl font-semibold text-gray-800">Danh sách đặt phòng</h2>
+            </div>
+            
+            <!-- Booking Table -->
+            <th:block th:replace="~{fragments/booking-history-table :: booking-history (bookingList=${bookings}, isAdmin=true, isFullHistoryPage=true)}"></th:block>
+            
+            <!-- Pagination -->
+            <div class="px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Hiển thị
+                            <span class="font-medium" th:text="${#lists.isEmpty(bookings) ? 0 : #lists.size(bookings) > 0 ? (page * size) + 1 : 0}"></span>
+                            đến
+                            <span class="font-medium" th:text="${#lists.isEmpty(bookings) ? 0 : (page * size) + #lists.size(bookings)}"></span>
+                            trong tổng số
+                            <span class="font-medium" th:text="${totalItems ?: 0}"></span>
+                            kết quả
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <a th:href="@{/admin/bookings(page=${page - 1}, size=${size})}" th:if="${page > 0}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <span class="sr-only">Trang trước</span>
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <a th:href="@{/admin/bookings(page=${page + 1}, size=${size})}" th:if="${hasNext}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <span class="sr-only">Trang sau</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Khôi phục giá trị của bộ lọc từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const serviceType = urlParams.get('serviceType');
+        const dateFrom = urlParams.get('dateFrom');
+        const dateTo = urlParams.get('dateTo');
+
+        if (status) document.getElementById('status').value = status;
+        if (serviceType) document.getElementById('serviceType').value = serviceType;
+        if (dateFrom) document.getElementById('dateFrom').value = dateFrom;
+        if (dateTo) document.getElementById('dateTo').value = dateTo;
+    });
+</script>
+</body>
+</html>

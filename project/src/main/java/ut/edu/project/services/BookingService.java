@@ -1,6 +1,9 @@
 package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ut.edu.project.models.*;
@@ -78,6 +81,42 @@ public class BookingService {
 
     public List<Booking> getTop3BookingsByUsername(String username) {
         return bookingRepository.findTop3ByUserUsernameOrderByCreatedAtDesc(username);
+    }
+    
+    public Page<Booking> getAdminBookings(Booking.BookingStatus status, String serviceType, String dateFrom, String dateTo, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Xử lý các tham số lọc
+        Booking.ServiceType serviceTypeEnum = null;
+        if (serviceType != null && !serviceType.isEmpty()) {
+            try {
+                serviceTypeEnum = Booking.ServiceType.valueOf(serviceType);
+            } catch (IllegalArgumentException e) {
+                // Bỏ qua nếu serviceType không hợp lệ
+            }
+        }
+        
+        // Xử lý ngày tháng
+        LocalDateTime fromDate = null;
+        LocalDateTime toDate = null;
+        
+        if (dateFrom != null && !dateFrom.isEmpty()) {
+            try {
+                fromDate = LocalDate.parse(dateFrom).atStartOfDay();
+            } catch (Exception e) {
+                // Bỏ qua nếu định dạng ngày không hợp lệ
+            }
+        }
+        
+        if (dateTo != null && !dateTo.isEmpty()) {
+            try {
+                toDate = LocalDate.parse(dateTo).atTime(LocalTime.MAX);
+            } catch (Exception e) {
+                // Bỏ qua nếu định dạng ngày không hợp lệ
+            }
+        }
+        
+        return bookingRepository.findBookingsWithFilters(status, serviceTypeEnum, fromDate, toDate, pageable);
     }
 
     public List<Booking> getBookingsByStatus(Booking.BookingStatus status) {

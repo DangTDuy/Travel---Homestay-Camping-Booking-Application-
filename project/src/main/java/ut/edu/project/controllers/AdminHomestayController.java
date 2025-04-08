@@ -50,9 +50,11 @@ public class AdminHomestayController {
             }
             log.info("Found {} homestays", homestays.size());
             model.addAttribute("homestays", homestays);
+            model.addAttribute("currentPage", "admin/homestay");
         } catch (Exception e) {
             log.error("Error loading homestays: {}", e.getMessage(), e);
             model.addAttribute("error", "Không thể tải danh sách homestay: " + e.getMessage());
+            model.addAttribute("currentPage", "admin/homestay");
         }
         return "admin/admin-homestay";
     }
