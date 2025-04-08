@@ -66,4 +66,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByOrderByCreatedAtDesc();
 
     void deleteByHomestay(Homestay homestay);
+
+    // Đếm số lượng booking đã hoàn thành của user đối với một homestay cụ thể
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.user.id = :userId AND b.homestay.id = :homestayId AND b.status = :status")
+    Long countByUserAndHomestayAndStatus(
+            @Param("userId") Long userId,
+            @Param("homestayId") Long homestayId,
+            @Param("status") String status);
 }

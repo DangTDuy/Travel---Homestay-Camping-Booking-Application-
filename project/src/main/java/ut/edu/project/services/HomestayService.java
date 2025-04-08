@@ -100,13 +100,13 @@ public class HomestayService {
 
     public List<Homestay> searchHomestays(String location, String priceRange, String rating) {
         try {
-            log.info("Searching homestays with location: {}, priceRange: {}, rating: {}", 
+            log.info("Searching homestays with location: {}, priceRange: {}, rating: {}",
                     location, priceRange, rating);
-            
+
             // If no search parameters, return all homestays
-            if ((location == null || location.isEmpty()) && 
-                (priceRange == null || priceRange.isEmpty()) && 
-                (rating == null || rating.isEmpty())) {
+            if ((location == null || location.isEmpty()) &&
+                    (priceRange == null || priceRange.isEmpty()) &&
+                    (rating == null || rating.isEmpty())) {
                 log.info("No search parameters, returning all homestays");
                 return getAllHomestays();
             }
@@ -118,7 +118,7 @@ public class HomestayService {
             // Parse price range
             if (priceRange != null && !priceRange.isEmpty()) {
                 String[] prices = priceRange.split("-");
-                
+
                 // Trường hợp "X-" - từ X trở lên
                 if (prices.length == 2) {
                     try {
@@ -127,7 +127,7 @@ public class HomestayService {
                             minPrice = Double.parseDouble(prices[0]);
                             log.info("Min price set to: {}", minPrice);
                         }
-                        
+
                         // Lấy giá trị max nếu có
                         if (!prices[1].isEmpty()) {
                             maxPrice = Double.parseDouble(prices[1]);
@@ -159,17 +159,17 @@ public class HomestayService {
                     log.warn("Invalid rating format: {}", rating, e);
                 }
             }
-            
-            log.info("Searching with parameters - location: {}, minPrice: {}, maxPrice: {}, minRating: {}", 
+
+            log.info("Searching with parameters - location: {}, minPrice: {}, maxPrice: {}, minRating: {}",
                     location, minPrice, maxPrice, minRating);
 
             List<Homestay> results = homestayRepository.searchHomestays(
-                location,
-                minPrice,
-                maxPrice,
-                minRating
+                    location,
+                    minPrice,
+                    maxPrice,
+                    minRating
             );
-            
+
             log.info("Found {} homestays matching search criteria", results.size());
             return results;
         } catch (Exception e) {
@@ -182,7 +182,7 @@ public class HomestayService {
         try {
             log.info("Getting homestay by id: {}", id);
             Optional<Homestay> homestayOpt = homestayRepository.findById(id);
-            
+
             // Initialize lazy collections needed by the detail view
             homestayOpt.ifPresent(homestay -> {
                 Hibernate.initialize(homestay.getReviews());
@@ -239,7 +239,7 @@ public class HomestayService {
                     }
                 }
             }
-        homestay.setImageUrls(updatedHomestay.getImageUrls());
+            homestay.setImageUrls(updatedHomestay.getImageUrls());
         }
 
         return homestayRepository.save(homestay);
@@ -289,7 +289,7 @@ public class HomestayService {
                     Hibernate.initialize(homestay.getBookings());
                     Hibernate.initialize(homestay.getReviews());
                     // Không cần initialize imageUrls vì nó là @ElementCollection FetchType.EAGER (mặc định) hoặc được load cùng Homestay
-                    
+
                     // Initialize JSON fields if necessary (nếu logic getter phức tạp)
                     homestay.getTagsList(); // Gọi để đảm bảo parse
                     homestay.getSeasonsList(); // Gọi để đảm bảo parse
@@ -300,7 +300,7 @@ public class HomestayService {
                     // Hoặc để Jackson xử lý lỗi sau này (có thể dẫn đến lỗi JSON response)
                 }
             }
-            
+
             log.info("Finished initializing collections. Returning {} homestays.", homestays.size());
             return homestays;
         } catch (Exception e) {
@@ -347,7 +347,7 @@ public class HomestayService {
                 String originalFilename = image.getOriginalFilename();
                 String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
-                
+
                 Path targetPath = rootLocation.resolve(filename);
 
                 // Create directories if they don't exist
@@ -388,8 +388,8 @@ public class HomestayService {
     @Transactional
     public Homestay updateHomestayImages(Homestay homestay, List<String> currentImages, MultipartFile[] newImages) throws IOException {
         // Validate total number of images
-        int totalImages = (currentImages != null ? currentImages.size() : 0) + 
-                         (newImages != null ? newImages.length : 0);
+        int totalImages = (currentImages != null ? currentImages.size() : 0) +
+                (newImages != null ? newImages.length : 0);
         if (totalImages > 5) {
             throw new IllegalArgumentException("Tổng số ảnh không được vượt quá 5");
         }
@@ -422,10 +422,10 @@ public class HomestayService {
                     String originalFilename = image.getOriginalFilename();
                     String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                     String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
-                    
+
                     Path targetPath = rootLocation.resolve(filename);
                     Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    
+
                     newFilenames.add(filename);
                     newUrls.add("/homestay_images/" + filename);
                 }
@@ -515,5 +515,86 @@ public class HomestayService {
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join(", ", errors));
         }
+    }
+
+    /**
+     * Kiểm tra xem người dùng đã từng đặt homestay này chưa
+     *
+     * @param username Tên người dùng
+     * @param homestayId ID của homestay
+     * @return true nếu người dùng đã từng đặt homestay này, false nếu chưa
+     */
+    public boolean hasUserBookedHomestay(String username, Long homestayId) {
+        log.info("Checking if user {} has booked homestay {}", username, homestayId);
+        try {
+            User user = userService.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+            // Đếm số lượng booking đã hoàn thành của người dùng cho homestay này
+            Long bookingCount = bookingRepository.countByUserAndHomestayAndStatus(
+                    user.getId(), homestayId, "COMPLETED");
+
+            log.info("User {} has {} completed bookings for homestay {}",
+                    username, bookingCount, homestayId);
+
+            return bookingCount > 0;
+        } catch (Exception e) {
+            log.error("Error checking if user has booked homestay: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Upload ảnh đánh giá cho homestay
+     *
+     * @param homestayId ID của homestay
+     * @param images Mảng ảnh cần upload
+     * @return Danh sách đường dẫn các ảnh đã upload
+     * @throws IOException Nếu có lỗi khi upload ảnh
+     */
+    public List<String> uploadReviewImages(Long homestayId, MultipartFile[] images) throws IOException {
+        log.info("Uploading {} review images for homestay {}", images.length, homestayId);
+
+        // Tạo thư mục cho ảnh đánh giá nếu chưa tồn tại
+        String reviewImageDir = UPLOAD_DIR + "/reviews/" + homestayId;
+        Path reviewDirPath = Paths.get(reviewImageDir);
+        if (!Files.exists(reviewDirPath)) {
+            Files.createDirectories(reviewDirPath);
+        }
+
+        List<String> imageUrls = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+            if (image.isEmpty()) {
+                continue;
+            }
+
+            try {
+                // Validate ảnh
+                validateImage(image);
+
+                // Tạo tên file duy nhất
+                String originalFilename = image.getOriginalFilename();
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String newFilename = System.currentTimeMillis() + "_" + fileExtension;
+
+                // Đường dẫn lưu file
+                Path imagePath = reviewDirPath.resolve(newFilename);
+
+                // Lưu file
+                Files.copy(image.getInputStream(), imagePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Tạo đường dẫn tương đối để lưu vào database
+                String relativeImageUrl = "/homestay_images/reviews/" + homestayId + "/" + newFilename;
+                imageUrls.add(relativeImageUrl);
+
+                log.info("Uploaded review image: {}", relativeImageUrl);
+            } catch (Exception e) {
+                log.error("Error uploading review image: {}", e.getMessage(), e);
+                throw new IOException("Không thể upload ảnh: " + e.getMessage(), e);
+            }
+        }
+
+        return imageUrls;
     }
 }

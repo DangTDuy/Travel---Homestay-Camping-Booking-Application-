@@ -11,6 +11,9 @@ import ut.edu.project.models.Homestay;
 import ut.edu.project.services.HomestayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ut.edu.project.models.Review;
+import ut.edu.project.services.ReviewService;
+import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,17 +27,20 @@ public class HomestayController {
     @Autowired
     private HomestayService homestayService;
 
+    @Autowired
+    private ReviewService reviewService;
+
     @GetMapping
-    public String getAllHomestays(Model model, 
+    public String getAllHomestays(Model model,
                                 @RequestParam(required = false) String location,
                                 @RequestParam(required = false) String priceRange,
                                 @RequestParam(required = false) String rating) {
         try {
-            log.info("Getting all homestays for user with filters - location: {}, priceRange: {}, rating: {}", 
+            log.info("Getting all homestays for user with filters - location: {}, priceRange: {}, rating: {}",
                     location, priceRange, rating);
             List<Homestay> homestays = homestayService.searchHomestays(location, priceRange, rating);
             log.info("Found {} homestays", homestays.size());
-            
+
             model.addAttribute("homestays", homestays);
             model.addAttribute("location", location);
             model.addAttribute("priceRange", priceRange);
@@ -48,10 +54,29 @@ public class HomestayController {
     }
 
     @GetMapping("/{id}")
-    public String getHomestayById(@PathVariable Long id, Model model, CsrfToken csrfToken) {
+    public String getHomestayById(@PathVariable Long id, Model model, CsrfToken csrfToken, Authentication authentication) {
         Homestay homestay = homestayService.getHomestayById(id)
                 .orElseThrow(() -> new RuntimeException("Homestay not found"));
+
+        // Lấy danh sách đánh giá cho homestay này
+        List<Review> reviews = reviewService.getReviewsByHomestay(id);
+        Double averageRating = reviewService.getAverageRatingByHomestay(id);
+        Long reviewCount = reviewService.countReviewsByHomestay(id);
+
+        // Kiểm tra nếu người dùng đã đăng nhập, thì thêm thông tin đã đặt phòng chưa
+        boolean hasBookedHomestay = false;
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            hasBookedHomestay = homestayService.hasUserBookedHomestay(username, id);
+            log.info("User {} has booked homestay {}: {}", username, id, hasBookedHomestay);
+        }
+
         model.addAttribute("homestay", homestay);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("averageRating", averageRating != null ? averageRating : 0.0);
+        model.addAttribute("reviewCount", reviewCount);
+        model.addAttribute("hasBookedHomestay", hasBookedHomestay);
+
         if (csrfToken != null) {
             model.addAttribute("_csrf", csrfToken);
         }
@@ -69,9 +94,69 @@ public class HomestayController {
 
     @PostMapping("/{id}/images")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String uploadImages(@PathVariable Long id, 
+    public String uploadImages(@PathVariable Long id,
                              @RequestParam("images") MultipartFile[] images) throws IOException {
         homestayService.uploadImages(id, images);
         return "redirect:/homestay/" + id;
+    }
+
+    @GetMapping("/{id}/review")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public String showReviewForm(@PathVariable Long id, Model model, Authentication authentication) {
+        log.info("Showing review form for homestay id: {}", id);
+
+        Homestay homestay = homestayService.getHomestayById(id)
+                .orElseThrow(() -> new RuntimeException("Homestay not found"));
+
+        String username = authentication.getName();
+        // Kiểm tra xem người dùng đã từng đặt homestay này chưa
+        boolean hasBookedHomestay = homestayService.hasUserBookedHomestay(username, id);
+
+        if (!hasBookedHomestay) {
+            log.warn("User {} tried to review homestay {} without booking", username, id);
+            return "redirect:/error?message=Bạn cần phải đặt và sử dụng dịch vụ trước khi đánh giá";
+        }
+
+        model.addAttribute("homestay", homestay);
+        model.addAttribute("review", new Review());
+        return "homestay/review-form";
+    }
+
+    @PostMapping("/{id}/review")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public String submitReview(
+            @PathVariable Long id,
+            @RequestParam Integer rating,
+            @RequestParam String comment,
+            @RequestParam(required = false) MultipartFile[] images,
+            Authentication authentication) {
+
+        log.info("Submitting review for homestay id: {} with rating: {}", id, rating);
+
+        String username = authentication.getName();
+        // Kiểm tra xem người dùng đã từng đặt homestay này chưa
+        boolean hasBookedHomestay = homestayService.hasUserBookedHomestay(username, id);
+
+        if (!hasBookedHomestay) {
+            log.warn("User {} tried to review homestay {} without booking", username, id);
+            return "redirect:/error?message=Bạn cần phải đặt và sử dụng dịch vụ trước khi đánh giá";
+        }
+
+        try {
+            Review review = reviewService.createReview(id, username, rating, comment);
+
+            // Xử lý upload ảnh nếu có
+            if (images != null && images.length > 0) {
+                List<String> imageUrls = homestayService.uploadReviewImages(id, images);
+                review.setImages(imageUrls);
+                reviewService.updateReview(review.getId(), review);
+            }
+
+            log.info("Review created successfully with id: {}", review.getId());
+            return "redirect:/homestay/" + id;
+        } catch (Exception e) {
+            log.error("Error creating review: {}", e.getMessage(), e);
+            return "redirect:/error?message=Không thể tạo đánh giá: " + e.getMessage();
+        }
     }
 }
