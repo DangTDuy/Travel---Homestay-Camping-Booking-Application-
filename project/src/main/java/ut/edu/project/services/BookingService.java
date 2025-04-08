@@ -44,7 +44,7 @@ public class BookingService {
 
         // Set initial status
         booking.setStatus(Booking.BookingStatus.PENDING);
-
+        
         return bookingRepository.save(booking);
     }
 

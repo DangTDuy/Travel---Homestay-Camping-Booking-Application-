@@ -1,119 +1,223 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sửa đánh giá</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">Sửa đánh giá</h4>
-                    </div>
-                    <div class="card-body">
-                        <form th:action="@{/review/update/{id}(id=${review.id})}" method="post">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Đánh giá của bạn</label>
-                                <div class="rating-input">
-                                    <i th:class="${review.rating >= 1 ? 'fas' : 'far'} fa-star" data-rating="1"></i>
-                                    <i th:class="${review.rating >= 2 ? 'fas' : 'far'} fa-star" data-rating="2"></i>
-                                    <i th:class="${review.rating >= 3 ? 'fas' : 'far'} fa-star" data-rating="3"></i>
-                                    <i th:class="${review.rating >= 4 ? 'fas' : 'far'} fa-star" data-rating="4"></i>
-                                    <i th:class="${review.rating >= 5 ? 'fas' : 'far'} fa-star" data-rating="5"></i>
-                                </div>
-                                <input type="hidden" name="rating" id="ratingValue" th:value="${review.rating}">
-                            </div>
+    <title>Chỉnh sửa Đánh giá</title>
 
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Bình luận</label>
-                                <textarea class="form-control" id="comment" name="comment" rows="3" required
-                                    th:text="${review.comment}"></textarea>
-                            </div>
-
-                            <div class="d-flex justify-content-between">
-                                <a th:href="@{/homestay/{id}(id=${review.homestay.id})}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Quay lại
-                                </a>
-                                <div>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Lưu thay đổi
-                                    </button>
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                        <i class="fas fa-trash"></i> Xóa đánh giá
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác nhận xóa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa đánh giá này?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form th:action="@{/review/delete/{id}(id=${review.id})}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button type="submit" class="btn btn-danger">Xóa</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Rating input
-        document.querySelectorAll('.rating-input i').forEach(star => {
-            star.addEventListener('click', function() {
-                const rating = this.getAttribute('data-rating');
-                document.getElementById('ratingValue').value = rating;
-                
-                // Update stars display
-                document.querySelectorAll('.rating-input i').forEach(s => {
-                    if (s.getAttribute('data-rating') <= rating) {
-                        s.classList.remove('far');
-                        s.classList.add('fas');
-                    } else {
-                        s.classList.remove('fas');
-                        s.classList.add('far');
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6', // Blue-600
+                        secondary: '#10B981', // Emerald-500
+                        dark: '#1F2937',    // Gray-800
+                        light: '#F9FAFB'     // Gray-50
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
                     }
-                });
-            });
-        });
+                }
+            }
+        }
     </script>
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        .rating-input {
-            font-size: 24px;
-            cursor: pointer;
-        }
         .rating-input i {
-            color: #ffc107;
-            margin-right: 5px;
+            transition: color 0.15s ease-in-out;
         }
         .rating-input i:hover,
-        .rating-input i.active {
-            color: #ffc107;
+        .rating-input i.selected {
+            color: #FBBF24; /* amber-400 */
         }
     </style>
+</head>
+<body class="bg-light font-sans">
+
+<!-- Navbar Placeholder (Consider using a Thymeleaf fragment) -->
+<header class="bg-white shadow-md py-4">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+        <a th:href="@{/dashboard}" class="text-2xl font-serif font-bold text-primary">Travel<span class="text-secondary">Nest</span></a>
+        <!-- Add more nav items if needed -->
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-200">
+        <h1 class="text-2xl md:text-3xl font-semibold text-dark mb-6">Chỉnh sửa đánh giá của bạn</h1>
+
+        <!-- Display Error Messages -->
+        <div th:if="${error}" class="mb-4 p-4 bg-red-100 text-red-700 border border-red-300 rounded-md">
+            <i class="fas fa-exclamation-circle mr-2"></i> <span th:text="${error}"></span>
+        </div>
+
+        <!-- Review Edit Form -->
+        <form th:action="@{/review/update/{id}(id=${review.id})}" th:object="${review}" method="post" class="space-y-5">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <!-- Rating Input -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Đánh giá của bạn (Chọn lại)</label>
+                <div class="rating-input text-3xl flex space-x-1 text-gray-300">
+                    <i class="far fa-star cursor-pointer" data-rating="1" th:classappend="${review.rating >= 1} ? 'selected fas text-yellow-400' : ''"></i>
+                    <i class="far fa-star cursor-pointer" data-rating="2" th:classappend="${review.rating >= 2} ? 'selected fas text-yellow-400' : ''"></i>
+                    <i class="far fa-star cursor-pointer" data-rating="3" th:classappend="${review.rating >= 3} ? 'selected fas text-yellow-400' : ''"></i>
+                    <i class="far fa-star cursor-pointer" data-rating="4" th:classappend="${review.rating >= 4} ? 'selected fas text-yellow-400' : ''"></i>
+                    <i class="far fa-star cursor-pointer" data-rating="5" th:classappend="${review.rating >= 5} ? 'selected fas text-yellow-400' : ''"></i>
+                </div>
+                <input type="hidden" name="rating" id="ratingValue" th:value="*{rating}" required min="1" max="5">
+                <span id="ratingError" class="text-red-500 text-xs mt-1 hidden">Vui lòng chọn số sao đánh giá.</span>
+            </div>
+
+            <!-- Comment Input -->
+            <div>
+                <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Bình luận</label>
+                <textarea id="comment" name="comment" th:field="*{comment}" rows="5" required
+                          class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                          placeholder="Chia sẻ cảm nhận của bạn..."></textarea>
+                <!-- Display validation errors for comment if using Spring validation -->
+                 <span th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <!-- Service Information (Read-only) -->
+            <div class="pt-4 border-t border-gray-200">
+                 <p class="text-sm text-gray-600">
+                    Đánh giá cho:
+                    <strong th:if="${review.homestay != null}" th:text="${review.homestay.name}">Tên Homestay</strong>
+                    <strong th:if="${review.camping != null}" th:text="${review.camping.name}">Tên Camping</strong>
+                    <strong th:if="${review.travel != null}" th:text="${review.travel.name}">Tên Travel</strong>
+                </p>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-5">
+                <a th:href="${ '/' + serviceType + '/' + serviceId }"
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition ease-in-out duration-150">
+                   Hủy bỏ
+                </a>
+                <button type="submit"
+                        class="inline-flex justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ease-in-out">
+                    <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- Footer Placeholder (Consider using a Thymeleaf fragment) -->
+<footer class="bg-white mt-12 py-6 border-t border-gray-200">
+    <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
+        &copy; <span th:text="${#dates.year(#dates.createNow())}">2024</span> TravelNest. Mọi quyền được bảo lưu.
+    </div>
+</footer>
+
+<script>
+    // Rating Input Interactivity
+    const ratingStars = document.querySelectorAll('.rating-input i');
+    const ratingValueInput = document.getElementById('ratingValue');
+    const ratingError = document.getElementById('ratingError');
+
+    function updateStars(rating) {
+        ratingStars.forEach(s => {
+            const starRating = parseInt(s.getAttribute('data-rating'));
+            if (starRating <= rating) {
+                s.classList.remove('far', 'text-gray-300');
+                s.classList.add('fas', 'text-yellow-400', 'selected');
+            } else {
+                s.classList.remove('fas', 'text-yellow-400', 'selected');
+                s.classList.add('far', 'text-gray-300');
+            }
+        });
+    }
+
+    ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = this.getAttribute('data-rating');
+            ratingValueInput.value = rating;
+            if (ratingError) ratingError.classList.add('hidden');
+            updateStars(rating);
+        });
+
+        // Optional: Add hover effect (like in homestay-detail)
+        star.addEventListener('mouseover', function() {
+            const hoverRating = this.getAttribute('data-rating');
+             ratingStars.forEach(s => {
+                const starRating = parseInt(s.getAttribute('data-rating'));
+                s.classList.toggle('text-yellow-400', starRating <= hoverRating);
+                s.classList.toggle('text-gray-300', starRating > hoverRating);
+                s.classList.toggle('fas', starRating <= hoverRating);
+                s.classList.toggle('far', starRating > hoverRating);
+            });
+        });
+
+        star.addEventListener('mouseout', function() {
+            // Restore stars based on the actual selected value
+            updateStars(ratingValueInput.value);
+        });
+    });
+
+    // Initialize stars on page load based on the hidden input value
+    document.addEventListener('DOMContentLoaded', () => {
+        updateStars(ratingValueInput.value);
+    });
+
+    // Form Validation on Submit
+    const editForm = document.querySelector('form');
+    if (editForm) {
+        editForm.addEventListener('submit', function(event) {
+             const currentRating = parseInt(ratingValueInput.value);
+            if (isNaN(currentRating) || currentRating < 1 || currentRating > 5) {
+                event.preventDefault(); // Prevent form submission
+                if (ratingError) {
+                    ratingError.textContent = 'Vui lòng chọn từ 1 đến 5 sao.';
+                    ratingError.classList.remove('hidden');
+                } else {
+                    alert('Vui lòng chọn số sao đánh giá (1-5) trước khi gửi.');
+                }
+            }
+        });
+    }
+
+    // Dynamically create cancel link URL (Needs serviceType and serviceId from Model)
+    document.addEventListener('DOMContentLoaded', () => {
+        const cancelButton = document.querySelector('a[href*="serviceType"]'); // Find the cancel button
+        const serviceType = '[[${serviceType}]]'; // Get value from Thymeleaf model
+        const serviceId = '[[${serviceId}]]';     // Get value from Thymeleaf model
+
+        if (cancelButton && serviceType && serviceId && serviceType !== 'unknown') {
+            let basePath = '/';
+            if (serviceType === 'homestay') {
+                basePath = '/homestay/';
+            } else if (serviceType === 'camping') {
+                basePath = '/camping/'; // Adjust if needed
+            } else if (serviceType === 'travel') {
+                basePath = '/travels/'; // Adjust if needed
+            }
+            cancelButton.href = basePath + serviceId;
+        } else if (cancelButton) {
+            // Fallback if type/id not available
+            cancelButton.href = '/'; // Or maybe dashboard?
+            cancelButton.textContent = 'Quay lại trang chủ';
+            console.warn('Could not determine cancel link path.');
+        }
+    });
+
+</script>
+
 </body>
-</html> 
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách yêu thích</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        danger: '#EF4444',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+<body class="bg-gray-100 font-sans flex">
+
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Adjusted Main container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+
+        <!-- Left-aligned Title -->
+        <h1 class="text-3xl font-bold text-primary mb-8">
+            <i class="fas fa-heart text-red-500 mr-2"></i>
+            Danh Sách Yêu Thích
+        </h1>
+
+        <!-- Error Message -->
+         <div th:if="${error}" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+             <p th:text="${error}"></p>
+         </div>
+
+        <!-- Wishlist Grid -->
+        <div th:if="${not #lists.isEmpty(wishlist)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Wishlist Item Card (Keep existing card structure) -->
+            <div th:each="homestay : ${wishlist}"
+                 th:id="|wishlist-item-${homestay.id}|"
+                 class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 hover:shadow-xl">
+                <div class="relative">
+                    <!-- Image -->
+                    <img th:if="${not #lists.isEmpty(homestay.imageUrls)}"
+                         th:src="${homestay.imageUrls[0]}"
+                         alt="Homestay image" class="w-full h-48 object-cover">
+                    <img th:unless="${not #lists.isEmpty(homestay.imageUrls)}"
+                         src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+                         alt="Default homestay image" class="w-full h-48 object-cover">
+                    <!-- Price Tag -->
+                    <div th:if="${homestay.price != null}"
+                         class="absolute top-2 right-2 bg-primary bg-opacity-80 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md"
+                         th:text="${#numbers.formatDecimal(homestay.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/đêm'">
+                    </div>
+                    <!-- Wishlist Button (Specific to wishlist page - remove functionality) -->
+                    <button th:attr="onclick=|toggleWishlist(${homestay.id}, this)|, 'data-wishlisted'='true'"
+                            class="wishlist-button absolute top-2 left-2 bg-white bg-opacity-70 p-1.5 rounded-full text-red-500 hover:bg-opacity-90 transition duration-200">
+                        <i class="fas fa-heart text-lg"></i> <!-- Always filled heart -->
+                    </button>
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="text-lg font-semibold text-dark mb-1 truncate" th:text="${homestay.name}">Tên Homestay</h3>
+                    <p class="text-sm text-gray-500 mb-2 flex items-center flex-grow-0">
+                        <i class="fas fa-map-marker-alt mr-1.5 text-gray-400 text-xs"></i>
+                        <span th:text="${homestay.location}">Địa chỉ</span>
+                    </p>
+                    <p class="text-sm text-gray-500 mb-2 flex items-center flex-grow-0" th:if="${homestay.capacity != null}">
+                        <i class="fas fa-users mr-1.5 text-gray-400 text-xs"></i>
+                        <span th:text="${homestay.capacity} + ' khách'">Sức chứa</span>
+                    </p>
+                    <!-- Rating -->
+                    <div class="flex items-center text-sm mb-3 mt-auto">
+                        <span class="text-yellow-500 flex items-center" th:if="${homestay.rating != null and homestay.rating > 0}">
+                            <i th:each="i : ${#numbers.sequence(1, T(java.lang.Math).floor(homestay.rating))}" class="fas fa-star text-xs"></i>
+                            <i th:if="${homestay.rating % 1 >= 0.5}" class="fas fa-star-half-alt text-xs"></i>
+                            <i th:if="${T(java.lang.Math).ceil(homestay.rating) < 5}"
+                               th:each="i : ${#numbers.sequence(T(java.lang.Math).ceil(homestay.rating) + 1, 5)}"
+                               class="far fa-star text-xs"></i>
+                            <span class="text-gray-600 font-medium ml-1.5" th:text="${#numbers.formatDecimal(homestay.rating, 1, 1)}"></span>
+                        </span>
+                        <!-- Hiển thị số lượng đánh giá -->
+                        <span class="text-gray-500 text-xs ml-2">
+                            (<span th:if="${homestay.reviews != null}" th:text="${#sets.size(homestay.reviews)}">0</span><span th:unless="${homestay.reviews != null}">0</span> đánh giá)
+                        </span>
+                    </div>
+                    <a th:href="@{/homestay/{id}(id=${homestay.id})}"
+                       class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-md transition duration-300 text-sm mt-2">
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Empty State -->
+        <div th:if="${#lists.isEmpty(wishlist)}" class="text-center py-16 px-4 bg-white rounded-lg shadow-md">
+            <i class="far fa-heart text-6xl text-red-300 mb-4"></i> <!-- Larger, lighter heart icon -->
+            <h3 class="text-xl font-semibold text-dark mb-2">Danh sách yêu thích trống</h3>
+            <p class="text-gray-500">Bạn chưa thêm homestay nào vào danh sách yêu thích.</p>
+            <a href="/homestay" class="mt-4 inline-block text-primary hover:text-blue-700 font-medium transition duration-300">
+                Khám phá Homestay &rarr;
+            </a>
+        </div>
+
+    </main>
+</div>
+
+<!-- Footer Removed -->
+
+<script>
+    // Function to handle adding/removing from wishlist via API
+    function toggleWishlist(homestayId, buttonElement) {
+        const isWishlisted = buttonElement.getAttribute('data-wishlisted') === 'true';
+        const url = isWishlisted ? `/api/wishlist/remove/${homestayId}` : `/api/wishlist/add/${homestayId}`;
+        const method = 'POST';
+        const csrfToken = document.querySelector('meta[name=\"_csrf\"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name=\"_csrf_header\"]').getAttribute('content');
+
+        // Optional: Add loading state to button
+        buttonElement.disabled = true;
+        const icon = buttonElement.querySelector('i');
+        const originalClass = icon.className;
+        icon.className = 'fas fa-spinner fa-spin text-lg'; // Loading spinner
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            // body: JSON.stringify({}) // No body needed for POST with path variable
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                 // On this page (wishlist), successful removal means removing the item card
+                 const wishlistItem = document.getElementById(`wishlist-item-${homestayId}`);
+                 if (wishlistItem) {
+                     wishlistItem.style.transition = 'opacity 0.5s ease-out';
+                     wishlistItem.style.opacity = '0';
+                     setTimeout(() => {
+                         wishlistItem.remove();
+                         // Check if wishlist is now empty
+                         const remainingItems = document.querySelectorAll('[id^="wishlist-item-"]');
+                         if (remainingItems.length === 0) {
+                             // Show empty state (you might need to adjust selector if empty state is hidden)
+                             const emptyState = document.querySelector('.py-16.px-4'); // Adjust selector if needed
+                             if(emptyState) emptyState.style.display = 'block';
+                             // Hide the grid container
+                             const gridContainer = document.querySelector('.grid');
+                             if(gridContainer) gridContainer.style.display = 'none';
+                         }
+                     }, 500); // Remove after fade out
+                 }
+            } else {
+                console.error('Failed to update wishlist:', data.message);
+                alert('Lỗi: ' + data.message);
+                 // Restore button state on failure
+                 icon.className = originalClass;
+                 buttonElement.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi cập nhật danh sách yêu thích.');
+            // Restore button state on error
+             icon.className = originalClass;
+             buttonElement.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>

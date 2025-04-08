@@ -40,53 +40,6 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-    <style>
-        /* Optional: Customize Flatpickr theme to match Tailwind */
-        .flatpickr-calendar {
-            font-family: 'Montserrat', sans-serif;
-            background-color: white;
-            border-radius: 0.375rem; /* rounded-lg */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-        }
-        .flatpickr-day.selected,
-        .flatpickr-day.startRange,
-        .flatpickr-day.endRange {
-            background-color: #3B82F6; /* primary color */
-            border-color: #3B82F6;
-            color: white;
-        }
-        .flatpickr-day.inRange {
-             background-color: #BFDBFE; /* primary-light */
-             border-color: #BFDBFE;
-             box-shadow: none;
-        }
-        .flatpickr-day:hover {
-             background-color: #DBEAFE; /* lighter primary */
-        }
-        .flatpickr-months .flatpickr-prev-month:hover svg,
-        .flatpickr-months .flatpickr-next-month:hover svg {
-             fill: #3B82F6; /* primary color */
-        }
-         /* Simple Spinner */
-        .spinner {
-            display: inline-block;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            width: 1em;
-            height: 1em;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 0.5em;
-            vertical-align: -0.125em;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -199,7 +152,7 @@
                         <!-- Review Form (Visible only if logged in) -->
                         <div class="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-md" sec:authorize="isAuthenticated()">
                             <h5 class="text-lg font-semibold text-gray-900 mb-4">Để lại đánh giá của bạn</h5>
-                            <form id="reviewForm" th:action="@{/review/create}" method="post" class="space-y-4">
+                            <form th:action="@{/review/create}" method="post" class="space-y-4">
                                 <input type="hidden" name="homestayId" th:value="${homestay.id}">
                                 <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
@@ -350,29 +303,29 @@
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" th:text="'Đặt ' + ${homestay.name}"></h3>
                 <form id="bookingForm">
-                    <!-- Use Date Range Picker Input -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="bookingDateRange">Ngày nhận - trả phòng</label>
-                        <input type="text" id="bookingDateRange" name="bookingDateRange" required readonly="readonly" placeholder="Chọn khoảng ngày..."
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline cursor-pointer">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="checkInDate">Ngày nhận phòng</label>
+                            <input type="date" id="checkInDate" name="checkInDate" required
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="checkOutDate">Ngày trả phòng</label>
+                            <input type="date" id="checkOutDate" name="checkOutDate" required
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
                     </div>
-
-                    <!-- Hidden inputs to store individual dates for submission -->
-                    <input type="hidden" id="checkInDate" name="checkInDate">
-                    <input type="hidden" id="checkOutDate" name="checkOutDate">
-
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="guests">Số lượng khách</label>
                         <select id="guests" name="guests" required
                                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="" disabled selected>Chọn số khách</option>
                             <option th:each="i : ${#numbers.sequence(1, homestay.capacity)}"
                                     th:value="${i}"
-                                    th:text="${i} + (${i == 1 ? ' khách' : ' khách'})"></option>
+                                    th:text="${i}"></option>
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="specialRequests">Yêu cầu đặc biệt (tùy chọn)</label>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="specialRequests">Yêu cầu đặc biệt</label>
                         <textarea id="specialRequests" name="specialRequests" rows="3"
                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                   placeholder="Ví dụ: Tôi cần giường phụ..."></textarea>
@@ -380,19 +333,15 @@
                     <div class="bg-blue-50 p-4 rounded-lg mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-gray-700">Tổng cộng:</span>
-                            <span class="text-xl font-bold text-primary" id="totalPrice">Chọn ngày để xem giá</span>
+                            <span class="text-xl font-bold text-primary" id="totalPrice">0 VND</span>
                         </div>
                     </div>
-                    <!-- Div for displaying booking errors or success messages -->
-                    <div id="bookingMessage" class="text-sm mb-4 p-3 rounded-md hidden"></div>
-
                 </form>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" id="submitBookingButton" onclick="submitBooking()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition duration-150 ease-in-out">
-                    <span id="submitBookingSpinner" class="hidden spinner"></span> <!-- Spinner -->
-                    <i class="fas fa-check-circle mr-2"></i> <span id="submitBookingText">Xác nhận đặt phòng</span>
+                <button type="button" onclick="submitBooking()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
+                    <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng
                 </button>
                 <button type="button" onclick="closeBookingModal()"
                         class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
@@ -427,307 +376,97 @@
         }
     }
 
-    // --- Flatpickr Initialization ---
-    let fpInstance = null; // To hold the flatpickr instance
-    document.addEventListener('DOMContentLoaded', function() {
-        fpInstance = flatpickr("#bookingDateRange", {
-            mode: "range",
-            minDate: "today",
-            dateFormat: "Y-m-d", // Format displayed in the input
-            altInput: true, // Show user-friendly format
-            altFormat: "d/m/Y", // User-friendly format
-            locale: "vn", // Use Vietnamese locale
-            onChange: function(selectedDates, dateStr, instance) {
-                const checkInInput = document.getElementById('checkInDate');
-                const checkOutInput = document.getElementById('checkOutDate');
-                if (selectedDates.length === 2) {
-                    // Format dates as YYYY-MM-DD for hidden inputs
-                    checkInInput.value = instance.formatDate(selectedDates[0], "Y-m-d");
-                    checkOutInput.value = instance.formatDate(selectedDates[1], "Y-m-d");
-                    calculateTotal();
-                    showBookingMessage('', 'clear'); // Clear any previous messages
-                } else {
-                    // Clear hidden inputs if range is not complete
-                    checkInInput.value = '';
-                    checkOutInput.value = '';
-                    document.getElementById('totalPrice').textContent = 'Chọn ngày để xem giá';
-                }
-            },
-            // Consider adding 'disable' option to block already booked dates if you fetch them
-            // disable: [
-            //     function(date) {
-            //         // return true to disable
-            //         // Example: check if date is in a list of disabled dates
-            //         // return disabledDates.includes(instance.formatDate(date, "Y-m-d"));
-            //     }
-            // ]
-        });
-    });
-
-    // --- Booking Modal Functions ---
+    // Booking modal functions
     function openBookingModal() {
-        showBookingMessage('', 'clear'); // Clear message on open
         document.getElementById('bookingModal').classList.remove('hidden');
-        document.getElementById('guests').value = ''; // Reset guests dropdown
-        document.getElementById('specialRequests').value = ''; // Clear special requests
-        document.getElementById('totalPrice').textContent = 'Chọn ngày để xem giá';
-        // Clear flatpickr selection
-        if (fpInstance) {
-            fpInstance.clear();
-        }
-         // Reset button state
-        const submitButton = document.getElementById('submitBookingButton');
-        const spinner = document.getElementById('submitBookingSpinner');
-        const buttonText = document.getElementById('submitBookingText');
-        submitButton.disabled = false;
-        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
-        spinner.classList.add('hidden');
-        buttonText.textContent = 'Xác nhận đặt phòng';
+        // Set default dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('checkInDate').value = today;
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('checkOutDate').value = tomorrow.toISOString().split('T')[0];
+        calculateTotal();
     }
 
     function closeBookingModal() {
         document.getElementById('bookingModal').classList.add('hidden');
     }
 
-    // --- Calculate Total Price ---
+    // Calculate total price
     function calculateTotal() {
-        // Dates are now read from hidden inputs updated by flatpickr
-        const checkInValue = document.getElementById('checkInDate').value;
-        const checkOutValue = document.getElementById('checkOutDate').value;
+        const checkInDate = new Date(document.getElementById('checkInDate').value);
+        const checkOutDate = new Date(document.getElementById('checkOutDate').value);
         const pricePerNight = parseFloat(document.getElementById('homestayPrice').value);
-        const totalPriceEl = document.getElementById('totalPrice');
 
-        if (!checkInValue || !checkOutValue) {
-            totalPriceEl.textContent = 'Chọn ngày để xem giá';
-            return;
-        }
-
-        const checkInDate = new Date(checkInValue);
-        const checkOutDate = new Date(checkOutValue);
-
-        // Basic validation (flatpickr prevents past/invalid selection mostly)
-        if (checkOutDate <= checkInDate) {
-            totalPriceEl.textContent = 'Ngày trả phòng phải sau ngày nhận';
-            return;
-        }
-
-        if (!isNaN(pricePerNight) && pricePerNight >= 0) {
-            // Calculate nights based on LocalDate difference (more accurate for day boundaries)
-            const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
-            if (nights > 0) {
-                const total = nights * pricePerNight;
-                totalPriceEl.textContent = new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND'
-                }).format(total);
-            } else {
-                totalPriceEl.textContent = 'Chọn ngày hợp lệ';
-            }
+        if (checkInDate && checkOutDate && checkOutDate > checkInDate) {
+            const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+            const total = nights * pricePerNight;
+            document.getElementById('totalPrice').textContent = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(total);
         } else {
-            totalPriceEl.textContent = 'Lỗi giá phòng';
+            document.getElementById('totalPrice').textContent = '0 VND';
         }
     }
 
-    // --- Submit Booking ---
-    async function submitBooking() {
-        const checkInInput = document.getElementById('checkInDate');
-        const checkOutInput = document.getElementById('checkOutDate');
-        const guestsInput = document.getElementById('guests');
-        const submitButton = document.getElementById('submitBookingButton');
-        const spinner = document.getElementById('submitBookingSpinner');
-        const buttonText = document.getElementById('submitBookingText');
+    // Event listeners for date changes
+    document.getElementById('checkInDate').addEventListener('change', calculateTotal);
+    document.getElementById('checkOutDate').addEventListener('change', calculateTotal);
 
-        // --- Start Loading State ---
-        showBookingMessage('', 'clear'); // Clear previous messages
-        submitButton.disabled = true;
-        submitButton.classList.add('opacity-50');
-        spinner.classList.remove('hidden');
-        buttonText.textContent = 'Đang xử lý...';
-
-        // --- Client-side Validation ---
-        if (!checkInInput.value || !checkOutInput.value) {
-            showBookingMessage("Vui lòng chọn ngày nhận và trả phòng.", 'error');
-            resetSubmitButton();
-            return;
-        }
-        const checkInDate = new Date(checkInInput.value);
-        const checkOutDate = new Date(checkOutInput.value);
-        if (checkOutDate <= checkInDate) {
-            showBookingMessage("Ngày trả phòng phải sau ngày nhận phòng.", 'error');
-            resetSubmitButton();
-            return;
-        }
-        if (!guestsInput.value || parseInt(guestsInput.value) <= 0) {
-            showBookingMessage("Vui lòng chọn số lượng khách.", 'error');
-            resetSubmitButton();
-            return;
-        }
-
-        // --- Prepare Form Data ---
+    // Submit booking
+    function submitBooking() {
         const formData = {
             homestayId: document.getElementById('homestayId').value,
-            checkInDate: checkInInput.value,
-            checkOutDate: checkOutInput.value,
-            guests: guestsInput.value,
+            checkInDate: document.getElementById('checkInDate').value,
+            checkOutDate: document.getElementById('checkOutDate').value,
+            guests: document.getElementById('guests').value,
             specialRequests: document.getElementById('specialRequests').value
         };
 
-        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-
-        if (!csrfToken || !csrfHeader) {
-            showBookingMessage("Lỗi bảo mật (thiếu CSRF token). Vui lòng tải lại trang.", 'error');
-            resetSubmitButton();
-            return;
-        }
-
-        // --- Fetch API ---
-        try {
-            const response = await fetch('/api/bookings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
-                },
-                body: JSON.stringify(formData)
+        fetch('/api/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                alert('Đặt homestay thành công!');
+                closeBookingModal();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi đặt homestay: ' + error.message);
             });
-
-            const responseData = await response.json(); // Always try to parse JSON
-
-            if (response.ok) {
-                 // Use message from DTO if available, otherwise generic success
-                showBookingMessage(responseData.message || 'Đặt phòng thành công!', 'success');
-                // Optionally close modal after a short delay
-                setTimeout(closeBookingModal, 2000); // Close after 2 seconds
-                 // No need to reset button here, modal will close or user can cancel
-            } else {
-                 // Use error message from server response DTO
-                 showBookingMessage(`Đặt phòng thất bại: ${responseData.message || response.statusText || 'Lỗi không xác định từ server.'}`, 'error');
-                 resetSubmitButton(); // Allow user to try again
-            }
-        } catch (error) {
-            console.error('Fetch Error:', error);
-            let errorMessage = 'Lỗi kết nối hoặc lỗi không xác định khi đặt phòng. Vui lòng thử lại.';
-            if (error instanceof SyntaxError) {
-                errorMessage = 'Lỗi xử lý phản hồi từ máy chủ.';
-                console.error("Response was not valid JSON.");
-            }
-            showBookingMessage(errorMessage, 'error');
-            resetSubmitButton(); // Allow user to try again
-        }
     }
 
-    // --- Helper function to display booking messages (error/success) ---
-    function showBookingMessage(message, type = 'error') {
-        const messageDiv = document.getElementById('bookingMessage');
-        if (!messageDiv) return; // Exit if div doesn't exist
-
-        if (type === 'clear' || !message) {
-            messageDiv.textContent = '';
-            messageDiv.classList.add('hidden');
-            messageDiv.classList.remove('bg-red-100', 'border-red-400', 'text-red-700', 'bg-green-100', 'border-green-400', 'text-green-700');
-        } else if (type === 'error') {
-            messageDiv.textContent = message;
-            messageDiv.classList.remove('hidden', 'bg-green-100', 'border-green-400', 'text-green-700');
-            messageDiv.classList.add('bg-red-100', 'border', 'border-red-400', 'text-red-700');
-        } else if (type === 'success') {
-            messageDiv.textContent = message;
-            messageDiv.classList.remove('hidden', 'bg-red-100', 'border-red-400', 'text-red-700');
-            messageDiv.classList.add('bg-green-100', 'border', 'border-green-400', 'text-green-700');
-        }
-    }
-
-    // --- Helper function to reset submit button state ---
-    function resetSubmitButton() {
-        const submitButton = document.getElementById('submitBookingButton');
-        const spinner = document.getElementById('submitBookingSpinner');
-        const buttonText = document.getElementById('submitBookingText');
-        submitButton.disabled = false;
-        submitButton.classList.remove('opacity-50');
-        spinner.classList.add('hidden');
-        buttonText.textContent = 'Xác nhận đặt phòng';
-    }
-
-    // --- Rating Input Interactivity (Existing code, assumed correct) ---
-    const ratingStars = document.querySelectorAll('.rating-input i');
-    const ratingValueInput = document.getElementById('ratingValue');
-    const ratingError = document.getElementById('ratingError');
-
-    ratingStars.forEach(star => {
+    // Rating input
+    document.querySelectorAll('.rating-input i').forEach(star => {
         star.addEventListener('click', function() {
             const rating = this.getAttribute('data-rating');
-            ratingValueInput.value = rating;
-            if (ratingError) ratingError.classList.add('hidden');
+            document.getElementById('ratingValue').value = rating;
 
-            ratingStars.forEach(s => {
-                const starRating = s.getAttribute('data-rating');
-                if (starRating <= rating) {
+            // Update stars display
+            document.querySelectorAll('.rating-input i').forEach(s => {
+                if (s.getAttribute('data-rating') <= rating) {
                     s.classList.remove('far');
-                    s.classList.add('fas', 'text-yellow-400');
+                    s.classList.add('fas');
                 } else {
                     s.classList.remove('fas');
-                    s.classList.add('far', 'text-gray-300');
+                    s.classList.add('far');
                 }
             });
         });
-        star.addEventListener('mouseover', function() {
-             const hoverRating = this.getAttribute('data-rating');
-             ratingStars.forEach(s => {
-                 const starRating = s.getAttribute('data-rating');
-                 if (starRating <= hoverRating) {
-                     s.classList.remove('far', 'text-gray-300');
-                     s.classList.add('fas', 'text-yellow-400');
-                 } else {
-                     s.classList.remove('fas');
-                     s.classList.add('far', 'text-gray-300');
-                 }
-             });
-        });
-         star.addEventListener('mouseout', function() {
-             const currentRating = ratingValueInput.value;
-             ratingStars.forEach(s => {
-                 const starRating = s.getAttribute('data-rating');
-                 if (starRating <= currentRating) {
-                     s.classList.remove('far', 'text-gray-300');
-                     s.classList.add('fas', 'text-yellow-400');
-                 } else {
-                     s.classList.remove('fas');
-                     s.classList.add('far', 'text-gray-300');
-                 }
-             });
-         });
     });
-
-    // --- Review form validation on submit (Existing code, assumed correct) ---
-    const reviewForm = document.getElementById('reviewForm');
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', function(event) {
-            if (!ratingValueInput || parseInt(ratingValueInput.value) === 0) {
-                event.preventDefault();
-                if (ratingError) {
-                    ratingError.classList.remove('hidden');
-                } else {
-                    alert('Vui lòng chọn số sao đánh giá trước khi gửi.');
-                }
-            }
-        });
-    }
-
-    // --- Mobile Menu Toggle (Existing code, assumed correct) ---
-    const mobileMenuButton = document.getElementById('mobileMenuButton');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
 </script>
 
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<!-- Optional: Add Vietnamese locale for Flatpickr -->
-<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
-
 </body>
-</html>
 </html>

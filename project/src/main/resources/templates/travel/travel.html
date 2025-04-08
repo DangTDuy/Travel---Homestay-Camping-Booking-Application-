@@ -38,128 +38,48 @@
 <!-- Header Fragment -->
 <th:block th:replace="~{fragments/header :: header}"></th:block>
 
-<!-- Main Content - Update container to match homestay.html -->
-<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+<div class="container mx-auto mt-8 px-4">
     <!-- Banner Image (Using Tailwind) -->
-    <div class="relative mb-6 rounded-lg shadow-md overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1486012563054-a205a26e389b?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-full h-64 md:h-80 object-cover" alt="Tour Du Lịch Banner" />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
-        <div class="absolute bottom-0 left-0 p-6 w-full">
-            <h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow-md">Khám Phá Tour Du Lịch</h1>
-            <p class="text-white/90 text-lg mt-2 max-w-2xl drop-shadow-md">Những trải nghiệm tuyệt vời đang chờ đón bạn</p>
-        </div>
-    </div>
+    <img src="https://pistachiohotel.com/UploadFile/Gallery/Overview/a3.jpg" class="w-full h-64 md:h-80 object-cover rounded-lg shadow-md mb-6" alt="Tour Du Lịch Banner" />
 
-    <h2 class="text-3xl font-bold text-center text-primary mb-8">
-        <i class="fas fa-route mr-2"></i>Danh Sách Tour Du Lịch
-    </h2>
-
-    <!-- Search Section - Improved styling -->
-    <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg mb-8 border border-gray-100">
-        <form th:action="@{/travels}" method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <!-- Location Filter -->
-            <div>
-                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
-                <input type="text" id="location" name="location"
-                       th:value="${param.location}" placeholder="Nhập địa điểm..."
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-            </div>
-
-            <!-- Price Range Filter -->
-            <div>
-                <label for="priceRange" class="block text-sm font-medium text-gray-700 mb-1">Khoảng giá</label>
-                <select id="priceRange" name="priceRange"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white">
-                    <option value="" th:selected="${param.priceRange == null or param.priceRange == ''}">Tất cả</option>
-                    <option value="0-1000000" th:selected="${param.priceRange == '0-1000000'}">Dưới 1 triệu</option>
-                    <option value="1000000-3000000" th:selected="${param.priceRange == '1000000-3000000'}">1 - 3 triệu</option>
-                    <option value="3000000-5000000" th:selected="${param.priceRange == '3000000-5000000'}">3 - 5 triệu</option>
-                    <option value="5000000-" th:selected="${param.priceRange == '5000000-'}">Trên 5 triệu</option>
-                </select>
-            </div>
-
-            <!-- Duration Filter -->
-             <div>
-                <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">Thời lượng</label>
-                <select id="duration" name="duration"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white">
-                    <option value="" th:selected="${param.duration == null or param.duration == ''}">Tất cả</option>
-                    <option value="1-3" th:selected="${param.duration == '1-3'}">1 - 3 ngày</option>
-                    <option value="4-7" th:selected="${param.duration == '4-7'}">4 - 7 ngày</option>
-                    <option value="8-" th:selected="${param.duration == '8-'}">Trên 7 ngày</option>
-                </select>
-            </div>
-
-            <!-- Difficulty Filter -->
-            <!-- Assuming you have Travel.DifficultyLevel enum available -->
-            <!--
-            <div>
-                <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-1">Độ khó</label>
-                <select id="difficulty" name="difficulty"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white">
-                    <option value="" th:selected="${param.difficulty == null or param.difficulty == ''}">Tất cả</option>
-                    <option th:each="level : ${T(ut.edu.project.models.Travel.DifficultyLevel).values()}"
-                            th:value="${level.name()}"
-                            th:text="${level.displayName}"
-                            th:selected="${param.difficulty == level.name()}"></option>
-                </select>
-            </div>
-            -->
-
-            <!-- Search Button -->
-            <div class="lg:col-span-1">
-                 <button type="submit" class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow-md hover:scale-105 active:scale-95 transition duration-150 ease-in-out flex items-center justify-center">
-                     <i class="fas fa-search mr-2"></i>Tìm kiếm
-                 </button>
-            </div>
-        </form>
-    </div>
+    <h2 class="text-3xl font-bold text-center text-primary mb-8">🌍 Danh Sách Tour Du Lịch</h2>
 
     <!-- Tour List (Using Tailwind grid and looping through ${travels}) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <!-- Loop through travels -->
-        <div th:each="travel : ${travels}" class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:shadow-xl border border-gray-100">
+        <div th:each="travel : ${travels}" class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
             <div class="relative">
                 <!-- Image -->
                 <img th:if="${not #lists.isEmpty(travel.imageUrls)}"
                      th:src="${travel.imageUrls[0]}"
                      alt="Travel Image"
-                     class="w-full h-52 object-cover">
+                     class="w-full h-48 object-cover">
                 <img th:unless="${not #lists.isEmpty(travel.imageUrls)}"
                      src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
                      alt="Default Travel Image"
-                     class="w-full h-52 object-cover">
-
-                <!-- Gradient overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-60"></div>
+                     class="w-full h-48 object-cover">
 
                 <!-- Price Tag -->
                  <div th:if="${travel.price != null}"
-                     class="absolute top-3 right-3 bg-primary bg-opacity-90 text-white text-sm px-3 py-1.5 rounded-full font-semibold shadow-md">
-                     <span th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
-                 </div>
-                 
-                 <!-- Duration tag -->
-                 <div class="absolute bottom-3 left-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full font-medium flex items-center">
-                    <i class="far fa-clock mr-1.5"></i>
-                    <span th:text="${travel.durationDays} + ' ngày'"></span>
+                     class="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full font-semibold"
+                     th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
                  </div>
             </div>
 
-            <div class="p-5">
+            <div class="p-4">
                 <h3 class="text-xl font-semibold text-dark mb-2 truncate" th:text="${travel.tourName}">Tour Name</h3>
-                <p class="text-gray-600 text-sm mb-3 flex items-center">
+                <p class="text-gray-600 text-sm mb-2 flex items-center">
                     <i class="fas fa-map-marker-alt mr-2 text-gray-500"></i>
                     <span th:text="${travel.location}">Location</span>
                 </p>
+                 <p class="text-gray-600 text-sm mb-3 flex items-center">
+                    <i class="far fa-clock mr-2 text-gray-500"></i>
+                    <span th:text="${travel.durationDays} + ' ngày'">Duration</span>
+                 </p>
 
                 <!-- Rating Placeholder -->
-                <div class="flex items-center mb-3">
-                     <span class="text-yellow-500 flex items-center" th:if="${travel.rating != null}">
-                        <i th:each="i : ${#numbers.sequence(1, T(Math).floor(travel.rating))}" class="fas fa-star"></i>
-                        <i th:if="${travel.rating % 1 >= 0.5}" class="fas fa-star-half-alt"></i>
-                        <i th:each="i : ${#numbers.sequence(T(Math).ceil(travel.rating) + 1, 5)}" class="far fa-star"></i>
-                     </span>
+                <div class="flex items-center text-yellow-500 mb-3">
+                     <i class="fas fa-star"></i>
                      <span class="ml-1 font-medium" th:text="${travel.rating != null ? #numbers.formatDecimal(travel.rating, 1, 1) : 'N/A'}">4.5</span>
                      <span class="text-gray-500 text-xs ml-2" th:text="'(' + ${travel.bookingCount} + ' lượt đặt)'">(100 lượt đặt)</span>
                 </div>
@@ -174,20 +94,20 @@
                  </div>
 
                  <a th:href="@{/travels/{id}(id=${travel.id})}"
-                    class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md hover:scale-105 active:scale-95 transition duration-200 flex items-center justify-center">
-                    <i class="fas fa-info-circle mr-2"></i>Xem chi tiết
+                    class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                    Xem chi tiết
                  </a>
             </div>
         </div>
 
         <!-- Empty State -->
-        <div th:if="${#lists.isEmpty(travels)}" class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-lg shadow-lg border border-gray-200 text-center">
+        <div th:if="${#lists.isEmpty(travels)}" class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-lg shadow text-center">
             <i class="fas fa-route text-gray-400 text-5xl mb-4"></i>
             <h3 class="text-xl font-semibold text-dark mb-2">Không tìm thấy tour nào</h3>
             <p class="text-gray-600">Hiện không có tour du lịch nào.</p>
         </div>
     </div>
-</main>
+</div>
 
 <!-- Footer Fragment -->
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
