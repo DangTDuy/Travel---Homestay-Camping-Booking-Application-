@@ -44,13 +44,18 @@
     <!-- <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet"> -->
     <!-- <style> ... removed ... </style> -->
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans flex">
 
-<!-- Header -->
-<th:block th:replace="~{fragments/header :: header}"></th:block>
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
 
-<!-- Main Content -->
-<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
     <!-- Banner Image -->
     <div class="relative mb-8">
         <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
@@ -195,18 +200,8 @@
             Xem tất cả homestay &rarr;
         </a>
     </div>
-</main>
+    </main>
+</div>
 
-<script>
-    // Mobile menu toggle (không cần sidebar nên không dùng đến, nhưng giữ lại để tương thích nếu cần sau này)
-    document.getElementById('mobileMenuButton').addEventListener('click', function() {
-        // Có thể thêm logic nếu cần menu mobile trong tương lai
-    });
-</script>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
-
-<!-- Remove Bootstrap JS -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script> -->
 </body>
 </html>

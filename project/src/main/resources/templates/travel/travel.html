@@ -33,12 +33,18 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans flex">
 
-<!-- Header Fragment -->
-<th:block th:replace="~{fragments/header :: header}"></th:block>
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
 
-<div class="container mx-auto mt-8 px-4">
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
     <!-- Banner Image (Using Tailwind) -->
     <img src="https://pistachiohotel.com/UploadFile/Gallery/Overview/a3.jpg" class="w-full h-64 md:h-80 object-cover rounded-lg shadow-md mb-6" alt="Tour Du Lịch Banner" />
 
@@ -107,10 +113,8 @@
             <p class="text-gray-600">Hiện không có tour du lịch nào.</p>
         </div>
     </div>
+    </main>
 </div>
-
-<!-- Footer Fragment -->
-<th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
 </body>
 </html>

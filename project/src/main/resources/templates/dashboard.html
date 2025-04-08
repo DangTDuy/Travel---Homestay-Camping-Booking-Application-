@@ -72,16 +72,18 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-<!-- Header -->
-<th:block th:replace="~{fragments/header :: header}"></th:block>
+<body class="bg-gray-50 font-sans flex">
 
 <!-- Sidebar -->
 <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
 
-<!-- Main Content -->
-<div class="md:ml-64">
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
 
         <!-- Welcome Banner -->
         <th:block th:replace="~{fragments/welcome-banner :: welcome-banner}"></th:block>
