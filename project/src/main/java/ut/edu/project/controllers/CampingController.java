@@ -18,8 +18,9 @@ import java.util.Optional;
 @RequestMapping("/camping")
 public class CampingController {
     @Autowired
-    private CampingService campingService;
+    private CampingService campingService; // Dịch vụ quản lý khu cắm trại
 
+    // Hiển thị danh sách khu cắm trại với tìm kiếm và phân trang
     @GetMapping
     public String showCampingList(
             @RequestParam(required = false) String searchTerm,
@@ -54,12 +55,14 @@ public class CampingController {
         return "camping";
     }
 
+    // Lấy tất cả khu cắm trại qua API
     @GetMapping("/api")
     @ResponseBody
     public List<Camping> getAllCampings() {
         return campingService.getAllCampings();
     }
 
+    // Lấy thông tin khu cắm trại theo ID qua API
     @GetMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<Camping> getCampingById(@PathVariable Long id) {
@@ -67,12 +70,14 @@ public class CampingController {
         return camping.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Thêm khu cắm trại mới qua API
     @PostMapping("/api")
     @ResponseBody
     public ResponseEntity<Camping> addCamping(@RequestBody Camping camping) {
         return ResponseEntity.ok(campingService.createCamping(camping));
     }
 
+    // Cập nhật khu cắm trại qua API
     @PutMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<Camping> updateCamping(@PathVariable Long id, @RequestBody Camping campingDetails) {
@@ -80,13 +85,15 @@ public class CampingController {
         return updatedCamping != null ? ResponseEntity.ok(updatedCamping) : ResponseEntity.notFound().build();
     }
 
+    // Xóa khu cắm trại qua API
     @DeleteMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<Void> deleteCamping(@PathVariable	Long id) {
+    public ResponseEntity<Void> deleteCamping(@PathVariable Long id) {
         campingService.deleteCamping(id);
         return ResponseEntity.noContent().build();
     }
 
+    // Đặt chỗ khu cắm trại
     @PostMapping("/book/{id}")
     public String bookCamping(
             @PathVariable Long id,
@@ -99,11 +106,12 @@ public class CampingController {
         if (booked) {
             redirectAttributes.addFlashAttribute("message", "Đặt chỗ thành công!");
         } else {
-            redirectAttributes.addFlashAttribute("message", "Không thể đặt chỗ, có thể đã hết chỗ hoặc thời gian không hợp lệ!");
+            redirectAttributes.addFlashAttribute("message", "Không thể đặt chỗ!");
         }
         return "redirect:/camping";
     }
 
+    // Hủy đặt chỗ khu cắm trại
     @PostMapping("/cancel/{id}")
     public String cancelBooking(
             @PathVariable Long id,
@@ -113,24 +121,87 @@ public class CampingController {
         if (cancelled) {
             redirectAttributes.addFlashAttribute("message", "Hủy đặt chỗ thành công!");
         } else {
-            redirectAttributes.addFlashAttribute("message", "Không thể hủy, đã quá thời hạn hoặc không tìm thấy đặt chỗ!");
+            redirectAttributes.addFlashAttribute("message", "Không thể hủy!");
         }
         return "redirect:/camping";
     }
 
-    @PostMapping("/review/{id}")
-    public String addReview(
+    // Thêm đánh giá mới qua API
+    @PostMapping("/api/{id}/review")
+    @ResponseBody
+    public ResponseEntity<Camping> addReview(
             @PathVariable Long id,
-            @RequestParam int rating,
-            @RequestParam String comment,
-            @RequestParam String reviewerName,
-            RedirectAttributes redirectAttributes) {
-        boolean reviewed = campingService.addReview(id, rating, comment, reviewerName);
-        if (reviewed) {
-            redirectAttributes.addFlashAttribute("message", "Đánh giá đã được gửi!");
-        } else {
-            redirectAttributes.addFlashAttribute("message", "Không thể gửi đánh giá!");
-        }
-        return "redirect:/camping";
+            @RequestParam Integer rating,
+            @RequestParam String comment) {
+        Camping camping = campingService.addReview(id, rating, comment, null);
+        return ResponseEntity.ok(camping);
+    }
+
+    // Phản hồi một đánh giá qua API
+    @PutMapping("/api/{id}/review/{reviewIndex}/reply")
+    @ResponseBody
+    public ResponseEntity<Camping> replyToReview(
+            @PathVariable Long id,
+            @PathVariable int reviewIndex,
+            @RequestParam String reply) {
+        Camping camping = campingService.replyToReview(id, reviewIndex, reply);
+        return ResponseEntity.ok(camping);
+    }
+
+    // Lấy danh sách đánh giá qua API
+    @GetMapping("/api/{id}/reviews")
+    @ResponseBody
+    public ResponseEntity<List<String>> getReviews(@PathVariable Long id) {
+        Optional<Camping> camping = campingService.getCampingById(id);
+        return camping.map(c -> ResponseEntity.ok(c.getReviews()))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Lấy danh sách thông báo qua API
+    @GetMapping("/api/{id}/notifications")
+    @ResponseBody
+    public ResponseEntity<List<String>> getNotifications(@PathVariable Long id) {
+        Optional<Camping> camping = campingService.getCampingById(id);
+        return camping.map(c -> ResponseEntity.ok(c.getRecentNotifications(5)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Thêm thông báo mới qua API
+    @PostMapping("/api/{id}/notify")
+    @ResponseBody
+    public ResponseEntity<Camping> addNotification(
+            @PathVariable Long id,
+            @RequestParam String message) {
+        Camping camping = campingService.addNotification(id, message);
+        return ResponseEntity.ok(camping);
+    }
+
+    // Lấy danh sách gợi ý qua API
+    @GetMapping("/api/{id}/suggestions")
+    @ResponseBody
+    public ResponseEntity<List<String>> getSuggestions(@PathVariable Long id) {
+        Optional<Camping> camping = campingService.getCampingById(id);
+        return camping.map(c -> ResponseEntity.ok(c.getSuggestedTerms()))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Thêm từ khóa tìm kiếm qua API
+    @PostMapping("/api/{id}/search")
+    @ResponseBody
+    public ResponseEntity<Camping> addSearchTerm(
+            @PathVariable Long id,
+            @RequestParam String term) {
+        Camping camping = campingService.addSearchTerm(id, term);
+        return ResponseEntity.ok(camping);
+    }
+
+    // Xử lý thanh toán qua API
+    @PostMapping("/api/{id}/pay")
+    @ResponseBody
+    public ResponseEntity<String> processPayment(
+            @PathVariable Long id,
+            @RequestParam Double amount) {
+        String paymentStatus = campingService.processPayment(id, amount);
+        return ResponseEntity.ok(paymentStatus);
     }
 }

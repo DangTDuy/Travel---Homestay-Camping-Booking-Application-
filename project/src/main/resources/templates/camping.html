@@ -1,214 +1,351 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Travel-Homestay-Camping - Discover unique camping experiences.">
-  <meta name="keywords" content="Travel, Homestay, Camping, Adventure, Explore">
-  <title>Camping Services</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khu Cắm Trại</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee+Tint&family=Bytesized&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-  <link rel="stylesheet" href="/assets/css/camping.css"> <!-- Thay home.css thành camping.css -->
+    .header {
+      background-image: url('https://images.unsplash.com/photo-1504851149312-7b075907c513?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+      background-size: cover;
+      background-position: center;
+      height: 300px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .header-overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .search-bar {
+      position: relative;
+      z-index: 1;
+      background-color: #1e3a8a;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 1000px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .search-bar input, .search-bar select {
+      border-radius: 5px;
+      border: none;
+      padding: 10px;
+      width: 30%;
+    }
+    .search-bar button {
+      background-color: #f97316;
+      color: white;
+      border: none;
+      padding: 10px 30px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+    /* Section title */
+    .section-title {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 10px 20px;
+      display: inline-block;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    /* Camping cards */
+    .camping-card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+    .camping-card:hover {
+      transform: translateY(-5px);
+    }
+    .camping-card img {
+      height: 200px;
+      object-fit: cover;
+    }
+    .camping-card .card-body {
+      padding: 15px;
+    }
+    .camping-card .card-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .camping-card .card-text {
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+    .camping-card .price {
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+    /* Contact button */
+    .contact-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #dc2626;
+      color: white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    /* Message */
+    .message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+  </style>
 </head>
-
-<body style="background-color: #F0F0F0;">
-
-<!-- Header -->
-<header>
-  <div class="header-content">
-    <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="logo" />
-    <span class="site-title">Travel-Homestay-Camping</span>
-  </div>
-  <nav class="nav-menu">
-    <div class="highlight-box">
-      <a href="#">Hỗ trợ</a>
-      <a href="#">Hợp tác với chúng tôi</a>
-      <a href="#">Đặt chỗ của tôi</a>
-      <a href="#">Đăng Nhập</a>
-      <a href="#">Đăng Ký</a>
-    </div>
-  </nav>
-</header>
-
-<!-- Khoảng cách giữa header và sidebar -->
-<div class="h-4 bg-blue-600"></div>
-
-<div class="flex min-h-screen">
-  <!-- Sidebar -->
-  <div class="sidebar p-6 flex flex-col">
-    <nav class="flex-grow">
-      <ul>
-        <!-- Camping -->
-        <li class="mb-4">
-          <a href="#" class="font-bold flex items-center">
-            <img src="https://cdn-icons-png.flaticon.com/128/4469/4469267.png" alt="Camping Icon" class="w-6 h-6 mr-2"/>
-            Camping
-          </a>
-          <ul class="ml-4 mt-2 space-y-2">
-            <li><a href="#">Địa điểm cắm trại</a></li>
-            <li><a href="#">Chuẩn bị đồ dùng</a></li>
-            <li><a href="#">Kinh nghiệm sinh tồn</a></li>
-            <li><a href="#">Hoạt động ngoài trời</a></li>
-            <li><a href="#">Lưu ý về an toàn</a></li>
-          </ul>
-        </li>
-
-        <!-- Homestay -->
-        <li class="mb-4">
-          <a href="#" class="font-bold flex items-center">
-            <img src="https://cdn-icons-png.flaticon.com/128/18610/18610661.png" alt="Homestay Icon" class="w-6 h-6 mr-2"/>
-            Homestay
-          </a>
-          <ul class="ml-4 mt-2 space-y-2">
-            <li><a href="#">Homestay nổi bật</a></li>
-            <li><a href="#">Kinh nghiệm đặt phòng</a></li>
-            <li><a href="#">Tiện nghi & dịch vụ</a></li>
-            <li><a href="#">Review khách hàng</a></li>
-            <li><a href="#">Ưu đãi & giảm giá</a></li>
-          </ul>
-        </li>
-
-        <!-- Travel -->
-        <li class="mb-4">
-          <a href="#" class="font-bold flex items-center">
-            <img src="https://cdn-icons-png.flaticon.com/128/854/854996.png" alt="Travel Icon" class="w-6 h-6 mr-2"/>
-            Travel
-          </a>
-          <ul class="ml-4 mt-2 space-y-2">
-            <li><a href="#">Điểm đến nổi bật</a></li>
-            <li><a href="#">Hướng dẫn di chuyển</a></li>
-            <li><a href="#">Kinh nghiệm du lịch</a></li>
-            <li><a href="#">Địa điểm ăn uống</a></li>
-            <li><a href="#">Mẹo du lịch tiết kiệm</a></li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-  </div>
-
-  <!-- Main Content -->
-  <div class="flex-1 p-8">
-    <!-- Search Section -->
-    <div class="search-section">
-      <div class="search-container">
-        <h2 class="search-title">Tìm Kiếm Dịch Vụ Cắm Trại</h2>
-        <form th:action="@{/camping}" method="get" class="search-input-group flex space-x-2">
-          <input type="text" placeholder="Nhập tên camping..." name="searchTerm" th:value="${searchTerm}" class="search-input flex-1 p-2 border rounded"/>
-          <input type="number" placeholder="Số chỗ tối thiểu..." name="minPlaces" th:value="${minPlaces}" class="search-input w-32 p-2 border rounded"/>
-          <input type="date" name="startDate" th:value="${startDate}" class="search-input w-40 p-2 border rounded"/>
-          <input type="date" name="endDate" th:value="${endDate}" class="search-input w-40 p-2 border rounded"/>
-          <select name="sort" class="search-input w-40 p-2 border rounded">
-            <option value="" th:selected="${sort == null}">Không sắp xếp</option>
-            <option value="price_asc" th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
-            <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần</option>
-            <option value="maxPlaces_asc" th:selected="${sort == 'maxPlaces_asc'}">Số chỗ tăng dần</option>
-            <option value="maxPlaces_desc" th:selected="${sort == 'maxPlaces_desc'}">Số chỗ giảm dần</option>
-          </select>
-          <button type="submit" class="search-button bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Tìm</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Thông báo -->
-    <div th:if="${message}" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" th:text="${message}"></div>
-
-    <!-- Camping List -->
-    <section class="services">
-      <h2 class="section-title">Danh Sách Camping</h2>
-      <div class="service-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div th:each="camping : ${campings}" class="service-box bg-white rounded-lg shadow-lg overflow-hidden">
-          <img th:src="${camping.image} ?: '/images/placeholder.jpg'" alt="Camping Image" class="service-image w-full h-48 object-cover"/>
-          <div class="service-content p-4">
-            <h3 th:text="${camping.name}" class="text-xl font-bold"></h3>
-            <p class="text-gray-600" th:text="${camping.location}"></p>
-            <p th:text="${camping.description}"></p>
-            <p class="font-bold text-red-600" th:text="|Giá: ${camping.price} VNĐ / đêm|"></p>
-            <p class="text-gray-600" th:text="|Số chỗ tối đa: ${camping.maxPlaces}|"></p>
-            <p th:if="${camping.isAvailable}" class="text-green-600">Còn chỗ</p>
-            <p th:unless="${camping.isAvailable}" class="text-red-600">Hết chỗ</p>
-
-            <!-- Dịch vụ bổ sung -->
-            <p th:if="${camping.additionalServices.size() > 0}">
-              <strong>Dịch vụ bổ sung:</strong>
-              <span th:each="service : ${camping.additionalServices}" th:text="${service} + ', '"></span>
-            </p>
-
-            <!-- Form đặt chỗ -->
-            <form th:action="@{/camping/book/{id}(id=${camping.id})}" method="post" class="space-y-2 mt-4">
-              <input type="date" name="startDate" class="w-full p-2 border rounded" required/>
-              <input type="date" name="endDate" class="w-full p-2 border rounded" required/>
-              <input type="number" name="numberOfPeople" placeholder="Số người" min="1" th:max="${camping.maxPlaces}" class="w-full p-2 border rounded" required/>
-              <input type="text" name="customerName" placeholder="Tên khách hàng" class="w-full p-2 border rounded" required/>
-              <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700" th:disabled="${!camping.isAvailable}">Đặt chỗ ngay</button>
-            </form>
-
-            <!-- Danh sách đặt chỗ -->
-            <div th:if="${camping.bookings.size() > 0}" class="mt-4">
-              <h6 class="font-bold">Đặt chỗ hiện tại:</h6>
-              <ul class="space-y-2">
-                <li th:each="booking, iterStat : ${camping.bookings}" class="flex items-center justify-between">
-                  <span th:text="${booking.split('#')[0]} + ' đến ' + ${booking.split('#')[1]} + ' (' + ${booking.split('#')[2]} + ' người, ' + ${booking.split('#')[3]} + ')'"></span>
-                  <form th:action="@{/camping/cancel/{id}(id=${camping.id})}" method="post" class="inline">
-                    <input type="hidden" name="bookingIndex" th:value="${iterStat.index}"/>
-                    <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700" th:disabled="${booking.split('#')[4] == 'true'}">Hủy</button>
-                  </form>
-                </li>
-              </ul>
-            </div>
-
-            <!-- Form đánh giá -->
-            <form th:action="@{/camping/review/{id}(id=${camping.id})}" method="post" class="space-y-2 mt-4">
-              <input type="number" name="rating" placeholder="Xếp hạng (1-5)" min="1" max="5" class="w-full p-2 border rounded" required/>
-              <textarea name="comment" placeholder="Nhận xét" class="w-full p-2 border rounded" required></textarea>
-              <input type="text" name="reviewerName" placeholder="Tên bạn" class="w-full p-2 border rounded" required/>
-              <button type="submit" class="w-full bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Gửi đánh giá</button>
-            </form>
-
-            <!-- Danh sách đánh giá -->
-            <div th:if="${camping.reviews.size() > 0}" class="mt-4">
-              <h6 class="font-bold">Đánh giá:</h6>
-              <ul class="space-y-2">
-                <li th:each="review : ${camping.reviews}" th:text="${review.split('#')[0]} + ' sao - ' + ${review.split('#')[1]} + ' (' + ${review.split('#')[2]} + ')'"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Phân trang -->
-    <nav th:if="${totalPages > 1}" class="mt-8 flex justify-center">
-      <ul class="flex space-x-2">
-        <li th:classappend="${currentPage == 0} ? 'opacity-50 cursor-not-allowed'">
-          <a th:href="@{/camping(page=${currentPage - 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, startDate=${startDate}, endDate=${endDate}, sort=${sort})}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Trước</a>
-        </li>
-        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'bg-blue-800' : 'bg-blue-600'">
-          <a th:href="@{/camping(page=${i}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, startDate=${startDate}, endDate=${endDate}, sort=${sort})}" class="text-white px-4 py-2 rounded hover:bg-blue-700" th:text="${i + 1}"></a>
-        </li>
-        <li th:classappend="${currentPage == totalPages - 1} ? 'opacity-50 cursor-not-allowed'">
-          <a th:href="@{/camping(page=${currentPage + 1}, searchTerm=${searchTerm}, minPlaces=${minPlaces}, startDate=${startDate}, endDate=${endDate}, sort=${sort})}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sau</a>
-        </li>
-      </ul>
-    </nav>
+<body>
+<!-- Header with search bar -->
+<div class="header">
+  <div class="header-overlay"></div>
+  <div class="search-bar">
+    <input type="text" id="searchTerm" placeholder="Tìm kiếm khu cắm trại">
+    <select id="priceRange">
+      <option value="">Chọn giá</option>
+      <option value="0-500000">Dưới 500,000đ</option>
+      <option value="500000-1000000">500,000đ - 1,000,000đ</option>
+      <option value="1000000+">Trên 1,000,000đ</option>
+    </select>
+    <button onclick="searchCampings()">TÌM KIẾM</button>
   </div>
 </div>
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="f-container">
-    <p>© 2023 Travel-Homestay-Camping. All rights reserved.</p>
-    <div class="footer-links">
-      <a href="#">Chính sách bảo mật</a>
-      <a href="#">Điều khoản sử dụng</a>
-      <a href="#">Liên hệ</a>
+<!-- Camping Section -->
+<div class="container mt-4">
+  <div class="section-title">KHU CAMPING</div>
+  <div class="row" id="campingList">
+  </div>
+
+  <!-- Form thêm khu cắm trại -->
+  <div class="mt-4">
+    <h3>Thêm khu cắm trại mới</h3>
+    <div class="row">
+      <div class="col-md-3">
+        <input type="text" class="form-control" id="newName" placeholder="Tên">
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" id="newLocation" placeholder="Địa điểm">
+      </div>
+      <div class="col-md-2">
+        <input type="number" class="form-control" id="newPrice" placeholder="Giá">
+      </div>
+      <div class="col-md-2">
+        <input type="number" class="form-control" id="newMaxPlaces" placeholder="Số chỗ tối đa">
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-success w-100" onclick="addCamping()">Thêm</button>
+      </div>
     </div>
   </div>
-</footer>
 
+  <!-- Form đặt chỗ -->
+  <div class="mt-4" id="bookForm" style="display: none;">
+    <h3>Đặt chỗ</h3>
+    <div class="row">
+      <input type="hidden" id="bookId">
+      <div class="col-md-3">
+        <input type="date" class="form-control" id="bookStartDate">
+      </div>
+      <div class="col-md-3">
+        <input type="date" class="form-control" id="bookEndDate">
+      </div>
+      <div class="col-md-2">
+        <input type="number" class="form-control" id="bookNumberOfPeople" placeholder="Số người">
+      </div>
+      <div class="col-md-2">
+        <input type="text" class="form-control" id="bookCustomerName" placeholder="Tên khách hàng">
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary w-100" onclick="bookCamping()">Đặt chỗ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact Button -->
+<div class="contact-btn">
+  <i class="fas fa-phone-alt"></i>
+</div>
+
+<!-- Message -->
+<div id="message" class="message"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+  const BASE_URL = "http://localhost:8080/camping/api";
+
+  // Tải danh sách khu cắm trại khi trang được mở
+  window.onload = function() {
+    loadCampings();
+  };
+
+  // Tải danh sách khu cắm trại
+  function loadCampings() {
+    fetch(BASE_URL)
+            .then(response => response.json())
+            .then(data => {
+              const campingList = document.getElementById("campingList");
+              campingList.innerHTML = "";
+              data.forEach(camping => {
+                const card = document.createElement("div");
+                card.className = "col-md-3 mb-4";
+                card.innerHTML = `
+                            <div class="card camping-card">
+                                <img src="https://images.unsplash.com/photo-1504280390367-5d8f8c9d287f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" class="card-img-top" alt="${camping.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${camping.name}</h5>
+                                    <p class="card-text">${camping.location}</p>
+                                    <p class="price">Giá: ${camping.price.toLocaleString()}đ</p>
+                                    <button class="btn btn-primary btn-sm" onclick="showBookForm(${camping.id})">Đặt chỗ</button>
+                                </div>
+                            </div>
+                        `;
+                campingList.appendChild(card);
+              });
+            })
+            .catch(error => showMessage("Lỗi khi tải danh sách: " + error, "error"));
+  }
+
+  // Tìm kiếm khu cắm trại
+  function searchCampings() {
+    const searchTerm = document.getElementById("searchTerm").value;
+    const priceRange = document.getElementById("priceRange").value;
+
+    let url = `${BASE_URL}?page=0&size=10`;
+    if (searchTerm) url += `&searchTerm=${searchTerm}`;
+    if (priceRange) {
+      const [minPrice, maxPrice] = priceRange.split("-");
+      if (maxPrice) {
+        url += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+      } else {
+        url += `&minPrice=${minPrice}`;
+      }
+    }
+
+    fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              const campingList = document.getElementById("campingList");
+              campingList.innerHTML = "";
+              data.forEach(camping => {
+                const card = document.createElement("div");
+                card.className = "col-md-3 mb-4";
+                card.innerHTML = `
+                            <div class="card camping-card">
+                                <img src="https://images.unsplash.com/photo-1504280390367-5d8f8c9d287f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" class="card-img-top" alt="${camping.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${camping.name}</h5>
+                                    <p class="card-text">${camping.location}</p>
+                                    <p class="price">Giá: ${camping.price.toLocaleString()}đ</p>
+                                    <button class="btn btn-primary btn-sm" onclick="showBookForm(${camping.id})">Đặt chỗ</button>
+                                </div>
+                            </div>
+                        `;
+                campingList.appendChild(card);
+              });
+            })
+            .catch(error => showMessage("Lỗi khi tìm kiếm: " + error, "error"));
+  }
+
+  // Thêm khu cắm trại mới
+  function addCamping() {
+    const camping = {
+      name: document.getElementById("newName").value,
+      location: document.getElementById("newLocation").value,
+      price: document.getElementById("newPrice").value,
+      maxPlaces: document.getElementById("newMaxPlaces").value,
+      owner: { id: 1 } // Giả định owner ID là 1
+    };
+    fetch(BASE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(camping)
+    })
+            .then(response => response.json())
+            .then(() => {
+              showMessage("Thêm khu cắm trại thành công!", "success");
+              loadCampings();
+            })
+            .catch(error => showMessage("Lỗi khi thêm: " + error, "error"));
+  }
+
+  // Hiển thị form đặt chỗ
+  function showBookForm(id) {
+    document.getElementById("bookForm").style.display = "block";
+    document.getElementById("bookId").value = id;
+  }
+
+  // Đặt chỗ
+  function bookCamping() {
+    const id = document.getElementById("bookId").value;
+    const startDate = document.getElementById("bookStartDate").value;
+    const endDate = document.getElementById("bookEndDate").value;
+    const numberOfPeople = document.getElementById("bookNumberOfPeople").value;
+    const customerName = document.getElementById("bookCustomerName").value;
+
+    fetch(`/camping/book/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `startDate=${startDate}&endDate=${endDate}&numberOfPeople=${numberOfPeople}&customerName=${customerName}`
+    })
+            .then(response => {
+              if (response.ok) {
+                showMessage("Đặt chỗ thành công!", "success");
+                loadCampings();
+              } else {
+                showMessage("Không thể đặt chỗ!", "error");
+              }
+            })
+            .catch(error => showMessage("Lỗi khi đặt chỗ: " + error, "error"));
+  }
+
+  // Hiển thị thông báo
+  function showMessage(message, type) {
+    const messageDiv = document.getElementById("message");
+    messageDiv.textContent = message;
+    messageDiv.className = `message ${type}`;
+    setTimeout(() => messageDiv.textContent = "", 3000);
+  }
+</script>
 </body>
 </html>
