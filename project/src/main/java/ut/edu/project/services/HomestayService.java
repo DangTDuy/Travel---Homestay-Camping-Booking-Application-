@@ -367,73 +367,31 @@ public class HomestayService {
             throw new IllegalArgumentException("Vui lòng chọn ít nhất 1 ảnh");
         }
 
-        if (images.length > 5) {
-            throw new IllegalArgumentException("Chỉ được phép tải lên tối đa 5 ảnh");
-        }
-
         Homestay homestay = homestayRepository.findById(homestayId)
-                .orElseThrow(() -> new RuntimeException("Homestay không tồn tại"));
+            .orElseThrow(() -> new RuntimeException("Homestay không tồn tại"));
 
-        // Check total number of images after upload
-        int totalImages = (homestay.getImages() != null ? homestay.getImages().size() : 0) + images.length;
-        if (totalImages > 5) {
-            throw new IllegalArgumentException("Tổng số ảnh không được vượt quá 5");
+        Path uploadPath = Paths.get("src/main/resources/static/homestay_images");
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
         }
 
-        List<String> newFilenames = new ArrayList<>();
         List<String> newUrls = new ArrayList<>();
-
-        try {
-            // Create upload directory if it doesn't exist
-            File uploadDir = new File(UPLOAD_DIR);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
-
-            for (MultipartFile image : images) {
-                // Validate image
-                validateImage(image);
-
-                // Generate unique filename with timestamp and random number
-                String originalFilename = image.getOriginalFilename();
-                String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
-
-                Path targetPath = rootLocation.resolve(filename);
-
-                // Create directories if they don't exist
-                targetPath.getParent().toFile().mkdirs();
-
-                // Save file with atomic operation
-                Path tempFile = Files.createTempFile(rootLocation, "temp-", extension);
-                Files.copy(image.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
-                Files.move(tempFile, targetPath, StandardCopyOption.ATOMIC_MOVE);
-
-                newFilenames.add(filename);
-                newUrls.add("/homestay_images/" + filename);
-            }
-
-            // Initialize lists if null
-            if (homestay.getImages() == null) homestay.setImages(new ArrayList<>());
-            if (homestay.getImageUrls() == null) homestay.setImageUrls(new ArrayList<>());
-
-            // Update homestay with all new images
-            homestay.getImages().addAll(newFilenames);
-            homestay.getImageUrls().addAll(newUrls);
-
-            homestayRepository.saveAndFlush(homestay);
-
-        } catch (Exception e) {
-            // Cleanup any uploaded files if there was an error
-            for (String filename : newFilenames) {
-                try {
-                    Files.deleteIfExists(rootLocation.resolve(filename));
-                } catch (IOException ignored) {
-                    // Ignore cleanup errors
-                }
-            }
-            throw new RuntimeException("Lỗi khi tải ảnh lên: " + e.getMessage(), e);
+        for (MultipartFile image : images) {
+            String originalFilename = image.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
+            
+            Path targetPath = uploadPath.resolve(filename);
+            Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            
+            newUrls.add("/homestay_images/" + filename);
         }
+        
+        if (homestay.getImageUrls() == null) {
+            homestay.setImageUrls(new ArrayList<>());
+        }
+        homestay.getImageUrls().addAll(newUrls);
+        homestayRepository.save(homestay);
     }
 
     @Transactional
@@ -471,8 +429,8 @@ public class HomestayService {
                 for (MultipartFile image : newImages) {
                     validateImage(image);
                     String originalFilename = image.getOriginalFilename();
-                    String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                    String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
+                    String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                    String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + fileExtension;
 
                     Path targetPath = rootLocation.resolve(filename);
                     Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -498,6 +456,22 @@ public class HomestayService {
         }
 
         return homestayRepository.saveAndFlush(homestay);
+    }
+
+    @Transactional
+    public void deleteImages(Long homestayId, List<String> imageUrls) {
+        Homestay homestay = homestayRepository.findById(homestayId)
+            .orElseThrow(() -> new RuntimeException("Homestay không tồn tại"));
+        
+        // Xóa các URL khỏi danh sách ảnh của homestay
+        List<String> remainingImages = homestay.getImageUrls().stream()
+            .filter(url -> !imageUrls.contains(url))
+            .collect(Collectors.toList());
+        
+        homestay.setImageUrls(remainingImages);
+        homestayRepository.save(homestay);
+        
+
     }
 
     private void deleteImage(String filename) {

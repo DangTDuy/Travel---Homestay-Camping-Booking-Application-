@@ -1,5 +1,6 @@
 package ut.edu.project.controllers;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -357,6 +358,21 @@ public class AdminHomestayController {
             response.put("success", false);
             response.put("message", "Có lỗi xảy ra khi tải ảnh lên: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/api/delete-images")
+    @Transactional
+    public ResponseEntity<?> deleteHomestayImages(
+        @RequestParam("homestayId") Long homestayId,
+        @RequestParam("imageUrls") List<String> imageUrls) {
+        
+        try {
+            homestayService.deleteImages(homestayId, imageUrls);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Lỗi khi xóa ảnh: " + e.getMessage());
         }
     }
 }

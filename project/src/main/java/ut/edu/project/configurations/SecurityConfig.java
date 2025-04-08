@@ -16,6 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ut.edu.project.jwt.JwtAuthenticationFilter;
 import ut.edu.project.jwt.JwtUtil;
 import ut.edu.project.services.UserService;
@@ -25,11 +27,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
@@ -78,6 +83,7 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
+                                "/homestay_images/**",
                                 "/assets/**",
                                 "/login",
                                 "/login-processing",
@@ -118,5 +124,17 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Cấu hình để phục vụ ảnh homestay từ thư mục static
+        registry.addResourceHandler("/homestay_images/**")
+                .addResourceLocations("file:src/main/resources/static/homestay_images/")
+                .addResourceLocations("classpath:/static/homestay_images/");
+
+        // Cấu hình cho các static resources khác
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
     }
 }
