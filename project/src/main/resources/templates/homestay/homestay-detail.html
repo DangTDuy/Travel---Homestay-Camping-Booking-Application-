@@ -331,16 +331,42 @@
                                   placeholder="Ví dụ: Tôi cần giường phụ..."></textarea>
                     </div>
                     <div class="bg-blue-50 p-4 rounded-lg mb-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-700">Tổng cộng:</span>
+                        <!-- Thông báo lỗi -->
+                        <div id="bookingError" class="hidden">
+                        </div>
+                        
+                        <!-- Thông báo thành công -->
+                        <div id="bookingSuccess" class="hidden">
+                        </div>
+                        
+                        <!-- Thông báo ngày không hợp lệ -->
+                        <div id="invalidDates" class="hidden mb-3 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+                            Ngày trả phòng phải sau ngày nhận phòng
+                        </div>
+                        
+                        <!-- Chi tiết giá -->
+                        <div id="priceDetails" class="hidden space-y-2 mb-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600"><span id="nightsCount">0</span> đêm x <span id="pricePerNight">0 VND</span></span>
+                                <span class="text-gray-800" id="subtotal">0 VND</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600">Phí dịch vụ</span>
+                                <span class="text-gray-800" id="serviceFee">0 VND</span>
+                            </div>
+                            <div class="border-t border-gray-200 my-2 pt-2"></div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700 font-medium">Tổng cộng:</span>
                             <span class="text-xl font-bold text-primary" id="totalPrice">0 VND</span>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="submitBooking()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
+                <button type="button" id="bookingSubmitBtn" onclick="submitBooking()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200">
                     <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng
                 </button>
                 <button type="button" onclick="closeBookingModal()"
@@ -397,15 +423,56 @@
         const checkInDate = new Date(document.getElementById('checkInDate').value);
         const checkOutDate = new Date(document.getElementById('checkOutDate').value);
         const pricePerNight = parseFloat(document.getElementById('homestayPrice').value);
+        const guests = parseInt(document.getElementById('guests').value) || 1;
+        
+        // Update min date for checkout based on checkin
+        const checkInStr = document.getElementById('checkInDate').value;
+        if (checkInStr) {
+            const nextDay = new Date(checkInStr);
+            nextDay.setDate(nextDay.getDate() + 1);
+            document.getElementById('checkOutDate').min = nextDay.toISOString().split('T')[0];
+        }
 
         if (checkInDate && checkOutDate && checkOutDate > checkInDate) {
             const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-            const total = nights * pricePerNight;
+            const subtotal = nights * pricePerNight;
+            
+            // Giả sử có phí dịch vụ 5%
+            const serviceFee = subtotal * 0.05;
+            const total = subtotal + serviceFee;
+            
+            // Hiển thị chi tiết giá
+            document.getElementById('nightsCount').textContent = nights;
+            document.getElementById('pricePerNight').textContent = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(pricePerNight);
+            
+            document.getElementById('subtotal').textContent = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(subtotal);
+            
+            document.getElementById('serviceFee').textContent = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(serviceFee);
+            
             document.getElementById('totalPrice').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
             }).format(total);
+            
+            // Hiển thị chi tiết giá
+            document.getElementById('priceDetails').classList.remove('hidden');
+            document.getElementById('invalidDates').classList.add('hidden');
         } else {
+            document.getElementById('priceDetails').classList.add('hidden');
+            if (checkInDate && checkOutDate && checkOutDate <= checkInDate) {
+                document.getElementById('invalidDates').classList.remove('hidden');
+            } else {
+                document.getElementById('invalidDates').classList.add('hidden');
+            }
             document.getElementById('totalPrice').textContent = '0 VND';
         }
     }
@@ -416,6 +483,15 @@
 
     // Submit booking
     function submitBooking() {
+        // Validate dates
+        const checkInDate = new Date(document.getElementById('checkInDate').value);
+        const checkOutDate = new Date(document.getElementById('checkOutDate').value);
+        
+        if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) {
+            showErrorMessage('Vui lòng chọn ngày nhận phòng và trả phòng hợp lệ. Ngày trả phòng phải sau ngày nhận phòng.');
+            return;
+        }
+        
         const formData = {
             homestayId: document.getElementById('homestayId').value,
             checkInDate: document.getElementById('checkInDate').value,
@@ -424,28 +500,93 @@
             specialRequests: document.getElementById('specialRequests').value
         };
 
+        // Lấy CSRF token từ cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        const csrfToken = getCookie('XSRF-TOKEN');
+        
+        // Hiển thị loading
+        document.getElementById('bookingSubmitBtn').disabled = true;
+        document.getElementById('bookingSubmitBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
+        document.getElementById('bookingError').classList.add('hidden');
+        document.getElementById('bookingSuccess').classList.add('hidden');
+        
         fetch('/api/bookings', {
             method: 'POST',
+            credentials: 'include', // Gửi cookie với request
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                'X-XSRF-TOKEN': csrfToken
             },
             body: JSON.stringify(formData)
         })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Network response was not ok.');
-            })
-            .then(data => {
-                alert('Đặt homestay thành công!');
-                closeBookingModal();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi đặt homestay: ' + error.message);
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            // Thử lấy thông báo lỗi từ response
+            return response.json().catch(() => {
+                // Nếu không parse được JSON, trả về lỗi mặc định
+                throw new Error('Có lỗi xảy ra khi đặt phòng: ' + response.status + ' ' + response.statusText);
+            }).then(data => {
+                throw new Error(data.message || 'Có lỗi xảy ra khi đặt phòng');
             });
+        })
+        .then(data => {
+            // Hiển thị thông báo thành công
+            showSuccessMessage('Đặt phòng thành công! Bạn sẽ nhận được email xác nhận trong ít phút.');
+            
+            // Sau 2 giây thì đóng modal
+            setTimeout(() => {
+                closeBookingModal();
+                // Redirect to bookings page
+                window.location.href = '/user/bookings';
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorMessage(error.message || 'Có lỗi xảy ra khi đặt phòng');
+        })
+        .finally(() => {
+            // Ẩn loading
+            document.getElementById('bookingSubmitBtn').disabled = false;
+            document.getElementById('bookingSubmitBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng';
+        });
+    }
+    
+    // Hiển thị thông báo lỗi
+    function showErrorMessage(message) {
+        const errorElement = document.getElementById('bookingError');
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+        errorElement.classList.add('p-3', 'bg-red-100', 'border-2', 'border-red-500', 'text-red-700', 'rounded-lg', 'mb-4', 'flex', 'items-center');
+        errorElement.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-2 text-xl"></i> ' + message;
+        
+        // Scroll to error message
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Highlight form fields with error
+        const dateInputs = [document.getElementById('checkInDate'), document.getElementById('checkOutDate')];
+        dateInputs.forEach(input => {
+            input.classList.add('border-red-500');
+            input.addEventListener('change', function() {
+                this.classList.remove('border-red-500');
+            }, { once: true });
+        });
+    }
+    
+    // Hiển thị thông báo thành công
+    function showSuccessMessage(message) {
+        const successElement = document.getElementById('bookingSuccess');
+        successElement.classList.remove('hidden');
+        successElement.classList.add('p-3', 'bg-green-100', 'border-2', 'border-green-500', 'text-green-700', 'rounded-lg', 'mb-4', 'flex', 'items-center');
+        successElement.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2 text-xl"></i> ' + message;
+    
     }
 
     // Rating input

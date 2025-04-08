@@ -138,10 +138,10 @@
         <div th:each="homestay : ${homestays}" class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 hover:shadow-xl">
             <div class="relative">
                 <!-- Image -->
-                <img th:if="${not #lists.isEmpty(homestay.imageUrls)}"
+                <img th:if="${homestay.imageUrls != null && !homestay.imageUrls.isEmpty()}"
                      th:src="${homestay.imageUrls[0]}"
                      alt="Homestay image" class="w-full h-48 object-cover">
-                <img th:unless="${not #lists.isEmpty(homestay.imageUrls)}"
+                <img th:unless="${homestay.imageUrls != null && !homestay.imageUrls.isEmpty()}"
                      src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
                      alt="Default homestay image" class="w-full h-48 object-cover">
                 <!-- Price Tag -->
@@ -164,20 +164,24 @@
 
                 <!-- Rating -->
                 <div class="flex items-center text-sm mb-3 mt-auto">
-                    <span class="text-yellow-500 flex items-center" th:if="${homestay.rating != null and homestay.rating > 0}">
-                        <i th:each="i : ${#numbers.sequence(1, T(Math).floor(homestay.rating))}" class="fas fa-star text-xs"></i>
-                        <i th:if="${homestay.rating % 1 >= 0.5}" class="fas fa-star-half-alt text-xs"></i>
-                        <i th:each="i : ${#numbers.sequence(T(Math).ceil(homestay.rating) + 1, 5)}" class="far fa-star text-xs"></i>
-                        <span class="text-gray-600 font-medium ml-1.5" th:text="${#numbers.formatDecimal(homestay.rating, 1, 1)}"></span>
+                    <span class="text-yellow-500 flex items-center" th:if="${homestay != null and homestay.rating != null and homestay.rating > 0}">
+                        <i th:each="i : ${#numbers.sequence(1, homestay != null and homestay.rating != null ? T(java.lang.Math).floor(homestay.rating) : 0)}" class="fas fa-star text-xs"></i>
+                        <i th:if="${homestay != null and homestay.rating != null and homestay.rating % 1 >= 0.5}" class="fas fa-star-half-alt text-xs"></i>
+                        <i th:each="i : ${#numbers.sequence(homestay != null and homestay.rating != null ? T(java.lang.Math).ceil(homestay.rating) + 1 : 1, 5)}" class="far fa-star text-xs"></i>
+                        <span class="text-gray-600 font-medium ml-1.5" th:text="${homestay != null and homestay.rating != null ? #numbers.formatDecimal(homestay.rating, 1, 1) : '0.0'}"></span>
                     </span>
-                    <span th:unless="${homestay.rating != null and homestay.rating > 0}" class="text-gray-400 italic text-xs">Chưa có đánh giá</span>
-                    <span class="text-gray-500 text-xs ml-2" th:if="${homestay.bookingCount != null and homestay.bookingCount > 0}" th:text="'· ' + ${homestay.bookingCount} + ' lượt đặt'"></span>
+                    <span th:unless="${homestay != null and homestay.rating != null and homestay.rating > 0}" class="text-gray-400 italic text-xs">Chưa có đánh giá</span>
+                    <span class="text-gray-500 text-xs ml-2" th:if="${homestay != null and homestay.bookingCount != null and homestay.bookingCount > 0}" th:text="'· ' + ${homestay.bookingCount} + ' lượt đặt'"></span>
                 </div>
 
-                <a th:href="@{/homestay/{id}(id=${homestay.id})}"
+                <a th:if="${homestay != null and homestay.id != null}" th:href="@{/homestay/{id}(id=${homestay.id})}"
                    class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-md transition duration-300 text-sm mt-2">
                     Xem chi tiết
                 </a>
+                <span th:if="${homestay == null or homestay.id == null}" 
+                   class="block w-full text-center bg-gray-400 text-white font-medium py-2 px-3 rounded-md text-sm mt-2 cursor-not-allowed">
+                    Không có thông tin
+                </span>
             </div>
         </div>
     </div>

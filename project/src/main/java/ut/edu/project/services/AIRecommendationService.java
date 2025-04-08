@@ -287,7 +287,7 @@ public class AIRecommendationService {
         return homestayRepository.findAll().stream()
                 .sorted((h1, h2) -> {
                     // Sắp xếp theo số lượt đặt và đánh giá
-                    int bookingCompare = h2.getBooking_count().compareTo(h1.getBooking_count());
+                    int bookingCompare = h2.getBookingCount().compareTo(h1.getBookingCount());
                     if (bookingCompare != 0) return bookingCompare;
                     return h2.getRating().compareTo(h1.getRating());
                 })

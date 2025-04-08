@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import ut.edu.project.models.Booking;
+import ut.edu.project.models.Review;
 
 @Entity
 @Getter
@@ -80,7 +82,7 @@ public class Homestay {
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private Integer booking_count = 0;
+    private Integer bookingCount = 0;
 
     @Column(nullable = false)
     private Double rating = 0.0;
@@ -94,8 +96,8 @@ public class Homestay {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (booking_count == null) {
-            booking_count = 0;
+        if (bookingCount == null) {
+            bookingCount = 0;
         }
         if (rating == null) {
             rating = 0.0;
