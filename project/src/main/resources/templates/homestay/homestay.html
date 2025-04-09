@@ -56,20 +56,18 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-    <!-- Banner Image -->
-    <div class="relative mb-8">
-        <img src="https://images.unsplash.com/photo-1575963342711-2b7e056f4108?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-             class="w-full h-64 md:h-80 object-cover rounded-lg shadow-lg"
-             alt="Homestay Banner" />
-        <div class="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col items-center justify-center text-center p-4">
-            <h1 class="text-3xl md:text-5xl font-bold text-white mb-3 font-serif">Tìm Homestay Hoàn Hảo</h1>
-            <p class="text-lg md:text-xl text-gray-200">Khám phá hàng ngàn lựa chọn lưu trú độc đáo</p>
+        <!-- Banner Image -->
+        <div class="relative mb-8">
+            <img src="https://images.unsplash.com/photo-1575963342711-2b7e056f4108?q=80&w=2070" class="w-full h-64 md:h-80 object-cover rounded-lg shadow-lg" alt="Homestay Banner" />
+            <div class="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col items-center justify-center text-center p-4">
+                <h1 class="text-3xl md:text-5xl font-bold text-white mb-3 font-serif">Tìm Homestay Hoàn Hảo</h1>
+                <p class="text-lg md:text-xl text-gray-200">Khám phá hàng ngàn lựa chọn lưu trú độc đáo</p>
+            </div>
         </div>
-    </div>
 
-    <h2 class="text-3xl font-bold text-center text-primary mb-8">
-        <i class="fas fa-home mr-2"></i>Danh Sách Homestay
-    </h2>
+        <h2 class="text-3xl font-bold text-center text-primary mb-8">
+            <i class="fas fa-home mr-2"></i>Danh Sách Homestay
+        </h2>
 
     <!-- Search Section -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-10">
@@ -137,35 +135,32 @@
         </form>
     </div>
 
-    <!-- Homestay List -->
-    <div th:if="${not #lists.isEmpty(homestays)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-        <!-- Loop through homestays -->
-        <div th:each="homestay : ${homestays}" class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 hover:shadow-xl">
-            <div class="relative">
-                <!-- Image -->
-                <img th:if="${homestay.imageUrls != null && !homestay.imageUrls.isEmpty()}"
-                     th:src="${homestay.imageUrls[0]}"
-                     alt="Homestay image" class="w-full h-48 object-cover">
-                <img th:unless="${homestay.imageUrls != null && !homestay.imageUrls.isEmpty()}"
-                     src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                     alt="Default homestay image" class="w-full h-48 object-cover">
-                <!-- Price Tag -->
-                <div th:if="${homestay.price != null}"
-                     class="absolute top-2 right-2 bg-primary bg-opacity-80 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md"
-                     th:text="${#numbers.formatDecimal(homestay.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/đêm'">
+        <!-- Homestay List -->
+        <div th:if="${not #lists.isEmpty(homestays)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Vòng lặp hiển thị từng homestay -->
+            <div th:each="homestay : ${homestays}" class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col transform transition duration-300 hover:scale-105 hover:shadow-xl">
+                <div class="relative">
+                    <!-- Ảnh chính -->
+                    <img th:if="${homestay.imageUrls != null && !homestay.imageUrls.isEmpty()}" th:src="${homestay.imageUrls[0]}" alt="Homestay image" class="w-full h-48 object-cover">
+                    <img th:unless="${homestay.imageUrls != null && !homestay.imageUrls.isEmpty()}" src="https://images.unsplash.com/photo-1566073771259-6a8506099945" alt="Default homestay image" class="w-full h-48 object-cover">
+                    <!-- Giá -->
+                    <div th:if="${homestay.price != null}" class="absolute top-2 right-2 bg-primary bg-opacity-80 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md" th:text="${#numbers.formatDecimal(homestay.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/đêm'">
+                    </div>
                 </div>
-                <!-- Optional: Wishlist Icon -->
-                <button class="absolute top-2 left-2 bg-white bg-opacity-70 p-1.5 rounded-full text-gray-600 hover:text-red-500 hover:bg-opacity-90 transition duration-200">
-                    <i class="far fa-heart text-lg"></i>
-                    <!-- <i class="fas fa-heart text-lg text-red-500"></i>  Filled heart if wishlisted -->
-                </button>
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <h3 class="text-lg font-semibold text-dark mb-1 truncate" th:text="${homestay.name}">Tên Homestay</h3>
-                <p class="text-sm text-gray-500 mb-2 flex items-center flex-grow-0">
-                    <i class="fas fa-map-marker-alt mr-1.5 text-gray-400 text-xs"></i>
-                    <span th:text="${homestay.location}">Địa chỉ</span>
-                </p>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="text-lg font-semibold text-dark mb-1 truncate" th:text="${homestay.name}">Tên Homestay</h3>
+                    <p class="text-sm text-gray-500 mb-2 flex items-center flex-grow-0">
+                        <i class="fas fa-map-marker-alt mr-1.5 text-gray-400 text-xs"></i>
+                        <span th:text="${homestay.location}">Địa chỉ</span>
+                    </p>
+
+                    <!-- Mô tả ngắn -->
+                    <p class="text-sm text-gray-600 mb-2 line-clamp-3" th:text="${homestay.description}">Mô tả homestay</p>
+
+                    <!-- Danh sách ảnh nhỏ -->
+                    <div th:if="${homestay.imageUrls != null and homestay.imageUrls.size() > 1}" class="flex gap-2 overflow-x-auto mb-3">
+                        <img th:each="imgUrl, iterStat : ${homestay.imageUrls}" th:if="${iterStat.index > 0 and iterStat.index < 4}" th:src="${imgUrl}" alt="More homestay image" class="w-20 h-16 rounded object-cover shadow">
+                    </div>
 
                 <!-- Rating -->
                 <div class="flex items-center text-sm mb-3 mt-auto">

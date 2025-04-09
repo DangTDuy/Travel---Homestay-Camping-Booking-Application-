@@ -108,9 +108,42 @@
 
         <!-- Empty State -->
         <div th:if="${#lists.isEmpty(travels)}" class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-lg shadow text-center">
-            <i class="fas fa-route text-gray-400 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-dark mb-2">Không tìm thấy tour nào</h3>
-            <p class="text-gray-600">Hiện không có tour du lịch nào.</p>
+            <!-- Grid ảnh gợi ý -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Ảnh 1 -->
+                <div class="flex flex-col items-center">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Biển xanh" class="w-full h-40 object-cover rounded-lg shadow mb-2">
+                    <p class="text-sm text-gray-700">Khám phá biển xanh tuyệt đẹp</p>
+                </div>
+
+                <!-- Ảnh 2 -->
+                <div class="flex flex-col items-center">
+                    <img src="https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba" alt="Núi rừng" class="w-full h-40 object-cover rounded-lg shadow mb-2">
+                    <p class="text-sm text-gray-700">Leo núi thư giãn giữa thiên nhiên</p>
+                </div>
+
+                <!-- Ảnh 3 -->
+                <div class="flex flex-col items-center">
+                    <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d" alt="Thành phố" class="w-full h-40 object-cover rounded-lg shadow mb-2">
+                    <p class="text-sm text-gray-700">Trải nghiệm thành phố sôi động</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex flex-col items-center">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIiODlAW9m0LmpRdk9KkIieU_3P_W0VvNKgg&s" alt="Thác nước" class="w-full h-40 object-cover rounded-lg shadow mb-2">
+                    <p class="text-sm text-gray-700">Đắm mình bên dòng thác mát lạnh</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <img src="https://images.unsplash.com/photo-1470770903676-69b98201ea1c" alt="Sa mạc" class="w-full h-40 object-cover rounded-lg shadow mb-2">
+                    <p class="text-sm text-gray-700">Phiêu lưu giữa sa mạc kỳ bí</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="Rừng cây" class="w-full h-40 object-cover rounded-lg shadow mb-2">
+                    <p class="text-sm text-gray-700">Đi dạo giữa rừng xanh yên bình</p>
+                </div>
+            </div>
+
+
         </div>
     </div>
     </main>
