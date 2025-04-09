@@ -211,7 +211,7 @@
                                     <!-- Review Content -->
                                     <div class="flex-grow">
                                         <div class="flex items-center justify-between mb-1">
-                                            <h6 class="text-base font-semibold text-gray-800" th:text="${review.user?.hoTen} ?: 'Người dùng ẩn danh'">Username</h6>
+                                            <h6 class="text-base font-semibold text-gray-800" th:text="${review.user?.username} ?: 'Người dùng ẩn danh'">Username</h6>
                                             <div class="flex items-center">
                                                 <!-- Nút sửa/xóa cho người dùng hoặc admin -->
                                                 <div th:if="${#authentication.name == review.user?.username or #authorization.expression('hasRole(''ADMIN'')')}" 
