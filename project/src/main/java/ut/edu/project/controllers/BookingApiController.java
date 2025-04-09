@@ -7,20 +7,30 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ut.edu.project.dtos.BookingRequestDTO;
 import ut.edu.project.dtos.BookingResponseDTO;
+import ut.edu.project.dtos.AdditionalDTO;
 import ut.edu.project.models.Booking;
+import ut.edu.project.models.Category;
+import ut.edu.project.models.TimeSlot;
+import ut.edu.project.models.Additional;
 import ut.edu.project.services.BookingService;
+import ut.edu.project.services.AdditionalService;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
 
 @RestController // Use RestController for API endpoints
 @RequestMapping("/api") // Base path for all API endpoints in this controller
 public class BookingApiController {
 
     private final BookingService bookingService;
+    private final AdditionalService additionalService;
 
     @Autowired
-    public BookingApiController(BookingService bookingService) {
+    public BookingApiController(BookingService bookingService, AdditionalService additionalService) {
         this.bookingService = bookingService;
+        this.additionalService = additionalService;
     }
 
     // Endpoint for handling booking from homestay detail modal
@@ -52,13 +62,6 @@ public class BookingApiController {
             if (e.getMessage().contains("unavailable") || e.getMessage().contains("conflict")){
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
             }
-            // Catch potential StackOverflowError from circular references if DTO wasn't used
-            // (Should not happen now, but good practice to be aware of)
-            // } catch (StackOverflowError soe) {
-            //    System.err.println("StackOverflowError during booking creation/serialization: " + soe.getMessage());
-            //    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            //                         .body(Map.of("message", "Lỗi hệ thống: Vấn đề tham chiếu vòng tròn khi xử lý dữ liệu."));
-            // }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Lỗi hệ thống khi tạo đặt phòng: " + e.getMessage()));
         }
@@ -71,9 +74,10 @@ public class BookingApiController {
             @RequestParam String checkIn, // Expecting yyyy-MM-dd format from potential future JS calls
             @RequestParam String checkOut) {
         try {
-            // Consider adding date parsing/validation here or in service if needed
+            // Sửa lỗi: boolean cannot be converted to java.util.List<ut.edu.project.models.Booking>
+            // Sử dụng kết quả boolean trực tiếp từ bookingService.checkAvailability()
             boolean isAvailable = bookingService.checkAvailability(homestayId, checkIn, checkOut);
-            return ResponseEntity.ok().body(new AvailabilityResponse(isAvailable));
+            return ResponseEntity.ok().body(Map.of("available", isAvailable));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
@@ -83,27 +87,54 @@ public class BookingApiController {
         }
     }
 
-    // Inner class for Availability Response
-    private static class AvailabilityResponse {
-        private final boolean available;
-
-        public AvailabilityResponse(boolean available) {
-            this.available = available;
-        }
-
-        public boolean isAvailable() {
-            return available;
+    // Sửa lỗi: cannot find symbol method orElseGet(()->{ Addi[...]ce; })
+    // Phương thức này có thể đã được thay đổi không đúng cách
+    @GetMapping("/additional-services/{id}")
+    public ResponseEntity<?> getAdditionalServiceById(@PathVariable Long id) {
+        try {
+            // AdditionalService.getAdditionalById trả về AdditionalDTO, không phải Optional
+            AdditionalDTO service = additionalService.getAdditionalById(id);
+            return ResponseEntity.ok(service);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 
-    // Add other potential API endpoints here (GET /api/bookings/{id}, GET /api/bookings/my-bookings, etc.)
-    // Example:
-    /*
+    // Sửa lỗi: cannot find symbol method orElse(ut.edu.project.models.Category)
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<?> getCategoryById(@PathVariable Long id) {
+        try {
+            // AdditionalService.getCategoryById trả về Category, không phải Optional
+            Category category = additionalService.getCategoryById(id);
+            return ResponseEntity.ok(category);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // Sửa lỗi: cannot find symbol method orElse(ut.edu.project.models.TimeSlot)
+    @GetMapping("/timeslots/{id}")
+    public ResponseEntity<?> getTimeSlotById(@PathVariable Long id) {
+        try {
+            // AdditionalService.getTimeSlotById trả về TimeSlot, không phải Optional
+            TimeSlot timeSlot = additionalService.getTimeSlotById(id);
+            return ResponseEntity.ok(timeSlot);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // Add other potential API endpoints here (GET /api/bookings/my-bookings, etc.)
     @GetMapping("/bookings/{id}")
-    public ResponseEntity<Booking> getBookingByIdApi(@PathVariable Long id) {
+    public ResponseEntity<BookingResponseDTO> getBookingByIdApi(@PathVariable Long id) {
         Optional<Booking> booking = bookingService.getBookingById(id);
-        return booking.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return booking.map(b -> ResponseEntity.ok(new BookingResponseDTO(b)))
+                .orElse(ResponseEntity.notFound().build());
     }
-    */
-} 
+}

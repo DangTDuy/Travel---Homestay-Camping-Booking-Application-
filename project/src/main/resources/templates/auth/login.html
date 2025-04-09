@@ -121,7 +121,7 @@
             <!-- Login Form -->
             <form th:action="@{/login-processing}" method="post" class="space-y-6">
                 <input type="hidden" name="_csrf" th:value="${_csrf?.token}" />
-                
+
                 <div>
                     <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Tên đăng nhập</label>
                     <div class="relative rounded-md shadow-sm">
@@ -166,7 +166,7 @@
         <div class="px-8 py-6 bg-gray-50 border-t border-gray-100 rounded-b-lg">
             <p class="text-center text-sm text-gray-600">
                 Chưa có tài khoản?
-                <a href="http://localhost:8090/auth/register-user" class="link-transition font-medium text-blue-600 hover:text-blue-500 ml-1">
+                <a href="/auth/register-user" class="link-transition font-medium text-blue-600 hover:text-blue-500 ml-1">
                     Đăng ký ngay <i class="fas fa-arrow-right ml-1 text-xs"></i>
                 </a>
             </p>

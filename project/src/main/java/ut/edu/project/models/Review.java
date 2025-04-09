@@ -56,6 +56,12 @@ public class Review {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(name = "owner_reply", columnDefinition = "TEXT")
+    private String ownerReply;
+    
+    @Column(name = "owner_reply_date")
+    private LocalDateTime ownerReplyDate;
 
     @PrePersist
     protected void onCreate() {

@@ -17,6 +17,13 @@ import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import ut.edu.project.dtos.AdditionalDTO;
+import ut.edu.project.services.AdditionalService;
+import ut.edu.project.models.User;
+import ut.edu.project.models.Booking;
+import ut.edu.project.services.UserService;
+import ut.edu.project.services.BookingService;
 
 @Controller
 @RequestMapping("/homestay")
@@ -29,6 +36,15 @@ public class HomestayController {
 
     @Autowired
     private ReviewService reviewService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private BookingService bookingService;
+    
+    @Autowired
+    private AdditionalService additionalService;
 
     @GetMapping
     public String getAllHomestays(Model model,
@@ -57,33 +73,75 @@ public class HomestayController {
 
     @GetMapping("/{id}")
     public String getHomestayById(@PathVariable Long id, Model model, CsrfToken csrfToken, Authentication authentication) {
-        Homestay homestay = homestayService.getHomestayById(id)
-                .orElseThrow(() -> new RuntimeException("Homestay not found"));
+        try {
+            Homestay homestay = homestayService.getHomestayById(id)
+                    .orElseThrow(() -> new RuntimeException("Homestay not found"));
 
-        // Lấy danh sách đánh giá cho homestay này
-        List<Review> reviews = reviewService.getReviewsByHomestay(id);
-        Double averageRating = reviewService.getAverageRatingByHomestay(id);
-        Long reviewCount = reviewService.countReviewsByHomestay(id);
+            // Lấy danh sách đánh giá cho homestay này
+            List<Review> reviews = reviewService.getReviewsByHomestay(id);
+            Double averageRating = reviewService.getAverageRatingByHomestay(id);
+            Long reviewCount = reviewService.countReviewsByHomestay(id);
 
-        // Kiểm tra nếu người dùng đã đăng nhập, thì thêm thông tin đã đặt phòng chưa
-        boolean hasBookedHomestay = false;
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            hasBookedHomestay = homestayService.hasUserBookedHomestay(username, id);
-            log.info("User {} has booked homestay {}: {}", username, id, hasBookedHomestay);
+            // Kiểm tra nếu người dùng đã đăng nhập, thì thêm thông tin đã đặt phòng chưa
+            boolean hasBookedHomestay = false;
+            boolean canReview = false;
+            boolean isOwner = false;
+            Long bookingId = null;
+            
+            if (authentication != null && authentication.isAuthenticated()) {
+                String username = authentication.getName();
+                User user = userService.findByUsername(username).orElse(null);
+                
+                if (user != null) {
+                    // Kiểm tra xem người dùng có phải là chủ homestay không
+                    isOwner = homestay.getOwner() != null && homestay.getOwner().getId() != null && 
+                            user.getId() != null && homestay.getOwner().getId().equals(user.getId());
+                    
+                    // Kiểm tra xem người dùng có booking nào đã hoàn thành và chưa đánh giá không
+                    Booking completedBooking = bookingService.findCompletedBookingForReview(user.getId(), id);
+                    if (completedBooking != null) {
+                        canReview = true;
+                        bookingId = completedBooking.getId();
+                    }
+                    
+                    hasBookedHomestay = homestayService.hasUserBookedHomestay(username, id);
+                    log.info("User {} has booked homestay {}: {}", username, id, hasBookedHomestay);
+                }
+            }
+
+            // Lấy danh sách dịch vụ bổ sung cho homestay
+            List<AdditionalDTO> additionalServices = additionalService.getByHomestay(homestay).stream()
+                    .map(additionalService::convertToDTO)
+                    .collect(java.util.stream.Collectors.toList());
+                    
+            // Nhóm các dịch vụ bổ sung theo danh mục
+            Map<String, List<AdditionalDTO>> servicesByCategory = additionalServices.stream()
+                    .filter(service -> service.getCategory() != null)
+                    .collect(java.util.stream.Collectors.groupingBy(
+                        service -> service.getCategory().getDisplayName() != null ? 
+                                service.getCategory().getDisplayName() : "Khác"
+                    ));
+                    
+            model.addAttribute("homestay", homestay);
+            model.addAttribute("reviews", reviews);
+            model.addAttribute("currentPage", "homestay");
+            model.addAttribute("averageRating", averageRating != null ? averageRating : 0.0);
+            model.addAttribute("reviewCount", reviewCount);
+            model.addAttribute("hasBookedHomestay", hasBookedHomestay);
+            model.addAttribute("canReview", canReview);
+            model.addAttribute("isOwner", isOwner);
+            model.addAttribute("bookingId", bookingId);
+            model.addAttribute("additionalServices", additionalServices);
+            model.addAttribute("servicesByCategory", servicesByCategory);
+
+            if (csrfToken != null) {
+                model.addAttribute("_csrf", csrfToken);
+            }
+            return "homestay/homestay-detail";
+        } catch (Exception e) {
+            log.error("Error loading homestay details: {}", e.getMessage(), e);
+            return "redirect:/error?message=" + e.getMessage();
         }
-
-        model.addAttribute("homestay", homestay);
-        model.addAttribute("reviews", reviews);
-        model.addAttribute("currentPage", "homestay");
-        model.addAttribute("averageRating", averageRating != null ? averageRating : 0.0);
-        model.addAttribute("reviewCount", reviewCount);
-        model.addAttribute("hasBookedHomestay", hasBookedHomestay);
-
-        if (csrfToken != null) {
-            model.addAttribute("_csrf", csrfToken);
-        }
-        return "homestay/homestay-detail";
     }
 
     @GetMapping("/{id}/book")

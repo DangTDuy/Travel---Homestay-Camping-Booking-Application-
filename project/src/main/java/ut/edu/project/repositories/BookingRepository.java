@@ -13,6 +13,7 @@ import ut.edu.project.models.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -95,4 +96,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo,
             Pageable pageable);
+            
+    /**
+     * Tìm booking đã hoàn thành và chưa được đánh giá cho một homestay
+     */
+    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.homestay.id = :homestayId AND b.status = :status AND b.isReviewed = false")
+    List<Booking> findByUserIdAndHomestayIdAndStatusAndIsReviewedFalse(
+            @Param("userId") Long userId,
+            @Param("homestayId") Long homestayId,
+            @Param("status") BookingStatus status);
+            
+    /**
+     * Tìm booking gần nhất của user cho một homestay cụ thể
+     */
+    Optional<Booking> findFirstByUserAndHomestayOrderByCheckOutDesc(User user, Homestay homestay);
 }

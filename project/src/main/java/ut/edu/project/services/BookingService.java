@@ -11,7 +11,9 @@ import ut.edu.project.repositories.BookingRepository;
 import ut.edu.project.repositories.PaymentRepository;
 import ut.edu.project.repositories.UserRepository;
 import ut.edu.project.repositories.HomestayRepository;
+import ut.edu.project.repositories.AdditionalRepository;
 import ut.edu.project.dtos.BookingRequestDTO;
+import ut.edu.project.dtos.AdditionalDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +23,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class BookingService {
@@ -36,6 +39,9 @@ public class BookingService {
 
     @Autowired
     private HomestayRepository homestayRepository;
+
+    @Autowired
+    private AdditionalRepository additionalRepository;
 
     @Transactional
     public Booking createBooking(Booking booking) {
@@ -241,10 +247,37 @@ public class BookingService {
         newBooking.setCheckOut(checkOutDateTime);
         newBooking.setGuests(request.getGuests());
         newBooking.setSpecialRequests(request.getSpecialRequests());
+        
+        // 7. Process Additional Services if available
+        if (request.getAdditionalServices() != null && !request.getAdditionalServices().isEmpty()) {
+            List<Additional> additionalServices = new ArrayList<>();
+            
+            for (AdditionalDTO additionalDTO : request.getAdditionalServices()) {
+                Additional additional = additionalRepository.findById(additionalDTO.getId())
+                        .orElseThrow(() -> new RuntimeException("Dịch vụ bổ sung không tồn tại với ID: " + additionalDTO.getId()));
+                
+                // Set quantity from request
+                additional.setQuantity(additionalDTO.getQuantity());
+                
+                // Validate that additional service belongs to the selected homestay
+                if (!additional.getHomestay().getId().equals(homestay.getId())) {
+                    throw new IllegalArgumentException("Dịch vụ bổ sung không thuộc về homestay đã chọn");
+                }
+                
+                // Add the price of this service to the total
+                totalPrice += additional.getPrice().doubleValue() * additional.getQuantity();
+                
+                additionalServices.add(additional);
+            }
+            
+            newBooking.setAdditionalServices(additionalServices);
+        }
+        
         newBooking.setTotalPrice(totalPrice);
         newBooking.setStatus(Booking.BookingStatus.PENDING); // Initial status
         newBooking.setServiceType(Booking.ServiceType.HOMESTAY);
         newBooking.setCreatedAt(LocalDateTime.now());
+        newBooking.setIsReviewed(false); // Initially not reviewed
 
         return bookingRepository.save(newBooking);
     }
@@ -279,5 +312,22 @@ public class BookingService {
         }
 
         booking.setTotalPrice(totalPrice);
+    }
+    
+    /**
+     * Tìm booking đã hoàn thành và chưa được đánh giá cho một homestay
+     * @param userId ID của người dùng
+     * @param homestayId ID của homestay
+     * @return Booking đã hoàn thành và chưa được đánh giá, hoặc null nếu không tìm thấy
+     */
+    public Booking findCompletedBookingForReview(Long userId, Long homestayId) {
+        List<Booking> completedBookings = bookingRepository.findByUserIdAndHomestayIdAndStatusAndIsReviewedFalse(
+                userId, homestayId, Booking.BookingStatus.COMPLETED);
+        
+        if (completedBookings != null && !completedBookings.isEmpty()) {
+            return completedBookings.get(0); // Trả về booking đầu tiên tìm thấy
+        }
+        
+        return null;
     }
 }

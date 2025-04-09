@@ -1,6 +1,7 @@
 package ut.edu.project.dtos;
 
 import java.time.LocalDate;
+import java.util.List;
 
 // Giả sử bạn dùng Lombok, nếu không, hãy tự thêm getters/setters
 import lombok.Data;
@@ -16,4 +17,5 @@ public class BookingRequestDTO {
     private String checkOutDate; // Giữ kiểu String để binding ban đầu
     private int guests;
     private String specialRequests;
+    private List<AdditionalDTO> additionalServices;
 } 
