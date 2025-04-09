@@ -1,11 +1,11 @@
 package ut.edu.project.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import ut.edu.project.models.Travel;
 import ut.edu.project.services.TravelService;
 
@@ -39,4 +39,14 @@ public class TravelController {
         // }
         return "travel/travel-detail"; // Point to the new detail template
     }
+    @PostMapping("/create")
+    public String createTravel(@Valid @ModelAttribute Travel travel, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            // Trả lại form nếu có lỗi
+            return "travel/form";
+        }
+        travelService.createTravel(travel);
+        return "redirect:/travels";
+    }
+
 }
