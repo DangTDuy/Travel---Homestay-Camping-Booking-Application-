@@ -237,7 +237,13 @@ public class BookingService {
         // 5. Calculate Total Price
         long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         if (nights <= 0) nights = 1; // Minimum 1 night stay
-        double totalPrice = homestay.getPrice() * nights;
+        double subtotal = homestay.getPrice() * nights;
+
+        // Calculate service fee (20% of subtotal)
+        double serviceFee = subtotal * 0.2;
+
+        // Initialize total price with subtotal + service fee
+        double totalPrice = subtotal + serviceFee;
 
         // 6. Create and Save Booking
         Booking newBooking = new Booking();
@@ -295,21 +301,28 @@ public class BookingService {
     }
 
     private void calculateTotalPrice(Booking booking) {
-        double totalPrice = booking.getHomestay().getPrice(); // Base price per night
+        double basePrice = booking.getHomestay().getPrice(); // Base price per night
 
         // Calculate number of nights
         long nights = java.time.temporal.ChronoUnit.DAYS.between(
                 booking.getCheckIn().toLocalDate(),
                 booking.getCheckOut().toLocalDate()
         );
-        totalPrice *= nights;
+        double subtotal = basePrice * nights;
 
-        // Add additional services price
+        // Calculate service fee (20% of subtotal)
+        double serviceFee = subtotal * 0.2;
+
+        // Calculate total for additional services
+        double additionalServicesTotal = 0;
         if (booking.getAdditionalServices() != null) {
             for (Additional service : booking.getAdditionalServices()) {
-                totalPrice += service.getPrice().doubleValue() * service.getQuantity();
+                additionalServicesTotal += service.getPrice().doubleValue() * service.getQuantity();
             }
         }
+
+        // Total price = subtotal + service fee + additional services
+        double totalPrice = subtotal + serviceFee + additionalServicesTotal;
 
         booking.setTotalPrice(totalPrice);
     }
