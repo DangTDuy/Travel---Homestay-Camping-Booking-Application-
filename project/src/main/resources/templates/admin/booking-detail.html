@@ -14,24 +14,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { 
-            theme: { 
-                extend: { 
-                    colors: { 
-                        primary: '#3B82F6', 
-                        secondary: '#10B981', 
-                        tertiary: '#8B5CF6', 
-                        warning: '#F59E0B', 
-                        danger: '#EF4444', 
-                        dark: '#1F2937', 
-                        light: '#F9FAFB' 
-                    }, 
-                    fontFamily: { 
-                        sans: ['Montserrat', 'sans-serif'], 
-                        serif: ['Playfair Display', 'serif'] 
-                    } 
-                } 
-            } 
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        tertiary: '#8B5CF6',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -47,7 +47,7 @@
         .status-refunded { background-color: #E5E7EB; color: #4B5563; border-color: #D1D5DB; }
         .payment-paid { color: #10B981; }
         .payment-pending { color: #F59E0B; }
-        
+
         /* Sidebar styles */
         .sidebar {
             position: fixed;
@@ -58,20 +58,20 @@
             z-index: 10;
             transition: all 0.3s;
         }
-        
+
         /* Main content styles */
         .main-content {
             margin-left: 16rem;
             transition: all 0.3s;
         }
-        
+
         /* Header styles */
         .header {
             position: sticky;
             top: 0;
             z-index: 5;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .sidebar {
@@ -135,54 +135,55 @@
                             <dt class="font-medium text-gray-500">Trạng thái</dt>
                             <dd class="mt-1">
                                     <span class="status-tag"
-                                          th:text="${booking?.status?.displayName ?: 'N/A'}"
-                                          th:classappend="${'status-' + #strings.toLowerCase(booking?.status?.name() ?: 'unknown')}"></span>
+                                          th:text="${booking != null && booking.status != null ? booking.status.displayName : 'N/A'}"
+                                          th:classappend="${booking != null && booking.status != null ? 'status-' + #strings.toLowerCase(booking.status.name()) : 'status-unknown'}"></span>
                             </dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Ngày tạo</dt>
-                            <dd class="mt-1 text-gray-900" th:text="${booking?.createdAt != null ? #temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+                            <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.createdAt != null ? #temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Cập nhật lần cuối</dt>
-                            <dd class="mt-1 text-gray-900" th:text="${booking?.updatedAt != null ? #temporals.format(booking.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+                            <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.updatedAt != null ? #temporals.format(booking.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
                         </div>
 
                         <div class="sm:col-span-2 pt-4 border-t mt-2">
                             <dt class="font-medium text-gray-500">Loại dịch vụ</dt>
                             <dd class="mt-1 text-gray-900 flex items-center">
-                                    <span th:if="${booking?.serviceType != null}" th:switch="${booking.serviceType}">
-                                        <i th:case="${T(ut.edu.project.models.Booking.ServiceType).HOMESTAY}" class="fas fa-home mr-2 text-blue-500" title="Homestay"></i>
-                                        <i th:case="${T(ut.edu.project.models.Booking.ServiceType).CAMPING}" class="fas fa-campground mr-2 text-green-500" title="Camping"></i>
-                                        <i th:case="${T(ut.edu.project.models.Booking.ServiceType).TRAVEL}" class="fas fa-plane mr-2 text-purple-500" title="Travel"></i>
+                                    <span th:if="${booking != null && booking.serviceType != null}">
+                                        <i th:if="${booking.serviceType.name() == 'HOMESTAY'}" class="fas fa-home mr-2 text-blue-500" title="Homestay"></i>
+                                        <i th:if="${booking.serviceType.name() == 'CAMPING'}" class="fas fa-campground mr-2 text-green-500" title="Camping"></i>
+                                        <i th:if="${booking.serviceType.name() == 'TRAVEL'}" class="fas fa-plane mr-2 text-purple-500" title="Travel"></i>
+                                        <span th:text="${booking.serviceType.displayName}">Loại dịch vụ</span>
                                     </span>
-                                <span th:text="${booking?.serviceType?.displayName ?: 'N/A'}"></span>
+                                    <span th:unless="${booking != null && booking.serviceType != null}">N/A</span>
                             </dd>
                         </div>
                         <div class="sm:col-span-2">
                             <dt class="font-medium text-gray-500">Tên dịch vụ</dt>
                             <dd class="mt-1 text-gray-900 font-semibold">
-                                <span th:if="${booking?.homestay != null}" th:text="${booking.homestay.name}"></span>
-                                <span th:if="${booking?.camping != null}" th:text="${booking.camping.name}"></span>
-                                <span th:if="${booking?.travel != null}" th:text="${booking.travel.tourName}"></span>
-                                <span th:unless="${booking?.homestay != null or booking?.camping != null or booking?.travel != null}">N/A</span>
+                                <span th:if="${booking != null && booking.homestay != null}" th:text="${booking.homestay.name}"></span>
+                                <span th:if="${booking != null && booking.camping != null}" th:text="${booking.camping.name}"></span>
+                                <span th:if="${booking != null && booking.travel != null}" th:text="${booking.travel.tourName}"></span>
+                                <span th:unless="${booking != null && (booking.homestay != null || booking.camping != null || booking.travel != null)}">N/A</span>
                             </dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Ngày nhận / Bắt đầu</dt>
-                            <dd class="mt-1 text-gray-900" th:text="${booking?.checkIn != null ? #temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+                            <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.checkIn != null ? #temporals.format(booking.checkIn, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Ngày trả / Kết thúc</dt>
-                            <dd class="mt-1 text-gray-900" th:text="${booking?.checkOut != null ? #temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
+                            <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.checkOut != null ? #temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Số lượng khách</dt>
-                            <dd class="mt-1 text-gray-900" th:text="${booking?.guests ?: 'N/A'}"></dd>
+                            <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.guests != null ? booking.guests : 'N/A'}"></dd>
                         </div>
                         <div class="sm:col-span-2">
                             <dt class="font-medium text-gray-500">Yêu cầu đặc biệt</dt>
-                            <dd class="mt-1 text-gray-900" th:text="${booking?.specialRequests ?: 'Không có'}"></dd>
+                            <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.specialRequests != null ? booking.specialRequests : 'Không có'}"></dd>
                         </div>
                     </dl>
 
@@ -191,30 +192,30 @@
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Tổng tiền</dt>
-                            <dd class="mt-1 text-gray-900 font-semibold text-lg text-primary" th:text="${booking?.totalPrice != null ? #numbers.formatCurrency(booking.totalPrice) : 'N/A'}"></dd>
+                            <dd class="mt-1 text-gray-900 font-semibold text-lg text-primary" th:text="${booking != null && booking.totalPrice != null ? #numbers.formatCurrency(booking.totalPrice) : 'N/A'}"></dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="font-medium text-gray-500">Trạng thái Thanh toán</dt>
                             <dd class="mt-1 font-semibold">
                                 <!-- Check status first for REFUNDED -->
-                                <span th:if="${booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="text-gray-600"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
+                                <span th:if="${booking != null && booking.status != null && booking.status.name() == 'REFUNDED'}" class="text-gray-600"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
                                 <!-- Then check isPaid() -->
-                                <span th:if="${booking?.isPaid() and booking?.status != T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="payment-paid"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
-                                <span th:unless="${booking?.isPaid() or booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="payment-pending"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
+                                <span th:if="${booking != null && booking.isPaid() && (booking.status == null || booking.status.name() != 'REFUNDED')}" class="payment-paid"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+                                <span th:unless="${booking != null && (booking.isPaid() || (booking.status != null && booking.status.name() == 'REFUNDED'))}" class="payment-pending"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
                             </dd>
                         </div>
                         <!-- Add more payment details if available in Payment entity -->
-                        <div th:if="${booking?.payment != null}" class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 border-t pt-4 mt-2">
+                        <div th:if="${booking != null && booking.payment != null}" class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 border-t pt-4 mt-2">
                             <div class="sm:col-span-1">
                                 <dt class="font-medium text-gray-500">Phương thức TT</dt>
-                                <dd class="mt-1 text-gray-900" th:text="${booking.payment.paymentMethod ?: 'N/A'}"></dd>
+                                <dd class="mt-1 text-gray-900" th:text="${booking.payment.paymentMethod != null ? booking.payment.paymentMethod : 'N/A'}"></dd>
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="font-medium text-gray-500">Ngày thanh toán</dt>
                                 <dd class="mt-1 text-gray-900" th:text="${booking.payment.paymentDate != null ? #temporals.format(booking.payment.paymentDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></dd>
                             </div>
                         </div>
-                        <div th:if="${booking?.payment == null}" class="sm:col-span-2 text-gray-500 italic mt-2">
+                        <div th:if="${booking == null || booking.payment == null}" class="sm:col-span-2 text-gray-500 italic mt-2">
                             (Chưa có thông tin giao dịch thanh toán)
                         </div>
                     </dl>
@@ -228,17 +229,17 @@
                         <dl class="space-y-3 text-sm">
                             <div>
                                 <dt class="font-medium text-gray-500">Username</dt>
-                                <dd class="mt-1 text-gray-900 font-semibold" th:text="${booking?.user?.username ?: 'N/A'}"></dd>
+                                <dd class="mt-1 text-gray-900 font-semibold" th:text="${booking != null && booking.user != null && booking.user.username != null ? booking.user.username : 'N/A'}"></dd>
                             </div>
                             <div>
                                 <dt class="font-medium text-gray-500">Email</dt>
-                                <dd class="mt-1 text-gray-900" th:text="${booking?.user?.email ?: 'Chưa có'}"></dd>
+                                <dd class="mt-1 text-gray-900" th:text="${booking != null && booking.user != null && booking.user.email != null ? booking.user.email : 'Chưa có'}"></dd>
                             </div>
                             <!-- Add Phone Number if available -->
                         </dl>
                         <!-- Optional: Link to user management page -->
                         <div class="mt-4 pt-4 border-t">
-                            <a th:if="${booking?.user?.id != null}" th:href="@{/admin/users/{id}(id=${booking.user.id})}" class="text-sm font-medium text-primary hover:text-blue-700">
+                            <a th:if="${booking != null && booking.user != null && booking.user.id != null}" th:href="@{/admin/users/{id}(id=${booking.user.id})}" class="text-sm font-medium text-primary hover:text-blue-700">
                                 Xem chi tiết User &rarr;
                             </a>
                         </div>
@@ -247,7 +248,7 @@
                     <!-- Admin Actions: Update Status -->
                     <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Cập nhật Trạng thái</h3>
-                        <form th:action="@{/admin/bookings/{id}/status(id=${booking?.id})}" method="post">
+                        <form th:action="@{/admin/bookings/{id}/status(id=${booking != null ? booking.id : 0})}" method="post">
                             <!-- CSRF Token -->
                             <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
@@ -258,7 +259,7 @@
                                     <option th:if="${allStatuses != null}" th:each="stat : ${allStatuses}"
                                             th:value="${stat}"
                                             th:text="${stat.displayName}"
-                                            th:selected="${stat == booking?.status}">Status Name</option>
+                                            th:selected="${booking != null && booking.status != null && stat == booking.status}">Status Name</option>
                                 </select>
                             </div>
                             <button type="submit"
@@ -286,11 +287,11 @@
                     link.classList.add('text-primary', 'bg-blue-50');
                 }
             });
-            
+
             // Toggle sidebar
             const menuToggle = document.querySelector('.menu-toggle');
             const sidebar = document.querySelector('.sidebar');
-            
+
             if (menuToggle) {
                 menuToggle.addEventListener('click', function() {
                     sidebar.classList.toggle('open');
