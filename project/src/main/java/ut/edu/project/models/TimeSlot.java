@@ -2,6 +2,7 @@ package ut.edu.project.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalTime;
 
 @Data
 @Entity
@@ -19,6 +20,12 @@ public class TimeSlot {
 
     private String description;
 
+    @Column(name = "start_time")
+    private LocalTime startTime;
+
+    @Column(name = "end_time")
+    private LocalTime endTime;
+
     @Column(nullable = false)
     private boolean active = true;
-} 
+}

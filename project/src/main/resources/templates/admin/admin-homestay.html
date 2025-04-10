@@ -44,6 +44,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <!-- Toast Notification -->
+    <th:block th:replace="fragments/toast-notification :: toast-resources"></th:block>
+
     <!-- Custom styles for admin pages -->
     <style>
         .sidebar {
@@ -86,23 +89,7 @@
             </button>
         </div>
 
-        <!-- Error Alert -->
-        <div id="errorAlert" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative hidden mb-6" role="alert">
-            <strong class="font-bold">Lỗi!</strong>
-            <span class="block sm:inline" id="errorMessage"></span>
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="hideErrorAlert()">
-                <i class="fas fa-times"></i>
-            </span>
-        </div>
-
-        <!-- Success Alert -->
-        <div id="successAlert" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative hidden mb-6" role="alert">
-            <strong class="font-bold">Thành công!</strong>
-            <span class="block sm:inline" id="successMessage"></span>
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="hideSuccessAlert()">
-                <i class="fas fa-times"></i>
-            </span>
-        </div>
+        <!-- Alerts removed in favor of toast notifications -->
 
         <!-- Search and Filter -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -192,20 +179,20 @@
 <!-- Add/Edit Modal -->
 <div id="homestayModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div class="border-b px-6 py-3 flex justify-between items-center">
-            <h3 class="text-xl font-semibold text-dark" id="modalTitle">Thêm Homestay mới</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="border-b pb-4 mb-4 px-6 py-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-primary" id="modalTitle">
+                    <i class="fas fa-home mr-2"></i>
+                    Thêm Homestay mới
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500 text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mt-1">Nhập thông tin homestay mới</p>
         </div>
 
-        <!-- Thêm khu vực cố định cho thông báo lỗi trong form -->
-        <div id="formErrorContainer" class="px-6 pt-3 hidden sticky top-0 z-10">
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-md">
-                <strong class="font-bold">Lỗi!</strong>
-                <span class="block sm:inline" id="formErrorMessage"></span>
-            </div>
-        </div>
+        <!-- Thông báo lỗi sẽ được hiển thị bằng toast notification -->
 
         <form id="homestayForm" class="px-6 py-4 space-y-4" onsubmit="handleFormSubmit(event)">
             <input type="hidden" id="homestayId">
@@ -214,47 +201,78 @@
                 <!-- Tên homestay -->
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Tên homestay <span class="text-red-500">*</span></label>
-                    <input type="text" id="name" name="name" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-tag text-gray-400"></i>
+                        </span>
+                        <input type="text" id="name" name="name" required placeholder="Nhập tên homestay"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Địa điểm -->
                 <div>
                     <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm <span class="text-red-500">*</span></label>
-                    <input type="text" id="location" name="location" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-map-marker-alt text-gray-400"></i>
+                        </span>
+                        <input type="text" id="location" name="location" required placeholder="Nhập địa điểm"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
             </div>
 
             <!-- Mô tả -->
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
-                <textarea id="description" name="description" rows="3" required
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                <div class="relative">
+                    <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                        <i class="fas fa-align-left text-gray-400"></i>
+                    </span>
+                    <textarea id="description" name="description" rows="3" required placeholder="Nhập mô tả về homestay"
+                              class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Mô tả chi tiết sẽ giúp khách hàng hiểu rõ hơn về homestay của bạn</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Giá mỗi đêm -->
                 <div>
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Giá mỗi đêm (VNĐ) <span class="text-red-500">*</span></label>
-                    <input type="number" id="price" name="price" min="0" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-money-bill-wave text-gray-400"></i>
+                        </span>
+                        <input type="number" id="price" name="price" min="0" required placeholder="Nhập giá mỗi đêm"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Sức chứa -->
                 <div>
                     <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Sức chứa <span class="text-red-500">*</span></label>
-                    <input type="number" id="capacity" name="capacity" min="1" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-users text-gray-400"></i>
+                        </span>
+                        <input type="number" id="capacity" name="capacity" min="1" required placeholder="Nhập sức chứa"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
             </div>
 
             <!-- Tiện nghi -->
             <div>
                 <label for="amenities" class="block text-sm font-medium text-gray-700 mb-1">Tiện nghi <span class="text-red-500">*</span></label>
-                <input type="text" id="amenities" name="amenities" required
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                       placeholder="Ví dụ: Wifi, Điều hòa, TV">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fas fa-concierge-bell text-gray-400"></i>
+                    </span>
+                    <input type="text" id="amenities" name="amenities" required
+                           class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                           placeholder="Ví dụ: Wifi, Điều hòa, TV">
+                </div>
                 <p class="mt-1 text-xs text-gray-500">Các tiện nghi cách nhau bằng dấu phẩy.</p>
             </div>
 
@@ -274,31 +292,32 @@
             </div>
 
             <!-- Thêm ảnh mới -->
-            <div>
-                <label for="newImages" class="block text-sm font-medium text-gray-700 mb-1">Thêm ảnh mới (Tối đa 5)</label>
-                <div class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative">
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <label for="newImages" class="block text-sm font-medium text-gray-700 mb-2">Thêm ảnh mới (Tối đa 5)</label>
+                <div class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative bg-white">
                     <div class="space-y-3 text-center">
                         <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl"></i>
                         <div class="text-sm text-gray-600">
                             <label for="newImages" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-blue-700 focus-within:outline-none">
-                                <span class="btn bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md">Tải ảnh lên</span>
+                                <span class="btn bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out shadow-sm">Tải ảnh lên</span>
                                 <input id="newImages" name="newImages" type="file" class="sr-only" multiple accept="image/*" onchange="previewNewImages(event)">
                             </label>
                         </div>
                         <p class="text-xs text-gray-500">PNG, JPG, GIF tối đa 10MB</p>
                     </div>
                 </div>
-                <div class="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3" id="imagePreviewGrid">
+                <div class="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3" id="imagePreviewGrid">
                     <!-- Image previews will be shown here -->
                 </div>
+                <p class="text-xs text-gray-500 mt-2">Hình ảnh đẹp sẽ giúp tăng tỉ lệ đặt phòng của homestay</p>
             </div>
 
-            <div class="border-t pt-4 flex justify-end">
-                <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mr-2">
-                    Hủy
+            <div class="border-t pt-4 mt-4 flex justify-end">
+                <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mr-2 flex items-center transition-colors duration-150">
+                    <i class="fas fa-times mr-2"></i> Hủy
                 </button>
-                <button type="submit" id="saveButton" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
-                    <i class="fas fa-save mr-1"></i> Lưu
+                <button type="submit" id="saveButton" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition-colors duration-150 shadow-sm">
+                    <i class="fas fa-save mr-2"></i> Lưu homestay
                 </button>
             </div>
         </form>
@@ -880,30 +899,14 @@
         });
     }
 
+    // Hàm showError đã được cập nhật để sử dụng toast notification
     function showError(message) {
-        const errorAlert = document.getElementById('errorAlert');
-        document.getElementById('errorMessage').textContent = message;
-        errorAlert.classList.remove('hidden');
-        setTimeout(() => {
-            errorAlert.classList.add('hidden');
-        }, 5000);
+        showToast(message, 'error');
     }
 
-    function hideErrorAlert() {
-        document.getElementById('errorAlert').classList.add('hidden');
-    }
-
+    // Hàm showSuccess đã được cập nhật để sử dụng toast notification
     function showSuccess(message) {
-        const successAlert = document.getElementById('successAlert');
-        document.getElementById('successMessage').textContent = message;
-        successAlert.classList.remove('hidden');
-        setTimeout(() => {
-            successAlert.classList.add('hidden');
-        }, 5000);
-    }
-
-    function hideSuccessAlert() {
-        document.getElementById('successAlert').classList.add('hidden');
+        showToast(message, 'success');
     }
 
     // Add new function to handle form submission
@@ -1331,6 +1334,16 @@
             // Thử tải lại ảnh
             imgElement.src = retrySrc;
         }, 1000 * (currentRetry + 1)); // Tăng dần thời gian chờ giữa các lần thử
+    }
+
+    // Hàm hiển thị thông báo lỗi sử dụng toast
+    function showError(message) {
+        showToast(message, 'error');
+    }
+
+    // Hàm hiển thị thông báo thành công sử dụng toast
+    function showSuccess(message) {
+        showToast(message, 'success');
     }
 </script>
 

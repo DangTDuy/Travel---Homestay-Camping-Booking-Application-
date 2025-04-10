@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Toast Notification Fragment -->
+    <th:block th:fragment="toast-resources">
+        <!-- Toastify CSS & JS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        
+        <!-- Custom Toast JS -->
+        <script th:src="@{/js/toast-notification.js}"></script>
+    </th:block>
+</head>
+<body>
+    <!-- Empty body as this is just a fragment -->
+</body>
+</html>

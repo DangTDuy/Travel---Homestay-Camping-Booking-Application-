@@ -4,6 +4,8 @@
     <meta charset="utf-8"/>
     <title>Header Fragment</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Toast Notification -->
+    <th:block th:replace="fragments/toast-notification :: toast-resources"></th:block>
 </head>
 <body>
 <header th:fragment="header" class="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200 h-16">
@@ -87,5 +89,8 @@
         }
     });
 </script>
+
+<!-- Common Scripts -->
+<th:block th:replace="fragments/common-scripts :: common-scripts"></th:block>
 </body>
 </html>

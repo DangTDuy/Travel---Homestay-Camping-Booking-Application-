@@ -1,10 +1,16 @@
 package ut.edu.project.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "categories")
 public class Category {
     @Id
@@ -20,5 +26,6 @@ public class Category {
     private String description;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean active = true;
-} 
+}

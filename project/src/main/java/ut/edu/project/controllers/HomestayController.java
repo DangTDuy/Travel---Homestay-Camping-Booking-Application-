@@ -22,6 +22,7 @@ import ut.edu.project.dtos.AdditionalDTO;
 import ut.edu.project.services.AdditionalService;
 import ut.edu.project.models.User;
 import ut.edu.project.models.Booking;
+import ut.edu.project.models.Category;
 import ut.edu.project.services.UserService;
 import ut.edu.project.services.BookingService;
 
@@ -36,13 +37,13 @@ public class HomestayController {
 
     @Autowired
     private ReviewService reviewService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private BookingService bookingService;
-    
+
     @Autowired
     private AdditionalService additionalService;
 
@@ -87,41 +88,36 @@ public class HomestayController {
             boolean canReview = false;
             boolean isOwner = false;
             Long bookingId = null;
-            
+
             if (authentication != null && authentication.isAuthenticated()) {
                 String username = authentication.getName();
                 User user = userService.findByUsername(username).orElse(null);
-                
+
                 if (user != null) {
                     // Kiểm tra xem người dùng có phải là chủ homestay không
-                    isOwner = homestay.getOwner() != null && homestay.getOwner().getId() != null && 
+                    isOwner = homestay.getOwner() != null && homestay.getOwner().getId() != null &&
                             user.getId() != null && homestay.getOwner().getId().equals(user.getId());
-                    
+
                     // Kiểm tra xem người dùng có booking nào đã hoàn thành và chưa đánh giá không
                     Booking completedBooking = bookingService.findCompletedBookingForReview(user.getId(), id);
                     if (completedBooking != null) {
                         canReview = true;
                         bookingId = completedBooking.getId();
                     }
-                    
+
                     hasBookedHomestay = homestayService.hasUserBookedHomestay(username, id);
                     log.info("User {} has booked homestay {}: {}", username, id, hasBookedHomestay);
                 }
             }
 
-            // Lấy danh sách dịch vụ bổ sung cho homestay
-            List<AdditionalDTO> additionalServices = additionalService.getByHomestay(homestay).stream()
-                    .map(additionalService::convertToDTO)
-                    .collect(java.util.stream.Collectors.toList());
-                    
+            // Lấy tất cả dịch vụ bổ sung (dịch vụ chung)
+            List<AdditionalDTO> additionalServices = additionalService.getAllAdditionals();
+
             // Nhóm các dịch vụ bổ sung theo danh mục
-            Map<String, List<AdditionalDTO>> servicesByCategory = additionalServices.stream()
+            Map<Category, List<AdditionalDTO>> servicesByCategory = additionalServices.stream()
                     .filter(service -> service.getCategory() != null)
-                    .collect(java.util.stream.Collectors.groupingBy(
-                        service -> service.getCategory().getDisplayName() != null ? 
-                                service.getCategory().getDisplayName() : "Khác"
-                    ));
-                    
+                    .collect(java.util.stream.Collectors.groupingBy(AdditionalDTO::getCategory));
+
             model.addAttribute("homestay", homestay);
             model.addAttribute("reviews", reviews);
             model.addAttribute("currentPage", "homestay");

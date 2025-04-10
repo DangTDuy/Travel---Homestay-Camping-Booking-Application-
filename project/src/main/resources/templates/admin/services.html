@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quản lý dịch vụ bổ sung - Travel-Homestay-Camping">
+    <meta name="keywords" content="Homestay, Dịch vụ bổ sung, Travel-Homestay-Camping">
+    <title>Quản lý dịch vụ bổ sung | Travel-Homestay-Camping</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Toast Notification -->
+    <th:block th:replace="fragments/toast-notification :: toast-resources"></th:block>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6', /* Blue */
+                        secondary: '#10B981', /* Green */
+                        tertiary: '#8B5CF6', /* Purple */
+                        warning: '#F59E0B', /* Amber */
+                        danger: '#EF4444', /* Red */
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans flex">
+
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-primary">
+                    <i class="fas fa-concierge-bell mr-2"></i>
+                    Quản lý dịch vụ bổ sung
+                </h1>
+                <p class="text-gray-600">Thêm, chỉnh sửa và quản lý dịch vụ bổ sung trong hệ thống</p>
+            </div>
+            <button id="addServiceBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition duration-150 ease-in-out shadow-sm">
+                <i class="fas fa-plus mr-2"></i> Thêm dịch vụ mới
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
+                    <select id="categoryFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">Tất cả danh mục</option>
+                        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.displayName}" th:selected="${category.id == categoryId}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label for="timeSlotFilter" class="block text-sm font-medium text-gray-700 mb-1">Khung giờ</label>
+                    <select id="timeSlotFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">Tất cả khung giờ</option>
+                        <option th:each="timeSlot : ${timeSlots}" th:value="${timeSlot.id}" th:text="${timeSlot.displayName}" th:selected="${timeSlot.id == timeSlotId}"></option>
+                    </select>
+                </div>
+                <!-- Bỏ lọc Homestay đã được xóa -->
+                <div>
+                    <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Tên dịch vụ..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 pl-10" th:value="${search}">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button id="applyFilters" class="bg-primary hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg text-sm">
+                    <i class="fas fa-filter mr-1"></i> Lọc
+                </button>
+                <button id="resetFilters" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1.5 px-4 rounded-lg text-sm">
+                    <i class="fas fa-redo-alt mr-1"></i> Đặt lại
+                </button>
+            </div>
+        </div>
+
+        <!-- Services Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên dịch vụ</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh mục</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khung giờ</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="service : ${services}" th:id="'service-row-' + ${service.id}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-concierge-bell text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900" th:text="${service.name}">Tên dịch vụ</div>
+                                        <div class="text-xs text-gray-500" th:text="${service.description}">Mô tả ngắn</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${service.category?.displayName}">Danh mục</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-gray-900" th:text="${service.timeSlot?.displayName ?: 'Cả ngày'}">Khung giờ</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(service.price, 0, 'COMMA', 0, 'POINT')} + ' VND'">Giá</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span th:if="${service.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i> Hoạt động
+                                </span>
+                                <span th:unless="${service.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    <i class="fas fa-times-circle mr-1"></i> Không hoạt động
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button th:onclick="'editService(' + ${service.id} + ')'" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button th:onclick="'deleteService(' + ${service.id} + ')'" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash-alt"></i> Xóa
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Empty state -->
+                        <tr th:if="${#lists.isEmpty(services)}">
+                            <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
+                                    <p class="text-lg font-medium">Không có dịch vụ nào</p>
+                                    <p class="text-sm">Hãy thêm dịch vụ bổ sung mới để hiển thị ở đây</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Simple Pagination -->
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Hiển thị <span class="font-medium" th:text="${#lists.size(services)}">0</span> dịch vụ
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Add/Edit Service Modal -->
+<div id="serviceModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="border-b pb-4 mb-4">
+            <div class="flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-semibold text-primary">
+                    <i class="fas fa-concierge-bell mr-2"></i>
+                    Thêm dịch vụ bổ sung mới
+                </h3>
+                <button onclick="closeServiceModal()" class="text-gray-400 hover:text-gray-500 text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mt-1">Nhập thông tin dịch vụ bổ sung</p>
+        </div>
+
+        <form id="serviceForm" class="space-y-4">
+            <input type="hidden" id="serviceId" name="id">
+            <input type="hidden" id="csrf" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="serviceName" class="block text-sm font-medium text-gray-700 mb-1">Tên dịch vụ <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-tag text-gray-400"></i>
+                        </span>
+                        <input type="text" id="serviceName" name="name" required placeholder="Nhập tên dịch vụ" class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    </div>
+                </div>
+                <div>
+                    <label for="servicePrice" class="block text-sm font-medium text-gray-700 mb-1">Giá (VND) <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-money-bill-wave text-gray-400"></i>
+                        </span>
+                        <input type="number" id="servicePrice" name="price" required min="0" placeholder="Nhập giá dịch vụ" class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="serviceCategory" class="block text-sm font-medium text-gray-700 mb-1">Danh mục <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-list-alt text-gray-400"></i>
+                        </span>
+                        <select id="serviceCategory" name="categoryId" required class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 appearance-none">
+                            <option value="">Chọn danh mục</option>
+                            <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.displayName}"></option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="serviceTimeSlot" class="block text-sm font-medium text-gray-700 mb-1">Khung giờ <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-clock text-gray-400"></i>
+                        </span>
+                        <select id="serviceTimeSlot" name="timeSlotId" required class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 appearance-none">
+                            <option value="">Chọn khung giờ</option>
+                            <option th:each="timeSlot : ${timeSlots}" th:value="${timeSlot.id}" th:text="${timeSlot.displayName}"></option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+                <label for="serviceActive" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái dịch vụ</label>
+                <div class="flex items-center">
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" id="serviceActive" name="isActive" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked>
+                        <label for="serviceActive" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                    <span id="statusText" class="text-sm text-green-600 font-medium">Hoạt động</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Dịch vụ hoạt động sẽ được hiển thị cho người dùng đặt</p>
+                <input type="hidden" id="serviceHomestay" name="homestayId" value="-1">
+            </div>
+
+            <style>
+                .toggle-checkbox:checked {
+                    right: 0;
+                    border-color: #68D391;
+                }
+                .toggle-checkbox:checked + .toggle-label {
+                    background-color: #68D391;
+                }
+            </style>
+
+            <script>
+                document.getElementById('serviceActive').addEventListener('change', function() {
+                    const statusText = document.getElementById('statusText');
+                    if (this.checked) {
+                        statusText.textContent = 'Hoạt động';
+                        statusText.classList.remove('text-red-600');
+                        statusText.classList.add('text-green-600');
+                    } else {
+                        statusText.textContent = 'Không hoạt động';
+                        statusText.classList.remove('text-green-600');
+                        statusText.classList.add('text-red-600');
+                    }
+                });
+            </script>
+
+            <div>
+                <label for="serviceDescription" class="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+                <div class="relative">
+                    <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                        <i class="fas fa-align-left text-gray-400"></i>
+                    </span>
+                    <textarea id="serviceDescription" name="description" rows="3" placeholder="Nhập mô tả dịch vụ (không bắt buộc)" class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"></textarea>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Mô tả sẽ giúp người dùng hiểu rõ hơn về dịch vụ của bạn</p>
+            </div>
+
+            <input type="hidden" id="serviceStartTime" name="startTime">
+            <input type="hidden" id="serviceEndTime" name="endTime">
+
+            <div class="flex justify-end space-x-3 pt-4 border-t mt-4">
+                <button type="button" onclick="closeServiceModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md flex items-center transition-colors duration-150">
+                    <i class="fas fa-times mr-2"></i> Hủy
+                </button>
+                <button type="submit" id="saveServiceBtn" class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-md flex items-center transition-colors duration-150 shadow-sm">
+                    <i class="fas fa-save mr-2"></i> Lưu dịch vụ
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteServiceModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa dịch vụ</h3>
+
+        <p class="text-gray-700 mb-6">Bạn có chắc chắn muốn xóa dịch vụ này? Hành động này không thể hoàn tác.</p>
+
+        <input type="hidden" id="deleteServiceId">
+
+        <div class="flex justify-end space-x-3">
+            <button type="button" onclick="closeDeleteServiceModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                Hủy
+            </button>
+            <button type="button" id="deleteServiceSubmitBtn" onclick="submitDeleteService()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors">
+                Xóa
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Service Management -->
+<script>
+    // CSRF Token for AJAX requests
+    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // DOM Elements
+    const serviceModal = document.getElementById('serviceModal');
+    const deleteServiceModal = document.getElementById('deleteServiceModal');
+    const serviceForm = document.getElementById('serviceForm');
+    const modalTitle = document.getElementById('modalTitle');
+
+    // Sử dụng hàm showToast từ file toast-notification.js
+
+    // Open modal to add new service
+    document.getElementById('addServiceBtn').addEventListener('click', function() {
+        resetServiceForm();
+        modalTitle.textContent = 'Thêm dịch vụ bổ sung mới';
+        serviceModal.classList.remove('hidden');
+        document.getElementById('serviceActive').checked = true; // Default to active
+    });
+
+    // Close service modal
+    function closeServiceModal() {
+        serviceModal.classList.add('hidden');
+    }
+
+    // Close delete confirmation modal
+    function closeDeleteServiceModal() {
+        deleteServiceModal.classList.add('hidden');
+    }
+
+    // Reset service form
+    function resetServiceForm() {
+        serviceForm.reset();
+        document.getElementById('serviceId').value = '';
+    }
+
+    // Lấy thời gian từ TimeSlot khi chọn khung giờ
+    document.getElementById('serviceTimeSlot').addEventListener('change', function() {
+        const timeSlotId = this.value;
+        if (timeSlotId) {
+            fetch(`/api/timeslots/${timeSlotId}`)
+                .then(response => response.json())
+                .then(timeSlot => {
+                    if (timeSlot.startTime) {
+                        document.getElementById('serviceStartTime').value = timeSlot.startTime;
+                    }
+                    if (timeSlot.endTime) {
+                        document.getElementById('serviceEndTime').value = timeSlot.endTime;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching time slot:', error);
+                });
+        }
+    });
+
+    // Edit service
+    function editService(id) {
+        // Fetch service details
+        fetch(`/api/admin/services/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin dịch vụ');
+                }
+                return response.json();
+            })
+            .then(service => {
+                // Populate form
+                document.getElementById('serviceId').value = service.id;
+                document.getElementById('serviceName').value = service.name;
+                document.getElementById('servicePrice').value = service.price;
+                document.getElementById('serviceCategory').value = service.category ? service.category.id : '';
+                document.getElementById('serviceTimeSlot').value = service.timeSlot ? service.timeSlot.id : '';
+                document.getElementById('serviceHomestay').value = service.homestayId || '-1'; // Nếu homestayId là null, chọn tất cả homestay
+                document.getElementById('serviceDescription').value = service.description || '';
+                document.getElementById('serviceStartTime').value = service.startTime || '';
+                document.getElementById('serviceEndTime').value = service.endTime || '';
+                document.getElementById('serviceActive').checked = service.isActive;
+
+                // Update status text based on isActive
+                const statusText = document.getElementById('statusText');
+                if (service.isActive) {
+                    statusText.textContent = 'Hoạt động';
+                    statusText.classList.remove('text-red-600');
+                    statusText.classList.add('text-green-600');
+                } else {
+                    statusText.textContent = 'Không hoạt động';
+                    statusText.classList.remove('text-green-600');
+                    statusText.classList.add('text-red-600');
+                }
+
+                // Update modal title and show
+                modalTitle.textContent = 'Chỉnh sửa dịch vụ bổ sung';
+                serviceModal.classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Có lỗi xảy ra khi tải thông tin dịch vụ: ' + error.message, 'error');
+            });
+    }
+
+    // Delete service
+    function deleteService(id) {
+        document.getElementById('deleteServiceId').value = id;
+        deleteServiceModal.classList.remove('hidden');
+    }
+
+    // Submit delete service
+    function submitDeleteService() {
+        const id = document.getElementById('deleteServiceId').value;
+
+        // Disable button and show loading state
+        const deleteBtn = document.getElementById('deleteServiceSubmitBtn');
+        const originalText = deleteBtn.innerHTML;
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xóa...';
+
+        fetch(`/api/admin/services/${id}`, {
+            method: 'DELETE',
+            headers: {
+                [header]: token
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể xóa dịch vụ');
+                }
+
+                // Remove row from table
+                const row = document.getElementById(`service-row-${id}`);
+                if (row) row.remove();
+
+                // Close modal
+                closeDeleteServiceModal();
+
+                // Show success message
+                showToast('Đã xóa dịch vụ thành công', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Có lỗi xảy ra khi xóa dịch vụ: ' + error.message, 'error');
+            })
+            .finally(() => {
+                // Restore button state
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = originalText;
+            });
+    }
+
+    // Submit service form
+    serviceForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Get form data
+        const formData = new FormData(serviceForm);
+        const serviceId = formData.get('id');
+
+        // Convert to JSON
+        const jsonData = {
+            id: serviceId ? parseInt(serviceId) : null,
+            name: formData.get('name'),
+            price: parseFloat(formData.get('price')),
+            categoryId: parseInt(formData.get('categoryId')),
+            timeSlotId: parseInt(formData.get('timeSlotId')),
+            homestayId: parseInt(formData.get('homestayId')),
+            description: formData.get('description'),
+            startTime: formData.get('startTime'),
+            endTime: formData.get('endTime'),
+            isActive: formData.get('isActive') ? true : false
+        };
+
+        // Disable button and show loading state
+        const saveBtn = document.getElementById('saveServiceBtn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang lưu...';
+
+        // Determine if this is an update or create
+        const method = serviceId ? 'PUT' : 'POST';
+        const url = serviceId ? `/api/admin/services/${serviceId}` : '/api/admin/services';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+            },
+            body: JSON.stringify(jsonData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể lưu dịch vụ');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Close modal
+                closeServiceModal();
+
+                // Show success message
+                showToast(serviceId ? 'Đã cập nhật dịch vụ thành công' : 'Đã thêm dịch vụ mới thành công', 'success');
+
+                // Reload page to show updated data after a short delay
+                setTimeout(() => window.location.reload(), 1500);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Có lỗi xảy ra khi lưu dịch vụ: ' + error.message, 'error');
+            })
+            .finally(() => {
+                // Restore button state
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            });
+    });
+
+    // Filter functionality
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        const categoryId = document.getElementById('categoryFilter').value;
+        const timeSlotId = document.getElementById('timeSlotFilter').value;
+        const searchTerm = document.getElementById('searchInput').value;
+
+        let url = '/admin/services?';
+        if (categoryId) url += `categoryId=${categoryId}&`;
+        if (timeSlotId) url += `timeSlotId=${timeSlotId}&`;
+        if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
+
+        window.location.href = url.slice(0, -1); // Remove trailing & or ?
+    });
+
+    // Reset filters
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        window.location.href = '/admin/services';
+    });
+</script>
+
+</body>
+</html>

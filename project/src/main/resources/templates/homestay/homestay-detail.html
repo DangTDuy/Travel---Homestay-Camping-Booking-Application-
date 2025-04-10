@@ -568,23 +568,44 @@
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Dịch vụ bổ sung</label>
                         <div class="bg-gray-50 p-3 rounded-lg">
-                            <!-- Hiển thị dịch vụ theo danh mục -->
-                            <div th:each="category, catStat : ${servicesByCategory.keySet()}" class="mb-3">
-                                <h4 class="font-medium text-gray-700 mb-2" th:text="${category.name}">Danh mục</h4>
+                            <!-- Tab navigation cho các khung giờ -->
+                            <div class="grid grid-cols-5 gap-1 border-b mb-4 text-center">
+                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-primary text-primary"
+                                        data-tab="all">Tất cả</button>
+                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                        data-tab="morning">Sáng</button>
+                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                        data-tab="noon">Trưa</button>
+                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                        data-tab="afternoon">Chiều</button>
+                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                        data-tab="evening">Tối</button>
+                            </div>
+
+                            <!-- Hiển thị dịch vụ theo danh mục và khung giờ -->
+                            <div th:each="category, catStat : ${servicesByCategory.keySet()}" class="mb-3 service-category">
+                                <h4 class="font-medium text-gray-700 mb-2" th:text="${category.displayName}">Danh mục</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     <div th:each="service : ${servicesByCategory.get(category)}"
-                                         class="flex items-center p-2 border rounded hover:bg-blue-50 transition-colors">
+                                         th:attr="data-time-slot=${service.timeSlot != null ? service.timeSlot.name : 'all'}"
+                                         class="flex items-center p-2 border rounded hover:bg-blue-50 transition-colors service-item">
                                         <input type="checkbox"
                                                th:id="${'service-' + service.id}"
                                                name="additionalServices"
                                                th:value="${service.id}"
                                                class="additional-service mr-2"
-                                               th:attr="data-price=${service.price}, data-category=${category.name}, data-name=${service.name}">
+                                               th:attr="data-price=${service.price},
+                                                        data-category=${category.displayName},
+                                                        data-name=${service.name},
+                                                        data-time-slot=${service.timeSlot != null ? service.timeSlot.name : 'all'},
+                                                        data-time-slot-display=${service.timeSlot != null ? service.timeSlot.displayName : 'Tất cả'}">
                                         <label th:for="${'service-' + service.id}" class="flex-grow cursor-pointer">
                                             <div class="font-medium" th:text="${service.name}">Tên dịch vụ</div>
                                             <div class="text-sm text-gray-600">
                                                 <span th:text="${#numbers.formatDecimal(service.price, 0, 'COMMA', 0, 'POINT')}">0</span> VND
-                                                <span th:if="${service.description != null}" th:text="${' - ' + service.description}"></span>
+                                                <span th:if="${service.timeSlot != null}" class="ml-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full"
+                                                      th:text="${service.timeSlot.displayName}">Khung giờ</span>
+                                                <div th:if="${service.description != null}" class="mt-1 text-xs text-gray-500" th:text="${service.description}"></div>
                                             </div>
                                         </label>
                                     </div>
@@ -834,28 +855,44 @@
                     const price = parseFloat(service.getAttribute('data-price'));
                     const category = service.getAttribute('data-category');
                     const name = service.parentElement.querySelector('.font-medium').textContent;
+                    const timeSlot = service.getAttribute('data-time-slot');
+                    const timeSlotDisplay = service.getAttribute('data-time-slot-display');
 
                     // Tính giá dựa trên loại dịch vụ
                     let serviceTotal = price;
 
                     // Nếu là bữa ăn, tính theo số người
-                    if (category === 'meal') {
+                    if (category === 'Bữa ăn') {
                         serviceTotal = price * guests;
                     }
 
                     // Nếu là gói dịch vụ, tính theo số ngày
-                    if (category === 'package') {
+                    if (category === 'Dịch vụ') {
                         serviceTotal = price * nights;
                     }
 
                     additionalServicesTotal += serviceTotal;
 
-                    // Hiển thị chi tiết từng dịch vụ
+                    // Hiển thị chi tiết từng dịch vụ với khung giờ
                     const serviceItem = document.createElement('div');
-                    serviceItem.textContent = `${name}: ${new Intl.NumberFormat('vi-VN', {
+                    const formattedPrice = new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
                         currency: 'VND'
-                    }).format(serviceTotal)}`;
+                    }).format(serviceTotal);
+
+                    // Thêm thông tin khung giờ nếu có
+                    if (timeSlot && timeSlot !== 'all') {
+                        serviceItem.innerHTML = `<div class="flex justify-between items-center">
+                            <span>${name} <span class="text-xs text-blue-600 ml-1">(${timeSlotDisplay})</span></span>
+                            <span>${formattedPrice}</span>
+                        </div>`;
+                    } else {
+                        serviceItem.innerHTML = `<div class="flex justify-between items-center">
+                            <span>${name}</span>
+                            <span>${formattedPrice}</span>
+                        </div>`;
+                    }
+
                     additionalServicesList.appendChild(serviceItem);
                 });
 
@@ -1779,6 +1816,83 @@
                 reviewItem.style.display = 'none';
             });
     }
+
+    // Xử lý lọc dịch vụ bổ sung theo khung giờ
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lấy tất cả các tab khung giờ
+        const timeSlotTabs = document.querySelectorAll('.time-slot-tab');
+        // Lấy tất cả các dịch vụ
+        const serviceItems = document.querySelectorAll('.service-item');
+        // Lấy tất cả các danh mục dịch vụ
+        const serviceCategories = document.querySelectorAll('.service-category');
+
+        // Hàm lọc dịch vụ theo khung giờ
+        function filterServicesByTimeSlot(timeSlot) {
+            // Ẩn tất cả các danh mục trước
+            serviceCategories.forEach(category => {
+                category.style.display = 'none';
+            });
+
+            // Đếm số dịch vụ hiển thị trong mỗi danh mục
+            const visibleServicesInCategory = {};
+
+            // Hiển thị hoặc ẩn các dịch vụ dựa trên khung giờ
+            serviceItems.forEach(item => {
+                const itemTimeSlot = item.getAttribute('data-time-slot');
+                const categoryElement = item.closest('.service-category');
+                const categoryId = categoryElement ? categoryElement.getAttribute('id') : null;
+
+                if (timeSlot === 'all' || itemTimeSlot === timeSlot || itemTimeSlot === 'all') {
+                    item.style.display = 'flex';
+
+                    // Tăng số dịch vụ hiển thị trong danh mục
+                    if (categoryId) {
+                        visibleServicesInCategory[categoryId] = (visibleServicesInCategory[categoryId] || 0) + 1;
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Hiển thị các danh mục có ít nhất một dịch vụ hiển thị
+            serviceCategories.forEach(category => {
+                const categoryId = category.getAttribute('id');
+                if (visibleServicesInCategory[categoryId] > 0) {
+                    category.style.display = 'block';
+                }
+            });
+        }
+
+        // Xử lý sự kiện click trên các tab khung giờ
+        timeSlotTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Bỏ chọn tất cả các tab
+                timeSlotTabs.forEach(t => {
+                    t.classList.remove('border-primary', 'text-primary');
+                    t.classList.add('border-transparent', 'text-gray-500');
+                });
+
+                // Chọn tab hiện tại
+                this.classList.remove('border-transparent', 'text-gray-500');
+                this.classList.add('border-primary', 'text-primary');
+
+                // Lọc dịch vụ theo khung giờ
+                const timeSlot = this.getAttribute('data-tab');
+                filterServicesByTimeSlot(timeSlot);
+            });
+        });
+
+        // Mặc định hiển thị tất cả dịch vụ
+        filterServicesByTimeSlot('all');
+
+        // Cập nhật hiển thị dịch vụ trong tổng tiền
+        document.querySelectorAll('.additional-service').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Cập nhật thông tin khung giờ trong tổng tiền
+                updateTotalPrice();
+            });
+        });
+    });
 </script>
 
 </body>

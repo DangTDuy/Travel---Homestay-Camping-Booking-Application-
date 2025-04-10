@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <title>Common Scripts Fragment</title>
+</head>
+<body>
+<th:block th:fragment="common-scripts">
+    <script>
+        // Chuyển đổi tất cả các alert thành toast
+        (function() {
+            // Lưu lại hàm alert gốc
+            const originalAlert = window.alert;
+            
+            // Ghi đè hàm alert
+            window.alert = function(message) {
+                // Kiểm tra xem hàm showToast đã được định nghĩa chưa
+                if (typeof showToast === 'function') {
+                    showToast(message, 'info');
+                } else {
+                    // Nếu chưa có hàm showToast, sử dụng alert gốc
+                    originalAlert(message);
+                }
+            };
+        })();
+        
+        // Thêm các hàm tiện ích cho form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Thêm sự kiện cho các form có class 'toast-form'
+            const toastForms = document.querySelectorAll('.toast-form');
+            
+            toastForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // Ngăn chặn hành vi mặc định của form
+                    e.preventDefault();
+                    
+                    // Lấy thông báo thành công từ thuộc tính data
+                    const successMessage = this.getAttribute('data-success-message') || 'Thao tác thành công!';
+                    
+                    // Hiển thị thông báo thành công
+                    if (typeof showSuccessToast === 'function') {
+                        showSuccessToast(successMessage);
+                    } else if (typeof showToast === 'function') {
+                        showToast(successMessage, 'success');
+                    }
+                    
+                    // Gửi form sau một khoảng thời gian
+                    setTimeout(() => {
+                        this.submit();
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>
