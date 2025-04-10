@@ -151,13 +151,13 @@
                         <!-- Review Form (Visible only if logged in) -->
                         <div class="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-md" sec:authorize="isAuthenticated()">
                             <h5 class="text-lg font-medium text-gray-900 mb-4">Để lại đánh giá của bạn</h5>
-                            <form th:action="@{/review/create}" method="post" class="space-y-4">
+                            <form th:action="@{/review/create}" method="post" class="space-y-4" id="reviewForm">
                                 <input type="hidden" name="homestayId" th:value="${homestay.id}">
                                 <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                                 <!-- Rating Input -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Chất lượng</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Chất lượng <span class="text-red-500">*</span></label>
                                     <div class="rating-input text-2xl flex space-x-1 text-gray-300 mb-2">
                                         <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="1"></i>
                                         <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="2"></i>
@@ -171,16 +171,34 @@
 
                                 <!-- Comment Input -->
                                 <div>
-                                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Bình luận</label>
+                                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Bình luận <span class="text-red-500">*</span></label>
                                     <textarea id="comment" name="comment" rows="4" required
                                               class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                                               placeholder="Chia sẻ cảm nhận của bạn về homestay này..."></textarea>
+                                    <span id="commentError" class="text-red-500 text-xs hidden">Vui lòng nhập nội dung đánh giá.</span>
+                                </div>
+
+                                <!-- Quick Comment Suggestions -->
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-600 mb-2">Gợi ý đánh giá nhanh:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Phòng rất sạch sẽ và thoải mái.')">Phòng sạch sẽ</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Vị trí thuận tiện, dễ dàng di chuyển.')">Vị trí thuận tiện</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Chủ homestay rất thân thiện và nhiệt tình.')">Chủ thân thiện</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Cảnh quan xung quanh rất đẹp và yên tĩnh.')">Cảnh quan đẹp</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Giá cả hợp lý so với chất lượng.')">Giá hợp lý</button>
+                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <div class="text-right">
-                                    <button type="submit"
-                                            class="inline-flex justify-center py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ease-in-out">
+                                    <button type="button" id="submitReviewBtn"
+                                            class="inline-flex justify-center py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ease-in-out opacity-70 cursor-not-allowed">
                                         <i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá
                                     </button>
                                 </div>
@@ -201,7 +219,7 @@
                             <!-- Individual Review Card -->
                             <div th:each="review : ${homestay.reviews}" th:if="${homestay.reviews != null and not #lists.isEmpty(homestay.reviews)}"
                                  class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-4">
-                                
+
                                 <!-- Đánh giá của người dùng - Bên trái -->
                                 <div class="flex space-x-4">
                                     <!-- Avatar -->
@@ -214,13 +232,13 @@
                                             <h6 class="text-base font-semibold text-gray-800" th:text="${review.user?.username} ?: 'Người dùng ẩn danh'">Username</h6>
                                             <div class="flex items-center">
                                                 <!-- Nút sửa/xóa cho người dùng hoặc admin -->
-                                                <div th:if="${#authentication.name == review.user?.username or #authorization.expression('hasRole(''ADMIN'')')}" 
+                                                <div th:if="${#authentication.name == review.user?.username or #authorization.expression('hasRole(''ADMIN'')')}"
                                                      class="flex space-x-2 mr-3">
-                                                    <button th:onclick="'editReview(' + ${review.id} + ')'" 
+                                                    <button th:onclick="'editReview(' + ${review.id} + ')'"
                                                             class="text-xs text-blue-600 hover:text-blue-800">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button th:onclick="'deleteReview(' + ${review.id} + ')'" 
+                                                    <button th:onclick="'deleteReview(' + ${review.id} + ')'"
                                                             class="text-xs text-red-600 hover:text-red-800">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
@@ -239,7 +257,7 @@
                                         <p class="text-sm text-gray-700 leading-relaxed" th:text="${review.comment}">Bình luận</p>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Phản hồi từ chủ homestay - Bên phải -->
                                 <div th:if="${review.ownerReply != null}" class="mt-4 ml-auto mr-0 w-4/5 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                     <div class="flex items-start space-x-3 justify-end">
@@ -252,13 +270,13 @@
                                             <div class="flex justify-end items-center mt-1">
                                                 <span class="text-xs text-gray-500" th:text="${#temporals.format(review.ownerReplyDate, 'dd/MM/yyyy')}"></span>
                                                 <!-- Nút sửa/xóa phản hồi cho admin -->
-                                                <div th:if="${#authorization.expression('hasRole(''ADMIN'')') or (homestay.owner != null and #authentication.name == homestay.owner.username)}" 
+                                                <div th:if="${#authorization.expression('hasRole(''ADMIN'')') or (homestay.owner != null and #authentication.name == homestay.owner.username)}"
                                                      class="flex space-x-2 ml-3">
-                                                    <button th:onclick="'editReply(' + ${review.id} + ')'" 
+                                                    <button th:onclick="'editReply(' + ${review.id} + ')'"
                                                             class="text-xs text-blue-600 hover:text-blue-800">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button th:onclick="'deleteReply(' + ${review.id} + ')'" 
+                                                    <button th:onclick="'deleteReply(' + ${review.id} + ')'"
                                                             class="text-xs text-red-600 hover:text-red-800">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
@@ -270,11 +288,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Nút trả lời cho chủ homestay hoặc admin (chỉ hiển thị nếu không phải đánh giá của chính mình và ID đánh giá hợp lệ) -->
-                                <div th:if="${review.ownerReply == null and review.id != null and (#authorization.expression('hasRole(''ADMIN'')') or (isOwner and #authentication.name != review.user?.username))}" 
+                                <div th:if="${review.ownerReply == null and review.id != null and (#authorization.expression('hasRole(''ADMIN'')') or (isOwner and #authentication.name != review.user?.username))}"
                                      class="mt-3 text-right">
-                                    <button onclick="openReplyModal(this)" th:data-review-id="${review.id}" 
+                                    <button onclick="openReplyModal(this)" th:data-review-id="${review.id}"
                                             class="text-sm text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded transition-colors">
                                         <i class="fas fa-reply mr-1"></i> Trả lời đánh giá
                                     </button>
@@ -356,7 +374,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="mt-6">
                 <a href="/homestay" class="inline-flex items-center text-primary hover:text-blue-700 font-medium">
                     <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách Homestay
@@ -384,13 +402,13 @@
                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                   placeholder="Cảm ơn bạn đã đánh giá..."></textarea>
                     </div>
-                    
+
                     <!-- Thông báo lỗi -->
                     <div id="replyError" class="hidden mb-4 p-3 bg-red-100 border-2 border-red-500 text-red-700 rounded-lg flex items-center">
                         <i class="fas fa-exclamation-circle text-red-500 mr-2 text-xl"></i>
                         <span id="replyErrorMessage"></span>
                     </div>
-                    
+
                     <!-- Thông báo thành công -->
                     <div id="replySuccess" class="hidden mb-4 p-3 bg-green-100 border-2 border-green-500 text-green-700 rounded-lg flex items-center">
                         <i class="fas fa-check-circle text-green-500 mr-2 text-xl"></i>
@@ -416,21 +434,21 @@
 <div id="editReviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Sửa đánh giá</h3>
-        
+
         <!-- Thông báo lỗi -->
         <div id="editReviewError" class="hidden p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg flex items-start">
             <i class="fas fa-exclamation-circle mt-0.5 mr-2"></i>
             <span id="editReviewErrorText"></span>
         </div>
-        
+
         <!-- Thông báo thành công -->
         <div id="editReviewSuccess" class="hidden p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex items-start">
             <i class="fas fa-check-circle mt-0.5 mr-2"></i>
             <span id="editReviewSuccessText"></span>
         </div>
-        
+
         <input type="hidden" id="editReviewId">
-        
+
         <div class="mb-4">
             <label for="editReviewRating" class="block text-sm font-medium text-gray-700 mb-1">Đánh giá</label>
             <div class="flex items-center">
@@ -443,12 +461,12 @@
                 </select>
             </div>
         </div>
-        
+
         <div class="mb-4">
             <label for="editReviewContent" class="block text-sm font-medium text-gray-700 mb-1">Nội dung đánh giá</label>
             <textarea id="editReviewContent" rows="4" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
         </div>
-        
+
         <div class="flex justify-end space-x-3">
             <button type="button" onclick="closeEditReviewModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
                 Hủy
@@ -464,26 +482,26 @@
 <div id="editReplyModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Sửa phản hồi</h3>
-        
+
         <!-- Thông báo lỗi -->
         <div id="editReplyError" class="hidden p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg flex items-start">
             <i class="fas fa-exclamation-circle mt-0.5 mr-2"></i>
             <span id="editReplyErrorText"></span>
         </div>
-        
+
         <!-- Thông báo thành công -->
         <div id="editReplySuccess" class="hidden p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex items-start">
             <i class="fas fa-check-circle mt-0.5 mr-2"></i>
             <span id="editReplySuccessText"></span>
         </div>
-        
+
         <input type="hidden" id="editReplyReviewId">
-        
+
         <div class="mb-4">
             <label for="editReplyContent" class="block text-sm font-medium text-gray-700 mb-1">Nội dung phản hồi</label>
             <textarea id="editReplyContent" rows="4" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
         </div>
-        
+
         <div class="flex justify-end space-x-3">
             <button type="button" onclick="closeEditReplyModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
                 Hủy
@@ -499,11 +517,11 @@
 <div id="deleteReviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa đánh giá</h3>
-        
+
         <p class="text-gray-700 mb-6">Bạn có chắc chắn muốn xóa đánh giá này? Hành động này không thể hoàn tác.</p>
-        
+
         <input type="hidden" id="deleteReviewId">
-        
+
         <div class="flex justify-end space-x-3">
             <button type="button" onclick="closeDeleteReviewModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
                 Hủy
@@ -519,11 +537,11 @@
 <div id="deleteReplyModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận xóa phản hồi</h3>
-        
+
         <p class="text-gray-700 mb-6">Bạn có chắc chắn muốn xóa phản hồi này? Hành động này không thể hoàn tác.</p>
-        
+
         <input type="hidden" id="deleteReplyReviewId">
-        
+
         <div class="flex justify-end space-x-3">
             <button type="button" onclick="closeDeleteReplyModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
                 Hủy
@@ -571,7 +589,7 @@
                                     th:text="${i}"></option>
                         </select>
                     </div>
-                    <!-- Dịch vụ bổ sung -->                    
+                    <!-- Dịch vụ bổ sung -->
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Dịch vụ bổ sung</label>
                         <div class="bg-gray-50 p-3 rounded-lg">
@@ -579,13 +597,13 @@
                             <div th:each="category, catStat : ${servicesByCategory.keySet()}" class="mb-3">
                                 <h4 class="font-medium text-gray-700 mb-2" th:text="${category.name}">Danh mục</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <div th:each="service : ${servicesByCategory.get(category)}" 
+                                    <div th:each="service : ${servicesByCategory.get(category)}"
                                          class="flex items-center p-2 border rounded hover:bg-blue-50 transition-colors">
-                                        <input type="checkbox" 
-                                               th:id="${'service-' + service.id}" 
-                                               name="additionalServices" 
-                                               th:value="${service.id}" 
-                                               class="additional-service mr-2" 
+                                        <input type="checkbox"
+                                               th:id="${'service-' + service.id}"
+                                               name="additionalServices"
+                                               th:value="${service.id}"
+                                               class="additional-service mr-2"
                                                th:attr="data-price=${service.price}, data-category=${category.name}, data-name=${service.name}">
                                         <label th:for="${'service-' + service.id}" class="flex-grow cursor-pointer">
                                             <div class="font-medium" th:text="${service.name}">Tên dịch vụ</div>
@@ -597,14 +615,14 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Hiển thị thông báo nếu không có dịch vụ -->
                             <div th:if="${servicesByCategory.isEmpty()}" class="text-center py-4 text-gray-500">
                                 <p>Hiện tại không có dịch vụ bổ sung nào cho homestay này</p>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="specialRequests">Yêu cầu đặc biệt</label>
                         <textarea id="specialRequests" name="specialRequests" rows="3"
@@ -688,7 +706,7 @@
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
-    
+
     // Image gallery function
     function changeMainImage(imageSrc) {
         const mainImage = document.getElementById('mainHomestayImage');
@@ -696,6 +714,99 @@
             mainImage.src = imageSrc;
         }
     }
+
+    // Validate review form
+    function validateReviewForm() {
+        const rating = document.getElementById('ratingValue').value;
+        const comment = document.getElementById('comment').value;
+        const submitBtn = document.getElementById('submitReviewBtn');
+        const ratingError = document.getElementById('ratingError');
+        const commentError = document.getElementById('commentError');
+
+        let isValid = true;
+
+        // Validate rating
+        if (rating === '0' || !rating) {
+            ratingError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            ratingError.classList.add('hidden');
+        }
+
+        // Validate comment
+        if (!comment.trim()) {
+            commentError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            commentError.classList.add('hidden');
+        }
+
+        // Enable/disable submit button
+        if (isValid) {
+            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            submitBtn.classList.add('hover:bg-blue-700');
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            submitBtn.classList.remove('hover:bg-blue-700');
+            submitBtn.disabled = true;
+        }
+
+        return isValid;
+    }
+
+    // Add quick comment
+    function addQuickComment(text) {
+        const commentField = document.getElementById('comment');
+        const currentText = commentField.value.trim();
+
+        if (currentText) {
+            commentField.value = currentText + ' ' + text;
+        } else {
+            commentField.value = text;
+        }
+
+        // Trigger validation
+        validateReviewForm();
+    }
+
+    // Rating input
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize form validation
+        validateReviewForm();
+
+        // Rating stars click event
+        document.querySelectorAll('.rating-input i').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                document.getElementById('ratingValue').value = rating;
+
+                // Update stars display
+                document.querySelectorAll('.rating-input i').forEach(s => {
+                    if (s.getAttribute('data-rating') <= rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+
+                // Validate form
+                validateReviewForm();
+            });
+        });
+
+        // Comment input event
+        document.getElementById('comment').addEventListener('input', validateReviewForm);
+
+        // Submit button click
+        document.getElementById('submitReviewBtn').addEventListener('click', function(e) {
+            if (validateReviewForm()) {
+                document.getElementById('reviewForm').submit();
+            }
+        });
+    });
 
     // Booking modal functions
     function openBookingModal() {
@@ -734,36 +845,36 @@
 
             // Giả sử có phí dịch vụ 5%
             const serviceFee = subtotal * 0.05;
-            
+
             // Tính tổng tiền dịch vụ bổ sung
             let additionalServicesTotal = 0;
             const additionalServicesList = document.getElementById('additionalServicesList');
             additionalServicesList.innerHTML = '';
-            
+
             const selectedServices = document.querySelectorAll('.additional-service:checked');
             if (selectedServices.length > 0) {
                 document.getElementById('additionalServicesDetails').classList.remove('hidden');
-                
+
                 selectedServices.forEach(service => {
                     const price = parseFloat(service.getAttribute('data-price'));
                     const category = service.getAttribute('data-category');
                     const name = service.parentElement.querySelector('.font-medium').textContent;
-                    
+
                     // Tính giá dựa trên loại dịch vụ
                     let serviceTotal = price;
-                    
+
                     // Nếu là bữa ăn, tính theo số người
                     if (category === 'meal') {
                         serviceTotal = price * guests;
                     }
-                    
+
                     // Nếu là gói dịch vụ, tính theo số ngày
                     if (category === 'package') {
                         serviceTotal = price * nights;
                     }
-                    
+
                     additionalServicesTotal += serviceTotal;
-                    
+
                     // Hiển thị chi tiết từng dịch vụ
                     const serviceItem = document.createElement('div');
                     serviceItem.textContent = `${name}: ${new Intl.NumberFormat('vi-VN', {
@@ -772,7 +883,7 @@
                     }).format(serviceTotal)}`;
                     additionalServicesList.appendChild(serviceItem);
                 });
-                
+
                 document.getElementById('additionalServicesTotal').textContent = new Intl.NumberFormat('vi-VN', {
                     style: 'currency',
                     currency: 'VND'
@@ -780,7 +891,7 @@
             } else {
                 document.getElementById('additionalServicesDetails').classList.add('hidden');
             }
-            
+
             const total = subtotal + serviceFee + additionalServicesTotal;
 
             // Hiển thị chi tiết giá
@@ -823,7 +934,7 @@
     document.getElementById('checkInDate').addEventListener('change', calculateTotal);
     document.getElementById('checkOutDate').addEventListener('change', calculateTotal);
     document.getElementById('guests').addEventListener('change', calculateTotal);
-    
+
     // Event listeners for additional services
     document.querySelectorAll('.additional-service').forEach(checkbox => {
         checkbox.addEventListener('change', calculateTotal);
@@ -869,10 +980,10 @@
         // Hiển thị loading
         document.getElementById('bookingSubmitBtn').disabled = true;
         document.getElementById('bookingSubmitBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         // Ẩn thông báo lỗi và thành công
         hideBookingMessages();
-        
+
         fetch('/api/bookings', {
             method: 'POST',
             credentials: 'include', // Gửi cookie với request
@@ -963,28 +1074,28 @@
             });
         });
     });
-    
+
     // Gửi đánh giá
     function submitReview() {
         const rating = document.getElementById('ratingValue').value;
         const comment = document.getElementById('reviewComment').value;
         const homestayId = document.getElementById('homestayIdForReview').value;
         const bookingId = document.getElementById('bookingIdForReview').value;
-        
+
         if (!rating || !comment) {
             alert('Vui lòng nhập đầy đủ đánh giá và nhận xét');
             return;
         }
-        
+
         // Lấy CSRF token từ cookie
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         const submitButton = document.querySelector('#reviewForm button');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         fetch('/api/reviews', {
             method: 'POST',
             credentials: 'include',
@@ -999,32 +1110,32 @@
                 bookingId: bookingId
             })
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            return response.json().catch(() => {
-                throw new Error('Có lỗi xảy ra khi gửi đánh giá');
-            }).then(data => {
-                throw new Error(data.message || data || 'Có lỗi xảy ra khi gửi đánh giá');
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return response.json().catch(() => {
+                    throw new Error('Có lỗi xảy ra khi gửi đánh giá');
+                }).then(data => {
+                    throw new Error(data.message || data || 'Có lỗi xảy ra khi gửi đánh giá');
+                });
+            })
+            .then(data => {
+                alert('Gửi đánh giá thành công!');
+                // Tải lại trang để hiển thị đánh giá mới
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Có lỗi xảy ra khi gửi đánh giá');
+            })
+            .finally(() => {
+                // Khôi phục nút gửi
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             });
-        })
-        .then(data => {
-            alert('Gửi đánh giá thành công!');
-            // Tải lại trang để hiển thị đánh giá mới
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Có lỗi xảy ra khi gửi đánh giá');
-        })
-        .finally(() => {
-            // Khôi phục nút gửi
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-        });
     }
-    
+
     // Mở modal trả lời đánh giá
     function openReplyModal(button) {
         const reviewId = button.getAttribute('data-review-id');
@@ -1032,7 +1143,7 @@
             alert('ID đánh giá không hợp lệ');
             return;
         }
-        
+
         // Kiểm tra đánh giá tồn tại trước khi mở modal
         fetch(`/api/reviews/${reviewId}`, {
             method: 'GET',
@@ -1041,72 +1152,72 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Đánh giá tồn tại, hiển thị modal
+            .then(response => {
+                if (response.ok) {
+                    // Đánh giá tồn tại, hiển thị modal
+                    document.getElementById('reviewId').value = reviewId;
+                    return response.json();
+                }
+                if (response.status === 404) {
+                    throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
+                }
+                throw new Error('Không thể lấy thông tin đánh giá');
+            })
+            .then(review => {
+                // Điền ID vào form
                 document.getElementById('reviewId').value = reviewId;
-                return response.json();
-            }
-            if (response.status === 404) {
-                throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
-            }
-            throw new Error('Không thể lấy thông tin đánh giá');
-        })
-        .then(review => {
-            // Điền ID vào form
-            document.getElementById('reviewId').value = reviewId;
-            
-            // Điền nội dung phản hồi hiện tại nếu có
-            const replyContent = document.getElementById('replyContent');
-            if (review && review.ownerReply) {
-                replyContent.value = review.ownerReply;
-            } else {
-                replyContent.value = '';
-            }
-            
-            // Hiển thị modal
-            document.getElementById('replyModal').classList.remove('hidden');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Không tìm thấy đánh giá');
-        });
+
+                // Điền nội dung phản hồi hiện tại nếu có
+                const replyContent = document.getElementById('replyContent');
+                if (review && review.ownerReply) {
+                    replyContent.value = review.ownerReply;
+                } else {
+                    replyContent.value = '';
+                }
+
+                // Hiển thị modal
+                document.getElementById('replyModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Không tìm thấy đánh giá');
+            });
     }
-    
+
     // Đóng modal trả lời đánh giá
     function closeReplyModal() {
         document.getElementById('replyModal').classList.add('hidden');
         document.getElementById('replyContent').value = '';
         hideReplyMessages();
     }
-    
+
     // Gửi phản hồi đánh giá
     function submitReply() {
         const reviewId = document.getElementById('reviewId').value;
         const replyContent = document.getElementById('replyContent').value;
-        
+
         if (!reviewId) {
             showReplyError('ID đánh giá không hợp lệ');
             return;
         }
-        
+
         if (!replyContent) {
             showReplyError('Vui lòng nhập nội dung phản hồi');
             return;
         }
-        
+
         // Lấy CSRF token từ cookie
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         const submitButton = document.getElementById('replySubmitBtn');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         // Ẩn thông báo lỗi và thành công
         hideReplyMessages();
-        
+
         fetch(`/api/reviews/${reviewId}/reply`, {
             method: 'POST',
             credentials: 'include',
@@ -1118,80 +1229,80 @@
                 reply: replyContent
             })
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi gửi phản hồi');
-            }).catch(e => {
-                if (e instanceof SyntaxError) {
-                    throw new Error('Có lỗi xảy ra khi gửi phản hồi');
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
                 }
-                throw e;
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi gửi phản hồi');
+                }).catch(e => {
+                    if (e instanceof SyntaxError) {
+                        throw new Error('Có lỗi xảy ra khi gửi phản hồi');
+                    }
+                    throw e;
+                });
+            })
+            .then(data => {
+                showReplySuccess('Gửi phản hồi thành công!');
+                // Tải lại trang sau 2 giây để hiển thị phản hồi mới
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                let errorMessage = error.message || 'Có lỗi xảy ra khi gửi phản hồi';
+
+                // Xử lý các loại lỗi cụ thể
+                if (errorMessage.includes('Không tìm thấy đánh giá')) {
+                    errorMessage = 'Không tìm thấy đánh giá với ID này';
+                } else if (errorMessage.includes('Bạn không thể trả lời đánh giá của chính mình')) {
+                    errorMessage = 'Bạn không thể trả lời đánh giá của chính mình';
+                } else if (errorMessage.includes('Bạn không có quyền trả lời đánh giá này')) {
+                    errorMessage = 'Bạn không có quyền trả lời đánh giá này';
+                } else if (errorMessage.includes('Đánh giá này đã có phản hồi')) {
+                    errorMessage = 'Đánh giá này đã có phản hồi';
+                }
+
+                showReplyError(errorMessage);
+            })
+            .finally(() => {
+                // Khôi phục nút gửi
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             });
-        })
-        .then(data => {
-            showReplySuccess('Gửi phản hồi thành công!');
-            // Tải lại trang sau 2 giây để hiển thị phản hồi mới
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            let errorMessage = error.message || 'Có lỗi xảy ra khi gửi phản hồi';
-            
-            // Xử lý các loại lỗi cụ thể
-            if (errorMessage.includes('Không tìm thấy đánh giá')) {
-                errorMessage = 'Không tìm thấy đánh giá với ID này';
-            } else if (errorMessage.includes('Bạn không thể trả lời đánh giá của chính mình')) {
-                errorMessage = 'Bạn không thể trả lời đánh giá của chính mình';
-            } else if (errorMessage.includes('Bạn không có quyền trả lời đánh giá này')) {
-                errorMessage = 'Bạn không có quyền trả lời đánh giá này';
-            } else if (errorMessage.includes('Đánh giá này đã có phản hồi')) {
-                errorMessage = 'Đánh giá này đã có phản hồi';
-            }
-            
-            showReplyError(errorMessage);
-        })
-        .finally(() => {
-            // Khôi phục nút gửi
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-        });
     }
-    
+
     // Hiển thị thông báo lỗi trong modal trả lời
     function showReplyError(message) {
         const errorElement = document.getElementById('replyError');
         const errorMessageElement = document.getElementById('replyErrorMessage');
-        
+
         errorMessageElement.textContent = message;
         errorElement.classList.remove('hidden');
     }
-    
+
     // Hiển thị thông báo thành công trong modal trả lời
     function showReplySuccess(message) {
         const successElement = document.getElementById('replySuccess');
         const successMessageElement = document.getElementById('replySuccessMessage');
-        
+
         successMessageElement.textContent = message;
         successElement.classList.remove('hidden');
     }
-    
+
     // Ẩn tất cả thông báo trong modal trả lời
     function hideReplyMessages() {
         document.getElementById('replyError').classList.add('hidden');
         document.getElementById('replySuccess').classList.add('hidden');
     }
-    
+
     // Ẩn tất cả thông báo trong modal đặt phòng
     function hideBookingMessages() {
         document.getElementById('bookingError').classList.add('hidden');
         document.getElementById('bookingSuccess').classList.add('hidden');
     }
-    
+
     // Các hàm cho modal sửa đánh giá
     function editReview(reviewId) {
         // Kiểm tra ID đánh giá hợp lệ
@@ -1199,7 +1310,7 @@
             alert('ID đánh giá không hợp lệ');
             return;
         }
-        
+
         // Kiểm tra đánh giá tồn tại trước khi mở modal sửa
         fetch(`/api/reviews/${reviewId}`, {
             method: 'GET',
@@ -1208,81 +1319,81 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Đánh giá tồn tại, hiển thị modal
+            .then(response => {
+                if (response.ok) {
+                    // Đánh giá tồn tại, hiển thị modal
+                    document.getElementById('editReviewId').value = reviewId;
+                    return response.json();
+                }
+                if (response.status === 404) {
+                    throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
+                }
+                throw new Error('Không thể lấy thông tin đánh giá');
+            })
+            .then(review => {
+                // Điền ID vào form
                 document.getElementById('editReviewId').value = reviewId;
-                return response.json();
-            }
-            if (response.status === 404) {
-                throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
-            }
-            throw new Error('Không thể lấy thông tin đánh giá');
-        })
-        .then(review => {
-            // Điền ID vào form
-            document.getElementById('editReviewId').value = reviewId;
-            
-            // Điền thông tin vào form với kiểm tra null/undefined
-            if (review && review.rating !== undefined && review.rating !== null) {
-                document.getElementById('editReviewRating').value = review.rating;
-            }
-            if (review && review.comment) {
-                document.getElementById('editReviewContent').value = review.comment;
-            }
-            
-            // Hiển thị modal
-            document.getElementById('editReviewModal').classList.remove('hidden');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Không tìm thấy đánh giá');
-        });
+
+                // Điền thông tin vào form với kiểm tra null/undefined
+                if (review && review.rating !== undefined && review.rating !== null) {
+                    document.getElementById('editReviewRating').value = review.rating;
+                }
+                if (review && review.comment) {
+                    document.getElementById('editReviewContent').value = review.comment;
+                }
+
+                // Hiển thị modal
+                document.getElementById('editReviewModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Không tìm thấy đánh giá');
+            });
     }
-    
+
     function closeEditReviewModal() {
         document.getElementById('editReviewModal').classList.add('hidden');
     }
-    
+
     function hideEditReviewMessages() {
         document.getElementById('editReviewError').classList.add('hidden');
         document.getElementById('editReviewSuccess').classList.add('hidden');
     }
-    
+
     function showEditReviewError(message) {
         const errorElement = document.getElementById('editReviewError');
         document.getElementById('editReviewErrorText').textContent = message;
         errorElement.classList.remove('hidden');
     }
-    
+
     function showEditReviewSuccess(message) {
         const successElement = document.getElementById('editReviewSuccess');
         document.getElementById('editReviewSuccessText').textContent = message;
         successElement.classList.remove('hidden');
     }
-    
+
     function submitEditReview() {
         const reviewId = document.getElementById('editReviewId').value;
         const rating = document.getElementById('editReviewRating').value;
         const comment = document.getElementById('editReviewContent').value;
-        
+
         if (!comment) {
             showEditReviewError('Vui lòng nhập nội dung đánh giá');
             return;
         }
-        
+
         // Lấy CSRF token từ cookie
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         const submitButton = document.getElementById('editReviewSubmitBtn');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         // Ẩn thông báo lỗi và thành công
         hideEditReviewMessages();
-        
+
         fetch(`/api/reviews/${reviewId}`, {
             method: 'PUT',
             credentials: 'include',
@@ -1295,37 +1406,37 @@
                 comment: comment
             })
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi cập nhật đánh giá');
-            }).catch(e => {
-                if (e instanceof SyntaxError) {
-                    throw new Error('Có lỗi xảy ra khi cập nhật đánh giá');
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
                 }
-                throw e;
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi cập nhật đánh giá');
+                }).catch(e => {
+                    if (e instanceof SyntaxError) {
+                        throw new Error('Có lỗi xảy ra khi cập nhật đánh giá');
+                    }
+                    throw e;
+                });
+            })
+            .then(data => {
+                showEditReviewSuccess('Cập nhật đánh giá thành công!');
+                // Tải lại trang sau 2 giây
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showEditReviewError(error.message || 'Có lỗi xảy ra khi cập nhật đánh giá');
+            })
+            .finally(() => {
+                // Khôi phục nút gửi
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             });
-        })
-        .then(data => {
-            showEditReviewSuccess('Cập nhật đánh giá thành công!');
-            // Tải lại trang sau 2 giây
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showEditReviewError(error.message || 'Có lỗi xảy ra khi cập nhật đánh giá');
-        })
-        .finally(() => {
-            // Khôi phục nút gửi
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-        });
     }
-    
+
     // Các hàm cho modal sửa phản hồi
     function editReply(reviewId) {
         // Kiểm tra ID đánh giá hợp lệ
@@ -1333,7 +1444,7 @@
             alert('ID đánh giá không hợp lệ');
             return;
         }
-        
+
         // Kiểm tra đánh giá tồn tại trước khi mở modal sửa
         fetch(`/api/reviews/${reviewId}`, {
             method: 'GET',
@@ -1342,76 +1453,76 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Đánh giá tồn tại, hiển thị modal
-                document.getElementById('editReplyReviewId').value = reviewId;
-                return response.json();
-            }
-            if (response.status === 404) {
-                throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
-            }
-            throw new Error('Không thể lấy thông tin đánh giá');
-        })
-        .then(review => {
-            // Điền thông tin vào form
-            if (review && review.ownerReply) {
-                document.getElementById('editReplyContent').value = review.ownerReply;
-            } else {
-                document.getElementById('editReplyContent').value = '';
-            }
-            
-            // Hiển thị modal
-            document.getElementById('editReplyModal').classList.remove('hidden');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Không tìm thấy đánh giá');
-        });
+            .then(response => {
+                if (response.ok) {
+                    // Đánh giá tồn tại, hiển thị modal
+                    document.getElementById('editReplyReviewId').value = reviewId;
+                    return response.json();
+                }
+                if (response.status === 404) {
+                    throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
+                }
+                throw new Error('Không thể lấy thông tin đánh giá');
+            })
+            .then(review => {
+                // Điền thông tin vào form
+                if (review && review.ownerReply) {
+                    document.getElementById('editReplyContent').value = review.ownerReply;
+                } else {
+                    document.getElementById('editReplyContent').value = '';
+                }
+
+                // Hiển thị modal
+                document.getElementById('editReplyModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Không tìm thấy đánh giá');
+            });
     }
-    
+
     function closeEditReplyModal() {
         document.getElementById('editReplyModal').classList.add('hidden');
     }
-    
+
     function hideEditReplyMessages() {
         document.getElementById('editReplyError').classList.add('hidden');
         document.getElementById('editReplySuccess').classList.add('hidden');
     }
-    
+
     function showEditReplyError(message) {
         const errorElement = document.getElementById('editReplyError');
         document.getElementById('editReplyErrorText').textContent = message;
         errorElement.classList.remove('hidden');
     }
-    
+
     function showEditReplySuccess(message) {
         const successElement = document.getElementById('editReplySuccess');
         document.getElementById('editReplySuccessText').textContent = message;
         successElement.classList.remove('hidden');
     }
-    
+
     function submitEditReply() {
         const reviewId = document.getElementById('editReplyReviewId').value;
         const replyContent = document.getElementById('editReplyContent').value;
-        
+
         if (!replyContent) {
             showEditReplyError('Vui lòng nhập nội dung phản hồi');
             return;
         }
-        
+
         // Lấy CSRF token từ cookie
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         const submitButton = document.getElementById('editReplySubmitBtn');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         // Ẩn thông báo lỗi và thành công
         hideEditReplyMessages();
-        
+
         fetch(`/api/reviews/${reviewId}/reply/edit`, {
             method: 'PUT',
             credentials: 'include',
@@ -1423,37 +1534,37 @@
                 reply: replyContent
             })
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi cập nhật phản hồi');
-            }).catch(e => {
-                if (e instanceof SyntaxError) {
-                    throw new Error('Có lỗi xảy ra khi cập nhật phản hồi');
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
                 }
-                throw e;
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi cập nhật phản hồi');
+                }).catch(e => {
+                    if (e instanceof SyntaxError) {
+                        throw new Error('Có lỗi xảy ra khi cập nhật phản hồi');
+                    }
+                    throw e;
+                });
+            })
+            .then(data => {
+                showEditReplySuccess('Cập nhật phản hồi thành công!');
+                // Tải lại trang sau 2 giây
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showEditReplyError(error.message || 'Có lỗi xảy ra khi cập nhật phản hồi');
+            })
+            .finally(() => {
+                // Khôi phục nút gửi
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             });
-        })
-        .then(data => {
-            showEditReplySuccess('Cập nhật phản hồi thành công!');
-            // Tải lại trang sau 2 giây
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showEditReplyError(error.message || 'Có lỗi xảy ra khi cập nhật phản hồi');
-        })
-        .finally(() => {
-            // Khôi phục nút gửi
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-        });
     }
-    
+
     // Các hàm cho modal xóa đánh giá
     function deleteReview(reviewId) {
         // Kiểm tra ID đánh giá hợp lệ
@@ -1461,7 +1572,7 @@
             alert('ID đánh giá không hợp lệ');
             return;
         }
-        
+
         // Kiểm tra đánh giá tồn tại trước khi mở modal xóa
         fetch(`/api/reviews/${reviewId}`, {
             method: 'GET',
@@ -1470,40 +1581,40 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Đánh giá tồn tại, hiển thị modal
-                document.getElementById('deleteReviewId').value = reviewId;
-                document.getElementById('deleteReviewModal').classList.remove('hidden');
-                return;
-            }
-            if (response.status === 404) {
-                throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
-            }
-            throw new Error('Không thể lấy thông tin đánh giá');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Không tìm thấy đánh giá');
-        });
+            .then(response => {
+                if (response.ok) {
+                    // Đánh giá tồn tại, hiển thị modal
+                    document.getElementById('deleteReviewId').value = reviewId;
+                    document.getElementById('deleteReviewModal').classList.remove('hidden');
+                    return;
+                }
+                if (response.status === 404) {
+                    throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
+                }
+                throw new Error('Không thể lấy thông tin đánh giá');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Không tìm thấy đánh giá');
+            });
     }
-    
+
     function closeDeleteReviewModal() {
         document.getElementById('deleteReviewModal').classList.add('hidden');
     }
-    
+
     function submitDeleteReview() {
         const reviewId = document.getElementById('deleteReviewId').value;
-        
+
         // Lấy CSRF token từ cookie
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         const submitButton = document.getElementById('deleteReviewSubmitBtn');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         fetch(`/api/reviews/${reviewId}`, {
             method: 'DELETE',
             credentials: 'include',
@@ -1511,38 +1622,38 @@
                 'X-XSRF-TOKEN': csrfToken
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Tải lại trang sau khi xóa thành công
-                window.location.reload();
-                return;
-            }
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi xóa đánh giá');
-            }).catch(e => {
-                if (e instanceof SyntaxError) {
-                    throw new Error('Có lỗi xảy ra khi xóa đánh giá');
+            .then(response => {
+                if (response.ok) {
+                    // Tải lại trang sau khi xóa thành công
+                    window.location.reload();
+                    return;
                 }
-                throw e;
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi xóa đánh giá');
+                }).catch(e => {
+                    if (e instanceof SyntaxError) {
+                        throw new Error('Có lỗi xảy ra khi xóa đánh giá');
+                    }
+                    throw e;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Không thể xóa đánh giá: ' + error.message);
+
+                // Khôi phục nút gửi
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+
+                // Đóng modal
+                closeDeleteReviewModal();
             });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Không thể xóa đánh giá: ' + error.message);
-            
-            // Khôi phục nút gửi
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-            
-            // Đóng modal
-            closeDeleteReviewModal();
-        });
     }
-    
+
     // Các hàm cho modal xóa phản hồi
     function deleteReply(reviewId) {
         document.getElementById('deleteReplyReviewId').value = reviewId;
-        
+
         // Kiểm tra đánh giá tồn tại trước khi mở modal xóa
         fetch(`/api/reviews/${reviewId}`, {
             method: 'GET',
@@ -1551,39 +1662,39 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Đánh giá tồn tại, hiển thị modal
-                document.getElementById('deleteReplyModal').classList.remove('hidden');
-                return;
-            }
-            if (response.status === 404) {
-                throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
-            }
-            throw new Error('Không thể lấy thông tin đánh giá');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Không tìm thấy đánh giá');
-        });
+            .then(response => {
+                if (response.ok) {
+                    // Đánh giá tồn tại, hiển thị modal
+                    document.getElementById('deleteReplyModal').classList.remove('hidden');
+                    return;
+                }
+                if (response.status === 404) {
+                    throw new Error('Không tìm thấy đánh giá với ID: ' + reviewId);
+                }
+                throw new Error('Không thể lấy thông tin đánh giá');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'Không tìm thấy đánh giá');
+            });
     }
-    
+
     function closeDeleteReplyModal() {
         document.getElementById('deleteReplyModal').classList.add('hidden');
     }
-    
+
     function submitDeleteReply() {
         const reviewId = document.getElementById('deleteReplyReviewId').value;
-        
+
         // Lấy CSRF token từ cookie
         const csrfToken = getCookie('XSRF-TOKEN');
-        
+
         // Hiển thị loading
         const submitButton = document.getElementById('deleteReplySubmitBtn');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xử lý...';
-        
+
         fetch(`/api/reviews/${reviewId}/reply`, {
             method: 'DELETE',
             credentials: 'include',
@@ -1591,34 +1702,34 @@
                 'X-XSRF-TOKEN': csrfToken
             }
         })
-        .then(response => {
-            if (response.ok) {
-                // Tải lại trang sau khi xóa thành công
-                window.location.reload();
-                return;
-            }
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi xóa phản hồi');
-            }).catch(e => {
-                if (e instanceof SyntaxError) {
-                    throw new Error('Có lỗi xảy ra khi xóa phản hồi');
+            .then(response => {
+                if (response.ok) {
+                    // Tải lại trang sau khi xóa thành công
+                    window.location.reload();
+                    return;
                 }
-                throw e;
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || errorData || 'Có lỗi xảy ra khi xóa phản hồi');
+                }).catch(e => {
+                    if (e instanceof SyntaxError) {
+                        throw new Error('Có lỗi xảy ra khi xóa phản hồi');
+                    }
+                    throw e;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Không thể xóa phản hồi: ' + error.message);
+
+                // Khôi phục nút gửi
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+
+                // Đóng modal
+                closeDeleteReplyModal();
             });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Không thể xóa phản hồi: ' + error.message);
-            
-            // Khôi phục nút gửi
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-            
-            // Đóng modal
-            closeDeleteReplyModal();
-        });
     }
-    
+
     // Hàm lấy CSRF token từ cookie
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -1632,27 +1743,27 @@
     document.addEventListener('DOMContentLoaded', function() {
         checkAllReviews();
     });
-    
+
     // Kiểm tra tất cả các đánh giá
     function checkAllReviews() {
         // Lấy tất cả các phần tử đánh giá
         const reviewItems = document.querySelectorAll('.review-item');
-        
+
         // Nếu không có đánh giá nào, thoát
         if (!reviewItems.length) return;
-        
+
         console.log(`Đang kiểm tra ${reviewItems.length} đánh giá...`);
-        
+
         // Kiểm tra từng đánh giá
         reviewItems.forEach(reviewItem => {
             // Tìm các nút tương tác với đánh giá
             const editButton = reviewItem.querySelector('[onclick^="editReview("]');
             const deleteButton = reviewItem.querySelector('[onclick^="deleteReview("]');
             const replyButton = reviewItem.querySelector('[data-review-id]'); // Nút phản hồi
-            
+
             // Lấy ID đánh giá từ nút
             let reviewId = null;
-            
+
             if (editButton) {
                 const match = editButton.getAttribute('onclick').match(/\d+/);
                 if (match) reviewId = match[0];
@@ -1662,35 +1773,35 @@
             } else if (replyButton) {
                 reviewId = replyButton.getAttribute('data-review-id');
             }
-            
+
             // Nếu tìm thấy ID, kiểm tra đánh giá tồn tại
             if (reviewId) {
                 checkReviewExists(reviewId, reviewItem);
             }
         });
     }
-    
+
     // Kiểm tra đánh giá tồn tại
     function checkReviewExists(reviewId, reviewItem) {
         fetch(`/api/reviews/${reviewId}/exists`, {
             method: 'GET',
             credentials: 'include'
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(`Đánh giá ID ${reviewId} tồn tại: ${data.exists}`);
-            
-            if (!data.exists) {
-                // Nếu đánh giá không tồn tại, ẩn phần tử
+            .then(response => response.json())
+            .then(data => {
+                console.log(`Đánh giá ID ${reviewId} tồn tại: ${data.exists}`);
+
+                if (!data.exists) {
+                    // Nếu đánh giá không tồn tại, ẩn phần tử
+                    reviewItem.style.display = 'none';
+                    console.log(`Đánh giá ID ${reviewId} không tồn tại, đã ẩn khỏi giao diện`);
+                }
+            })
+            .catch(error => {
+                console.error(`Lỗi kiểm tra đánh giá ${reviewId}:`, error);
+                // Nếu có lỗi, giả định đánh giá không tồn tại và ẩn nó đi
                 reviewItem.style.display = 'none';
-                console.log(`Đánh giá ID ${reviewId} không tồn tại, đã ẩn khỏi giao diện`);
-            }
-        })
-        .catch(error => {
-            console.error(`Lỗi kiểm tra đánh giá ${reviewId}:`, error);
-            // Nếu có lỗi, giả định đánh giá không tồn tại và ẩn nó đi
-            reviewItem.style.display = 'none';
-        });
+            });
     }
 </script>
 

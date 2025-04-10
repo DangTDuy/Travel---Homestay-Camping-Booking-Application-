@@ -45,107 +45,74 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-    <!-- Banner Image (Using Tailwind) -->
-    <img src="https://pistachiohotel.com/UploadFile/Gallery/Overview/a3.jpg" class="w-full h-64 md:h-80 object-cover rounded-lg shadow-md mb-6" alt="Tour Du Lịch Banner" />
+        <!-- Banner Image (Using Tailwind) -->
+        <img src="https://pistachiohotel.com/UploadFile/Gallery/Overview/a3.jpg" class="w-full h-64 md:h-80 object-cover rounded-lg shadow-md mb-6" alt="Tour Du Lịch Banner" />
 
-    <h2 class="text-3xl font-bold text-center text-primary mb-8">🌍 Danh Sách Tour Du Lịch</h2>
+        <h2 class="text-3xl font-bold text-center text-primary mb-8">🌍 Danh Sách Tour Du Lịch</h2>
 
-    <!-- Tour List (Using Tailwind grid and looping through ${travels}) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Loop through travels -->
-        <div th:each="travel : ${travels}" class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
-            <div class="relative">
-                <!-- Image -->
-                <img th:if="${not #lists.isEmpty(travel.imageUrls)}"
-                     th:src="${travel.imageUrls[0]}"
-                     alt="Travel Image"
-                     class="w-full h-48 object-cover">
-                <img th:unless="${not #lists.isEmpty(travel.imageUrls)}"
-                     src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                     alt="Default Travel Image"
-                     class="w-full h-48 object-cover">
+        <!-- Tour List (Using Tailwind grid and looping through ${travels}) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Loop through travels -->
+            <div th:each="travel : ${travels}" class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
+                <div class="relative">
+                    <!-- Image -->
+                    <img th:if="${not #lists.isEmpty(travel.imageUrls)}"
+                         th:src="${travel.imageUrls[0]}"
+                         alt="Travel Image"
+                         class="w-full h-48 object-cover">
+                    <img th:unless="${not #lists.isEmpty(travel.imageUrls)}"
+                         src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+                         alt="Default Travel Image"
+                         class="w-full h-48 object-cover">
 
-                <!-- Price Tag -->
-                 <div th:if="${travel.price != null}"
-                     class="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full font-semibold"
-                     th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                 </div>
-            </div>
-
-            <div class="p-4">
-                <h3 class="text-xl font-semibold text-dark mb-2 truncate" th:text="${travel.tourName}">Tour Name</h3>
-                <p class="text-gray-600 text-sm mb-2 flex items-center">
-                    <i class="fas fa-map-marker-alt mr-2 text-gray-500"></i>
-                    <span th:text="${travel.location}">Location</span>
-                </p>
-                 <p class="text-gray-600 text-sm mb-3 flex items-center">
-                    <i class="far fa-clock mr-2 text-gray-500"></i>
-                    <span th:text="${travel.durationDays} + ' ngày'">Duration</span>
-                 </p>
-
-                <!-- Rating Placeholder -->
-                <div class="flex items-center text-yellow-500 mb-3">
-                     <i class="fas fa-star"></i>
-                     <span class="ml-1 font-medium" th:text="${travel.rating != null ? #numbers.formatDecimal(travel.rating, 1, 1) : 'N/A'}">4.5</span>
-                     <span class="text-gray-500 text-xs ml-2" th:text="'(' + ${travel.bookingCount} + ' lượt đặt)'">(100 lượt đặt)</span>
+                    <!-- Price Tag -->
+                    <div th:if="${travel.price != null}"
+                         class="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full font-semibold"
+                         th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                    </div>
                 </div>
 
-                <!-- Difficulty -->
-                <div class="mb-4">
+                <div class="p-4">
+                    <h3 class="text-xl font-semibold text-dark mb-2 truncate" th:text="${travel.tourName}">Tour Name</h3>
+                    <p class="text-gray-600 text-sm mb-2 flex items-center">
+                        <i class="fas fa-map-marker-alt mr-2 text-gray-500"></i>
+                        <span th:text="${travel.location}">Location</span>
+                    </p>
+                    <p class="text-gray-600 text-sm mb-3 flex items-center">
+                        <i class="far fa-clock mr-2 text-gray-500"></i>
+                        <span th:text="${travel.durationDays} + ' ngày'">Duration</span>
+                    </p>
+
+                    <!-- Rating Placeholder -->
+                    <div class="flex items-center text-yellow-500 mb-3">
+                        <i class="fas fa-star"></i>
+                        <span class="ml-1 font-medium" th:text="${travel.rating != null ? #numbers.formatDecimal(travel.rating, 1, 1) : 'N/A'}">4.5</span>
+                        <span class="text-gray-500 text-xs ml-2" th:text="'(' + ${travel.bookingCount} + ' lượt đặt)'">(100 lượt đặt)</span>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div class="mb-4">
                      <span class="text-xs font-medium px-2 py-1 rounded-full"
                            th:text="${travel.difficultyLevel.displayName}"
                            th:classappend="${travel.difficultyLevel.name() == 'EASY' ? 'bg-green-100 text-green-800' : (travel.difficultyLevel.name() == 'NORMAL' ? 'bg-blue-100 text-blue-800' : (travel.difficultyLevel.name() == 'CHALLENGING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'))}">
                            Trung bình
                      </span>
-                 </div>
+                    </div>
 
-                 <a th:href="@{/travels/{id}(id=${travel.id})}"
-                    class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                    Xem chi tiết
-                 </a>
+                    <a th:href="@{/travels/{id}(id=${travel.id})}"
+                       class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(travels)}" class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-lg shadow text-center">
+                <i class="fas fa-route text-gray-400 text-5xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-dark mb-2">Không tìm thấy tour nào</h3>
+                <p class="text-gray-600">Hiện không có tour du lịch nào.</p>
             </div>
         </div>
-
-        <!-- Empty State -->
-        <div th:if="${#lists.isEmpty(travels)}" class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-lg shadow text-center">
-            <!-- Grid ảnh gợi ý -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Ảnh 1 -->
-                <div class="flex flex-col items-center">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Biển xanh" class="w-full h-40 object-cover rounded-lg shadow mb-2">
-                    <p class="text-sm text-gray-700">Khám phá biển xanh tuyệt đẹp</p>
-                </div>
-
-                <!-- Ảnh 2 -->
-                <div class="flex flex-col items-center">
-                    <img src="https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba" alt="Núi rừng" class="w-full h-40 object-cover rounded-lg shadow mb-2">
-                    <p class="text-sm text-gray-700">Leo núi thư giãn giữa thiên nhiên</p>
-                </div>
-
-                <!-- Ảnh 3 -->
-                <div class="flex flex-col items-center">
-                    <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d" alt="Thành phố" class="w-full h-40 object-cover rounded-lg shadow mb-2">
-                    <p class="text-sm text-gray-700">Trải nghiệm thành phố sôi động</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="flex flex-col items-center">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIiODlAW9m0LmpRdk9KkIieU_3P_W0VvNKgg&s" alt="Thác nước" class="w-full h-40 object-cover rounded-lg shadow mb-2">
-                    <p class="text-sm text-gray-700">Đắm mình bên dòng thác mát lạnh</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <img src="https://images.unsplash.com/photo-1470770903676-69b98201ea1c" alt="Sa mạc" class="w-full h-40 object-cover rounded-lg shadow mb-2">
-                    <p class="text-sm text-gray-700">Phiêu lưu giữa sa mạc kỳ bí</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="Rừng cây" class="w-full h-40 object-cover rounded-lg shadow mb-2">
-                    <p class="text-sm text-gray-700">Đi dạo giữa rừng xanh yên bình</p>
-                </div>
-            </div>
-
-
-        </div>
-    </div>
     </main>
 </div>
 

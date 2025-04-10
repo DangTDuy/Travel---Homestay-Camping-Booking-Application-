@@ -499,11 +499,14 @@
                             if (starHalf) stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
                             for (let i = 0; i < starEmpty; i++) stars += '<i class="far fa-star text-yellow-400"></i>';
 
+                            // Sửa phần hiển thị số lượng đánh giá
+                            const reviewCount = homestay.reviews ? homestay.reviews.length : 0;
+
                             ratingCell.innerHTML = `
                             <div class="flex items-center">
                                 <div class="text-yellow-400 flex">${stars}</div>
                                 <span class="ml-1 text-sm text-gray-600">${homestay.rating.toFixed(1)}</span>
-                                <span class="ml-1 text-sm text-gray-500">(${homestay.booking_count || 0})</span>
+                                <span class="ml-1 text-sm text-gray-500">(${reviewCount})</span>
                             </div>
                         `;
                         } else {

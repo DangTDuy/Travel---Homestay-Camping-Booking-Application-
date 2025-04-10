@@ -18,14 +18,14 @@
 
         <div class="bg-white shadow-lg sm:rounded-lg border border-gray-200">
             <!-- Removed the th:with block, using passed bookingList directly -->
-            <!-- Hiển thị khi không có booking -->            
+            <!-- Hiển thị khi không có booking -->
             <div th:if="${bookingList == null or #lists.isEmpty(bookingList)}">
                 <!-- Thông báo khác nhau cho admin và user thông thường -->
                 <p class="text-center text-gray-500 py-10 px-6">
                     <span th:if="${isAdmin}">No recent bookings found.</span>
                     <span th:unless="${isAdmin}">Bạn chưa có đặt phòng/đặt chỗ nào.</span>
                 </p>
-                
+
                 <!-- Chỉ hiển thị các liên kết tìm kiếm dịch vụ cho người dùng thông thường -->
                 <div th:unless="${isAdmin}" class="text-center pb-6">
                     <a href="/homestay" class="text-primary hover:text-blue-700 font-medium mr-4">Tìm Homestay &rarr;</a>

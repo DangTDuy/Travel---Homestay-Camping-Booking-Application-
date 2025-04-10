@@ -2,10 +2,8 @@ package ut.edu.project.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,20 +11,13 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@ToString(exclude = "bookings")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "travels")
 public class Travel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank(message = "Tên tour không được để trống")
-    @Size(min = 5, message = "Tên tour phải có ít nhất 5 ký tự")
     @Column(name = "tour_name", nullable = false)
     private String tourName;
 
@@ -41,8 +32,8 @@ public class Travel {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @NotBlank(message = "Lịch trình không được để trống")
     @Column(columnDefinition = "TEXT", nullable = false)
+    @NotBlank(message = "Lịch trình không được để trống")
     private String itinerary;
 
     @ManyToOne
@@ -53,25 +44,25 @@ public class Travel {
     @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>();
 
-    @Min(value = 1, message = "Số người tham gia tối đa phải ít nhất là 1")
     @Column(name = "max_participants")
+    @Min(value = 1, message = "Số người tham gia tối đa phải ít nhất là 1")
     private Integer maxParticipants;
 
-    @Min(value = 1, message = "Số người tham gia tối thiểu phải ít nhất là 1")
     @Column(name = "min_participants")
+    @Min(value = 1, message = "Số người tham gia tối thiểu phải ít nhất là 1")
     private Integer minParticipants;
 
-    @Min(value = 1, message = "Số ngày tour phải ít nhất là 1")
     @Column(name = "duration_days")
+    @Min(value = 1, message = "Số ngày tour phải ít nhất là 1")
     private Integer durationDays;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection
     @CollectionTable(name = "travel_image_urls", joinColumns = @JoinColumn(name = "travel_id"))
     @Column(name = "image_url")
     @Size(max = 5, message = "Tối đa 5 URL ảnh")
     private List<String> imageUrls = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection
     @CollectionTable(name = "travel_included_services", joinColumns = @JoinColumn(name = "travel_id"))
     @Column(name = "service")
     private List<String> includedServices = new ArrayList<>();
@@ -82,24 +73,21 @@ public class Travel {
     @Column(columnDefinition = "TEXT")
     private String highlights; // Điểm nhấn của tour
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "difficulty_level")
+    @Enumerated(EnumType.STRING)
     private DifficultyLevel difficultyLevel = DifficultyLevel.NORMAL;
 
     @Column(nullable = false)
     private boolean isAvailable = true;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "integer default 0")
     private Integer bookingCount = 0;
 
-    @Column(nullable = false)
-    private Double rating = 0.0;
+    private Double rating;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -118,6 +106,23 @@ public class Travel {
         public String getDisplayName() {
             return displayName;
         }
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        if (bookingCount == null) {
+            bookingCount = 0;
+        }
+        if (rating == null) {
+            rating = 0.0;
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     // Helper methods
@@ -139,9 +144,5 @@ public class Travel {
 
     public boolean hasMinimumParticipants() {
         return bookings.size() >= minParticipants;
-    }
-
-    public int getAvailableSlots() {
-        return maxParticipants - bookings.size();
     }
 }
