@@ -843,8 +843,8 @@
             const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
             const subtotal = nights * pricePerNight;
 
-            // Giả sử có phí dịch vụ 5%
-            const serviceFee = subtotal * 0.05;
+            // Tính phí dịch vụ 20% của tổng tiền phòng
+            const serviceFee = subtotal * 0.2;
 
             // Tính tổng tiền dịch vụ bổ sung
             let additionalServicesTotal = 0;
@@ -892,6 +892,7 @@
                 document.getElementById('additionalServicesDetails').classList.add('hidden');
             }
 
+            // Tổng tiền = tiền phòng + phí dịch vụ 20% + dịch vụ bổ sung
             const total = subtotal + serviceFee + additionalServicesTotal;
 
             // Hiển thị chi tiết giá
