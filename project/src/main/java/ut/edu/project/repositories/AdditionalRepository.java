@@ -16,4 +16,4 @@ public interface AdditionalRepository extends JpaRepository<Additional, Long> {
     List<Additional> findByCategory(Category category);
     List<Additional> findByIsActive(boolean isActive);
     List<Additional> findByHomestay(Homestay homestay);
-} 
+}

@@ -17,10 +17,10 @@ import ut.edu.project.repositories.TimeSlotRepository;
 public class AdditionalService {
     @Autowired
     private AdditionalRepository additionalRepository;
-    
+
     @Autowired
     private CategoryRepository categoryRepository;
-    
+
     @Autowired
     private TimeSlotRepository timeSlotRepository;
 
@@ -55,7 +55,7 @@ public class AdditionalService {
     public List<Additional> getByHomestay(Homestay homestay) {
         return additionalRepository.findByHomestay(homestay);
     }
-    
+
     /**
      * Lấy danh sách dịch vụ bổ sung theo homestay ID
      * @param homestayId ID của homestay
@@ -103,7 +103,7 @@ public class AdditionalService {
         entity.setActive(dto.isActive());
         entity.setImageUrl(dto.getImageUrl());
     }
-    
+
     /**
      * Lấy category mặc định cho dịch vụ bổ sung
      * @return Category mặc định hoặc category đầu tiên trong database
@@ -114,7 +114,7 @@ public class AdditionalService {
         if (defaultCategory == null) {
             defaultCategory = categoryRepository.findByName("mặc định");
         }
-        
+
         // Nếu không tìm thấy, lấy category đầu tiên
         if (defaultCategory == null) {
             List<Category> categories = categoryRepository.findAll();
@@ -129,7 +129,7 @@ public class AdditionalService {
                 defaultCategory = categoryRepository.save(defaultCategory);
             }
         }
-        
+
         return defaultCategory;
     }
 
@@ -137,7 +137,7 @@ public class AdditionalService {
         return categoryRepository.findById(id)
                 .orElseGet(this::getDefaultCategory);
     }
-    
+
     /**
      * Lấy time slot mặc định cho dịch vụ bổ sung
      * @return TimeSlot mặc định hoặc time slot đầu tiên trong database
@@ -148,7 +148,7 @@ public class AdditionalService {
         if (defaultTimeSlot == null) {
             defaultTimeSlot = timeSlotRepository.findByName("mặc định");
         }
-        
+
         // Nếu không tìm thấy, lấy time slot đầu tiên
         if (defaultTimeSlot == null) {
             List<TimeSlot> timeSlots = timeSlotRepository.findAll();
@@ -163,7 +163,7 @@ public class AdditionalService {
                 defaultTimeSlot = timeSlotRepository.save(defaultTimeSlot);
             }
         }
-        
+
         return defaultTimeSlot;
     }
 

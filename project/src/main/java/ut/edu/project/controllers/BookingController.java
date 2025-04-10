@@ -57,48 +57,48 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-public String showBookingDetails(@PathVariable Long id, Model model, Principal principal) {
-    try {
-        Optional<Booking> bookingOpt = bookingService.getBookingById(id);
-        if (bookingOpt.isEmpty()) {
-            model.addAttribute("error", "Không tìm thấy đặt phòng với ID: " + id);
+    public String showBookingDetails(@PathVariable Long id, Model model, Principal principal) {
+        try {
+            Optional<Booking> bookingOpt = bookingService.getBookingById(id);
+            if (bookingOpt.isEmpty()) {
+                model.addAttribute("error", "Không tìm thấy đặt phòng với ID: " + id);
+                return "redirect:/bookings/my-history";
+            }
+
+            Booking booking = bookingOpt.get();
+
+            // Kiểm tra quyền truy cập
+            if (principal == null) {
+                return "redirect:/auth/login-user";
+            }
+
+            User user = userService.findByUsername(principal.getName()).orElse(null);
+            if (user == null) {
+                return "redirect:/auth/login-user";
+            }
+
+            // Kiểm tra nếu người dùng là chủ sở hữu đặt phòng hoặc là admin
+            boolean isOwner = booking.getUser().getUsername().equals(principal.getName());
+            boolean isAdmin = "ADMIN".equals(user.getRole());
+
+            if (!isOwner && !isAdmin) {
+                return "redirect:/bookings/my-history";
+            }
+
+            model.addAttribute("booking", booking);
+            model.addAttribute("currentPage", "bookings");
+
+            if (isAdmin) {
+                model.addAttribute("allStatuses", Booking.BookingStatus.values());
+                return "admin/booking-detail";
+            } else {
+                return "user/booking-detail";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "Lỗi khi tải thông tin đặt phòng: " + e.getMessage());
             return "redirect:/bookings/my-history";
         }
-        
-        Booking booking = bookingOpt.get();
-        
-        // Kiểm tra quyền truy cập
-        if (principal == null) {
-            return "redirect:/auth/login-user";
-        }
-        
-        User user = userService.findByUsername(principal.getName()).orElse(null);
-        if (user == null) {
-            return "redirect:/auth/login-user";
-        }
-        
-        // Kiểm tra nếu người dùng là chủ sở hữu đặt phòng hoặc là admin
-        boolean isOwner = booking.getUser().getUsername().equals(principal.getName());
-        boolean isAdmin = "ADMIN".equals(user.getRole());
-        
-        if (!isOwner && !isAdmin) {
-            return "redirect:/bookings/my-history";
-        }
-        
-        model.addAttribute("booking", booking);
-        model.addAttribute("currentPage", "bookings");
-        
-        if (isAdmin) {
-            model.addAttribute("allStatuses", Booking.BookingStatus.values());
-            return "admin/booking-detail";
-        } else {
-            return "user/booking-detail";
-        }
-    } catch (Exception e) {
-        model.addAttribute("error", "Lỗi khi tải thông tin đặt phòng: " + e.getMessage());
-        return "redirect:/bookings/my-history";
     }
-}
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -121,7 +121,7 @@ public String showBookingDetails(@PathVariable Long id, Model model, Principal p
 
     @GetMapping("/my-history")
     public String showMyBookingHistory(
-            Model model, 
+            Model model,
             Principal principal,
             @RequestParam(defaultValue = "0") int page) {
         if (principal == null) {

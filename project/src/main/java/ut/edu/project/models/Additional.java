@@ -26,19 +26,19 @@ public class Additional {
     @NotNull(message = "Giá không được để trống")
     @Positive(message = "Giá phải lớn hơn 0")
     private BigDecimal price;
-    
+
     @ManyToOne
     @JoinColumn(name = "time_slot_id", nullable = false)
     private TimeSlot timeSlot;
-    
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-    
+
     @ManyToOne
     @JoinColumn(name = "homestay_id")
     private Homestay homestay;
-    
+
     @ManyToOne
     @JoinColumn(name = "camping_id")
     private Camping camping;
@@ -46,7 +46,7 @@ public class Additional {
     @ManyToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
-    
+
     @NotNull(message = "Giờ bắt đầu không được để trống")
     private LocalTime startTime;
 
@@ -54,20 +54,20 @@ public class Additional {
     private LocalTime endTime;
 
     private boolean isActive = true;
-    
+
     @Column(name = "image_url")
     private String imageUrl;
-    
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name = "quantity")
     @Positive(message = "Số lượng phải lớn hơn 0")
     private Integer quantity = 1;
-    
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

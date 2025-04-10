@@ -39,7 +39,7 @@ public class AdminHomestayController {
         try {
             log.info("Admin homestay page requested by user: {}", authentication != null ? authentication.getName() : "anonymous");
             log.info("User roles: {}", authentication != null ? authentication.getAuthorities() : "none");
-            
+
             List<Homestay> homestays;
             if (location != null && !location.isEmpty()) {
                 log.info("Searching homestays with location: {}", location);
@@ -222,12 +222,12 @@ public class AdminHomestayController {
 
             // Parse current images JSON
             ObjectMapper mapper = new ObjectMapper();
-            List<String> currentImages = mapper.readValue(currentImagesJson, 
-                new TypeReference<List<String>>() {});
+            List<String> currentImages = mapper.readValue(currentImagesJson,
+                    new TypeReference<List<String>>() {});
 
             // Update homestay
             Homestay homestay = homestayService.getHomestayById(homestayId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy homestay"));
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy homestay"));
 
             homestay.setName(name.trim());
             homestay.setLocation(location.trim());
@@ -267,17 +267,17 @@ public class AdminHomestayController {
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String priceRange) {
         try {
-            log.info("Getting homestays for admin with filters - location: {}, priceRange: {}", 
+            log.info("Getting homestays for admin with filters - location: {}, priceRange: {}",
                     location, priceRange);
-            
+
             List<Homestay> homestays;
-            
+
             // Xử lý khoảng giá đặc biệt cho "trên 2 triệu"
             if (priceRange != null && priceRange.equals("2000000-")) {
                 log.info("Handling special case for price over 2,000,000");
                 String modifiedPriceRange = "2000000-999999999"; // Thêm giá trị tối đa giả
                 homestays = homestayService.searchHomestays(location, modifiedPriceRange, null);
-            } 
+            }
             // Xử lý các trường hợp tìm kiếm khác
             else if ((location != null && !location.isEmpty()) || (priceRange != null && !priceRange.isEmpty())) {
                 homestays = homestayService.searchHomestays(location, priceRange, null);
@@ -287,7 +287,7 @@ public class AdminHomestayController {
                 homestays = homestayService.getAllHomestays();
                 log.info("Found {} homestays (all)", homestays.size());
             }
-            
+
             log.info("Preparing response for {} homestays.", homestays.size());
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -332,17 +332,17 @@ public class AdminHomestayController {
 
     @PostMapping("/{id}/images")
     @ResponseBody
-    public ResponseEntity<?> uploadImages(@PathVariable Long id, 
-                                        @RequestParam("images") MultipartFile[] images,
-                                        Authentication authentication) {
+    public ResponseEntity<?> uploadImages(@PathVariable Long id,
+                                          @RequestParam("images") MultipartFile[] images,
+                                          Authentication authentication) {
         try {
             log.info("Uploading images for homestay {}", id);
             homestayService.uploadImages(id, images);
-            
+
             // Get updated homestay with new images
             Homestay homestay = homestayService.getHomestayById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy homestay"));
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Tải ảnh lên thành công");
@@ -366,15 +366,15 @@ public class AdminHomestayController {
     @PostMapping("/api/delete-images")
     @Transactional
     public ResponseEntity<?> deleteHomestayImages(
-        @RequestParam("homestayId") Long homestayId,
-        @RequestParam("imageUrls") List<String> imageUrls) {
-        
+            @RequestParam("homestayId") Long homestayId,
+            @RequestParam("imageUrls") List<String> imageUrls) {
+
         try {
             homestayService.deleteImages(homestayId, imageUrls);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Lỗi khi xóa ảnh: " + e.getMessage());
+                    .body("Lỗi khi xóa ảnh: " + e.getMessage());
         }
     }
 }

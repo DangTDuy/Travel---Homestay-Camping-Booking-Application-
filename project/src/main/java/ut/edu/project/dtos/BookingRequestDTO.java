@@ -18,4 +18,4 @@ public class BookingRequestDTO {
     private int guests;
     private String specialRequests;
     private List<AdditionalDTO> additionalServices;
-} 
+}

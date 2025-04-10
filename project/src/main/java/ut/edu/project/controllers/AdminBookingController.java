@@ -36,7 +36,7 @@ public class AdminBookingController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Model model) {
-        
+
         // Convert string parameters to enum if needed
         Booking.BookingStatus statusEnum = null;
         if (!status.isEmpty()) {
@@ -46,10 +46,10 @@ public class AdminBookingController {
                 // Invalid status, ignore filter
             }
         }
-        
+
         // Get paginated bookings with filters
         Page<Booking> bookingsPage = bookingService.getAdminBookings(statusEnum, serviceType, dateFrom, dateTo, page, size);
-        
+
         model.addAttribute("bookings", bookingsPage.getContent());
         model.addAttribute("page", page);
         model.addAttribute("size", size);
@@ -57,20 +57,20 @@ public class AdminBookingController {
         model.addAttribute("totalPages", bookingsPage.getTotalPages());
         model.addAttribute("hasNext", bookingsPage.hasNext());
         model.addAttribute("hasPrevious", bookingsPage.hasPrevious());
-        
+
         // Add selected filters to model for form restoration
         model.addAttribute("selectedStatus", status);
         model.addAttribute("selectedServiceType", serviceType);
         model.addAttribute("selectedDateFrom", dateFrom);
         model.addAttribute("selectedDateTo", dateTo);
-        
+
         // Add isAdmin attribute for the template
         model.addAttribute("isAdmin", true);
         model.addAttribute("currentPage", "admin/bookings");
-        
+
         return "admin/bookings";
     }
-    
+
     // Endpoint to show the booking detail page for Admin
     @GetMapping("/{id}")
     public String showAdminBookingDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {

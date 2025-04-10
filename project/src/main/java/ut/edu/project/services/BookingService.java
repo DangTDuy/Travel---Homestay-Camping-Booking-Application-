@@ -53,7 +53,7 @@ public class BookingService {
 
         // Set initial status
         booking.setStatus(Booking.BookingStatus.PENDING);
-        
+
         return bookingRepository.save(booking);
     }
 
@@ -88,10 +88,10 @@ public class BookingService {
     public List<Booking> getTop3BookingsByUsername(String username) {
         return bookingRepository.findTop3ByUserUsernameOrderByCreatedAtDesc(username);
     }
-    
+
     public Page<Booking> getAdminBookings(Booking.BookingStatus status, String serviceType, String dateFrom, String dateTo, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        
+
         // Xử lý các tham số lọc
         Booking.ServiceType serviceTypeEnum = null;
         if (serviceType != null && !serviceType.isEmpty()) {
@@ -101,11 +101,11 @@ public class BookingService {
                 // Bỏ qua nếu serviceType không hợp lệ
             }
         }
-        
+
         // Xử lý ngày tháng
         LocalDateTime fromDate = null;
         LocalDateTime toDate = null;
-        
+
         if (dateFrom != null && !dateFrom.isEmpty()) {
             try {
                 fromDate = LocalDate.parse(dateFrom).atStartOfDay();
@@ -113,7 +113,7 @@ public class BookingService {
                 // Bỏ qua nếu định dạng ngày không hợp lệ
             }
         }
-        
+
         if (dateTo != null && !dateTo.isEmpty()) {
             try {
                 toDate = LocalDate.parse(dateTo).atTime(LocalTime.MAX);
@@ -121,7 +121,7 @@ public class BookingService {
                 // Bỏ qua nếu định dạng ngày không hợp lệ
             }
         }
-        
+
         return bookingRepository.findBookingsWithFilters(status, serviceTypeEnum, fromDate, toDate, pageable);
     }
 
@@ -247,32 +247,32 @@ public class BookingService {
         newBooking.setCheckOut(checkOutDateTime);
         newBooking.setGuests(request.getGuests());
         newBooking.setSpecialRequests(request.getSpecialRequests());
-        
+
         // 7. Process Additional Services if available
         if (request.getAdditionalServices() != null && !request.getAdditionalServices().isEmpty()) {
             List<Additional> additionalServices = new ArrayList<>();
-            
+
             for (AdditionalDTO additionalDTO : request.getAdditionalServices()) {
                 Additional additional = additionalRepository.findById(additionalDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Dịch vụ bổ sung không tồn tại với ID: " + additionalDTO.getId()));
-                
+
                 // Set quantity from request
                 additional.setQuantity(additionalDTO.getQuantity());
-                
+
                 // Validate that additional service belongs to the selected homestay
                 if (!additional.getHomestay().getId().equals(homestay.getId())) {
                     throw new IllegalArgumentException("Dịch vụ bổ sung không thuộc về homestay đã chọn");
                 }
-                
+
                 // Add the price of this service to the total
                 totalPrice += additional.getPrice().doubleValue() * additional.getQuantity();
-                
+
                 additionalServices.add(additional);
             }
-            
+
             newBooking.setAdditionalServices(additionalServices);
         }
-        
+
         newBooking.setTotalPrice(totalPrice);
         newBooking.setStatus(Booking.BookingStatus.PENDING); // Initial status
         newBooking.setServiceType(Booking.ServiceType.HOMESTAY);
@@ -313,7 +313,7 @@ public class BookingService {
 
         booking.setTotalPrice(totalPrice);
     }
-    
+
     /**
      * Tìm booking đã hoàn thành và chưa được đánh giá cho một homestay
      * @param userId ID của người dùng
@@ -323,11 +323,11 @@ public class BookingService {
     public Booking findCompletedBookingForReview(Long userId, Long homestayId) {
         List<Booking> completedBookings = bookingRepository.findByUserIdAndHomestayIdAndStatusAndIsReviewedFalse(
                 userId, homestayId, Booking.BookingStatus.COMPLETED);
-        
+
         if (completedBookings != null && !completedBookings.isEmpty()) {
             return completedBookings.get(0); // Trả về booking đầu tiên tìm thấy
         }
-        
+
         return null;
     }
 }

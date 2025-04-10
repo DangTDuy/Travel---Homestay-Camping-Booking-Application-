@@ -21,24 +21,24 @@ public class AdditionalDTO {
     private String name;
     private String description;
     private BigDecimal price;
-    
+
     // Quan hệ với các đối tượng khác
     private TimeSlot timeSlot;
     private Category category;
     private Long homestayId;
     private Long campingId;
-    
+
     // Thông tin thời gian
     private LocalTime startTime;
     private LocalTime endTime;
-    
+
     // Trạng thái
     private boolean isActive;
     private String imageUrl;
-    
+
     // Thông tin bổ sung cho đặt phòng
     private int quantity = 1;
-    
+
     // ID tham chiếu (dùng khi không cần đối tượng đầy đủ)
     private Long categoryId;
     private Long timeSlotId;

@@ -26,6 +26,9 @@
                     colors: {
                         primary: '#3B82F6',
                         secondary: '#10B981',
+                        tertiary: '#8B5CF6', /* Purple */
+                        warning: '#F59E0B', /* Amber */
+                        danger: '#EF4444', /* Red */
                         dark: '#1F2937',
                         light: '#F9FAFB'
                     },
@@ -56,21 +59,28 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-50 font-sans flex">
 
 <!-- Sidebar fragment -->
 <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
 
-<!-- Main Content -->
-<div class="md:ml-64 p-6">
-    <div class="max-w-7xl mx-auto">
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-dark">Quản lý Homestay</h1>
+                <h1 class="text-3xl font-bold text-primary">
+                    <i class="fas fa-home mr-2"></i>
+                    Quản lý Homestay
+                </h1>
                 <p class="text-gray-600">Thêm, chỉnh sửa và quản lý homestay trong hệ thống</p>
             </div>
-            <button onclick="openAddModal()" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition duration-150 ease-in-out">
+            <button onclick="openAddModal()" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition duration-150 ease-in-out shadow-sm">
                 <i class="fas fa-plus mr-2"></i>
                 Thêm Homestay
             </button>
@@ -176,7 +186,7 @@
                 </button>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <!-- Add/Edit Modal -->
