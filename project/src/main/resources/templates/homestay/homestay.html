@@ -167,30 +167,18 @@
                         <span th:text="${homestay.location}">Địa chỉ</span>
                     </p>
 
-                    <!-- Rating -->
+                    <!-- Rating - Phần được sửa lại -->
                     <div class="flex items-center text-sm mb-3 mt-auto">
-                        <span class="text-yellow-500 flex items-center" th:if="${homestay != null and homestay.rating != null and homestay.rating > 0}">
-                            <!-- Sao đầy -->
-                            <i class="fas fa-star text-xs" th:if="${homestay.rating >= 1}"></i>
-                            <i class="fas fa-star text-xs" th:if="${homestay.rating >= 2}"></i>
-                            <i class="fas fa-star text-xs" th:if="${homestay.rating >= 3}"></i>
-                            <i class="fas fa-star text-xs" th:if="${homestay.rating >= 4}"></i>
-                            <i class="fas fa-star text-xs" th:if="${homestay.rating >= 5}"></i>
-                            
-                            <!-- Nửa sao -->
-                            <i class="fas fa-star-half-alt text-xs" th:if="${homestay.rating % 1 >= 0.5 and homestay.rating < 5}"></i>
-                            
-                            <!-- Sao rỗng -->
-                            <i class="far fa-star text-xs" th:if="${homestay.rating < 1}"></i>
-                            <i class="far fa-star text-xs" th:if="${homestay.rating < 2 and !(homestay.rating % 1 >= 0.5 and homestay.rating < 1)}"></i>
-                            <i class="far fa-star text-xs" th:if="${homestay.rating < 3 and !(homestay.rating % 1 >= 0.5 and homestay.rating < 3)}"></i>
-                            <i class="far fa-star text-xs" th:if="${homestay.rating < 4 and !(homestay.rating % 1 >= 0.5 and homestay.rating < 4)}"></i>
-                            <i class="far fa-star text-xs" th:if="${homestay.rating < 5 and !(homestay.rating % 1 >= 0.5 and homestay.rating < 5)}"></i>
-                            
-                            <!-- Hiển thị số rating -->
+                        <div th:if="${homestay != null and homestay.rating != null and homestay.rating > 0}" class="flex items-center">
+                            <div class="flex text-yellow-500">
+                                <!-- Hiển thị 5 sao, đầy hoặc rỗng tùy theo rating -->
+                                <i th:each="i : ${#numbers.sequence(1, 5)}" 
+                                   th:class="${i <= homestay.rating ? 'fas fa-star' : (i <= homestay.rating + 0.5 ? 'fas fa-star-half-alt' : 'far fa-star')}"
+                                   class="text-xs mr-0.5"></i>
+                            </div>
                             <span class="text-gray-600 font-medium ml-1.5" 
-                                  th:text="${homestay.rating > 5 ? '5.0' : #numbers.formatDecimal(homestay.rating, 1, 1)}"></span>
-                        </span>
+                                  th:text="${#numbers.formatDecimal(homestay.rating, 1, 1)}"></span>
+                        </div>
                         <span th:unless="${homestay != null and homestay.rating != null and homestay.rating > 0}" class="text-gray-400 italic text-xs">Chưa có đánh giá</span>
                         <span class="text-gray-500 text-xs ml-2" th:if="${homestay != null and homestay.bookingCount != null and homestay.bookingCount > 0}" th:text="'· ' + ${homestay.bookingCount} + ' lượt đặt'"></span>
                     </div>
