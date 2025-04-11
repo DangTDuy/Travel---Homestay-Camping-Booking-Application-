@@ -43,9 +43,10 @@ public class Additional {
     @JoinColumn(name = "camping_id")
     private Camping camping;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id")
-    private Booking booking;
+    // Không còn quan hệ trực tiếp với Booking nữa, thay vào đó sử dụng BookingAdditional
+    // @ManyToOne
+    // @JoinColumn(name = "booking_id")
+    // private Booking booking;
 
     @NotNull(message = "Giờ bắt đầu không được để trống")
     private LocalTime startTime;
@@ -87,4 +88,4 @@ public class Additional {
     public boolean isAvailable(LocalTime requestTime) {
         return isActive && requestTime.isAfter(startTime) && requestTime.isBefore(endTime);
     }
-} 
+}

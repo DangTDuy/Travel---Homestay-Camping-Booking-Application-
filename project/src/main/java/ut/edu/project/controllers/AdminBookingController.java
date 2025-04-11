@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ut.edu.project.models.Booking;
+import ut.edu.project.models.Additional;
 import ut.edu.project.services.BookingService;
 import ut.edu.project.services.UserService;
 
@@ -75,8 +76,18 @@ public class AdminBookingController {
     @GetMapping("/{id}")
     public String showAdminBookingDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
+            System.out.println("Fetching booking with ID: " + id);
+
             Booking booking = bookingService.getBookingById(id)
                     .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + id));
+
+            System.out.println("Booking found: " + booking.getId());
+            System.out.println("Additional Services in Controller: " + booking.getAdditionalServices().size());
+
+            // Kiểm tra chi tiết các dịch vụ bổ sung
+            for (Additional service : booking.getAdditionalServices()) {
+                System.out.println("Service in Controller: " + service.getName() + ", ID: " + service.getId());
+            }
 
             model.addAttribute("booking", booking);
             model.addAttribute("allStatuses", Booking.BookingStatus.values()); // For the status update dropdown
@@ -111,4 +122,4 @@ public class AdminBookingController {
 
     // Add other admin-specific booking actions here if needed (e.g., delete)
 
-} 
+}

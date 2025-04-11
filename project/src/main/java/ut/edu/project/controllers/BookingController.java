@@ -14,6 +14,9 @@ import ut.edu.project.services.*;
 import ut.edu.project.dtos.BookingRequestDTO;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,6 +88,15 @@ public class BookingController {
                 return "redirect:/bookings/my-history";
             }
 
+            // In thông tin dịch vụ bổ sung để debug
+            System.out.println("Booking ID: " + booking.getId());
+            System.out.println("Additional Services Size: " + booking.getAdditionalServices().size());
+            for (Additional service : booking.getAdditionalServices()) {
+                System.out.println("Service: " + service.getName() + ", Category: " +
+                    (service.getCategory() != null ? service.getCategory().getName() : "null") +
+                    ", TimeSlot: " + (service.getTimeSlot() != null ? service.getTimeSlot().getName() : "null"));
+            }
+
             model.addAttribute("booking", booking);
             model.addAttribute("currentPage", "bookings");
 
@@ -95,6 +107,7 @@ public class BookingController {
                 return "user/booking-detail";
             }
         } catch (Exception e) {
+            e.printStackTrace(); // In ra lỗi chi tiết để debug
             model.addAttribute("error", "Lỗi khi tải thông tin đặt phòng: " + e.getMessage());
             return "redirect:/bookings/my-history";
         }
@@ -154,6 +167,7 @@ public class BookingController {
             return "redirect:/homestay";
         }
 
+        // Lấy dịch vụ bổ sung cho homestay này (bao gồm cả dịch vụ chung)
         List<Additional> additionals = additionalService.getByHomestay(homestay.get());
         model.addAttribute("homestay", homestay.get());
         model.addAttribute("additionals", additionals);
@@ -168,6 +182,9 @@ public class BookingController {
             @Valid @ModelAttribute Booking booking,
             BindingResult result,
             @RequestParam(required = false) List<Long> additionalIds,
+            @RequestParam(required = false) String checkInTime,
+            @RequestParam(required = false) String checkOutTime,
+            @RequestParam(required = false, name = "quantity-") Map<String, String> quantities,
             Principal principal,
             Model model) {
 
@@ -178,6 +195,21 @@ public class BookingController {
                 model.addAttribute("additionals", additionalService.getByHomestay(homestay.get()));
             }
             return "booking/homestay-booking-form";
+        }
+
+        // Xử lý thời gian check-in và check-out
+        if (checkInTime != null && !checkInTime.isEmpty()) {
+            // Lấy ngày từ booking.getCheckIn() và thêm giờ từ checkInTime
+            LocalDate checkInDate = booking.getCheckIn().toLocalDate();
+            LocalTime time = LocalTime.parse(checkInTime);
+            booking.setCheckIn(LocalDateTime.of(checkInDate, time));
+        }
+
+        if (checkOutTime != null && !checkOutTime.isEmpty()) {
+            // Lấy ngày từ booking.getCheckOut() và thêm giờ từ checkOutTime
+            LocalDate checkOutDate = booking.getCheckOut().toLocalDate();
+            LocalTime time = LocalTime.parse(checkOutTime);
+            booking.setCheckOut(LocalDateTime.of(checkOutDate, time));
         }
 
         try {
@@ -192,10 +224,24 @@ public class BookingController {
             booking.setHomestay(homestay);
             booking.setServiceType(Booking.ServiceType.HOMESTAY);
 
-            // Add additional services if selected
+            // Add additional services to display list only
             if (additionalIds != null && !additionalIds.isEmpty()) {
                 List<Additional> additionals = additionalService.getByIds(additionalIds);
                 for (Additional additional : additionals) {
+                    // Lấy số lượng từ form
+                    int quantity = 1; // Mặc định là 1
+                    String quantityKey = "quantity-" + additional.getId();
+                    if (quantities.containsKey(quantityKey)) {
+                        try {
+                            quantity = Integer.parseInt(quantities.get(quantityKey));
+                            if (quantity < 1) quantity = 1;
+                        } catch (NumberFormatException e) {
+                            // Giữ mặc định là 1 nếu có lỗi
+                        }
+                    }
+
+                    // Thiết lập số lượng cho dịch vụ
+                    additional.setQuantity(quantity);
                     booking.addAdditionalService(additional);
                 }
             }

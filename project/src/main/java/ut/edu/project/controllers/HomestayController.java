@@ -110,8 +110,8 @@ public class HomestayController {
                 }
             }
 
-            // Lấy tất cả dịch vụ bổ sung (dịch vụ chung)
-            List<AdditionalDTO> additionalServices = additionalService.getAllAdditionals();
+            // Lấy dịch vụ bổ sung cho homestay này (bao gồm cả dịch vụ chung)
+            List<AdditionalDTO> additionalServices = additionalService.getAdditionalsByHomestayId(id);
 
             // Nhóm các dịch vụ bổ sung theo danh mục
             Map<Category, List<AdditionalDTO>> servicesByCategory = additionalServices.stream()

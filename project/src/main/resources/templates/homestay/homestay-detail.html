@@ -539,30 +539,33 @@
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" th:text="'Đặt ' + ${homestay.name}"></h3>
                 <form id="bookingForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="checkInDate">Ngày nhận phòng</label>
-                            <input type="date" id="checkInDate" name="checkInDate" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                                <input type="date" id="checkInDate" name="checkInDate" required
+                                       class="shadow appearance-none border rounded w-full py-2 pl-10 pr-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="checkOutDate">Ngày trả phòng</label>
-                            <input type="date" id="checkOutDate" name="checkOutDate" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                                <input type="date" id="checkOutDate" name="checkOutDate" required
+                                       class="shadow appearance-none border rounded w-full py-2 pl-10 pr-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="guests">Số lượng khách</label>
-                        <select id="guests" name="guests" required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option th:each="i : ${#numbers.sequence(1, homestay.capacity)}"
-                                    th:value="${i}"
-                                    th:text="${i}"></option>
-                        </select>
+                        <!-- Đã xóa phần Số lượng khách vì thông tin này đã được hiển thị ở trang chi tiết homestay -->
+                        <input type="hidden" id="guests" name="guests" th:value="${homestay.capacity > 0 ? 1 : 1}">
                     </div>
                     <!-- Dịch vụ bổ sung -->
                     <div class="mb-4">
@@ -570,25 +573,25 @@
                         <div class="bg-gray-50 p-3 rounded-lg">
                             <!-- Tab navigation cho các khung giờ -->
                             <div class="grid grid-cols-5 gap-1 border-b mb-4 text-center">
-                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-primary text-primary"
+                                <button type="button" class="time-slot-tab py-1 px-1 font-medium text-xs border-b-2 border-primary text-primary"
                                         data-tab="all">Tất cả</button>
-                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                <button type="button" class="time-slot-tab py-1 px-1 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
                                         data-tab="morning">Sáng</button>
-                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                <button type="button" class="time-slot-tab py-1 px-1 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
                                         data-tab="noon">Trưa</button>
-                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                <button type="button" class="time-slot-tab py-1 px-1 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
                                         data-tab="afternoon">Chiều</button>
-                                <button type="button" class="time-slot-tab py-2 px-2 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                                <button type="button" class="time-slot-tab py-1 px-1 font-medium text-xs border-b-2 border-transparent text-gray-500 hover:text-gray-700"
                                         data-tab="evening">Tối</button>
                             </div>
 
                             <!-- Hiển thị dịch vụ theo danh mục và khung giờ -->
-                            <div th:each="category, catStat : ${servicesByCategory.keySet()}" class="mb-3 service-category">
+                            <div th:each="category, catStat : ${servicesByCategory.keySet()}" class="mb-3 service-category" th:id="'category-' + ${category.id}">
                                 <h4 class="font-medium text-gray-700 mb-2" th:text="${category.displayName}">Danh mục</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                                     <div th:each="service : ${servicesByCategory.get(category)}"
                                          th:attr="data-time-slot=${service.timeSlot != null ? service.timeSlot.name : 'all'}"
-                                         class="flex items-center p-2 border rounded hover:bg-blue-50 transition-colors service-item">
+                                         class="flex items-center p-1 border rounded hover:bg-blue-50 transition-colors service-item">
                                         <input type="checkbox"
                                                th:id="${'service-' + service.id}"
                                                name="additionalServices"
@@ -616,16 +619,27 @@
                             <div th:if="${servicesByCategory.isEmpty()}" class="text-center py-4 text-gray-500">
                                 <p>Hiện tại không có dịch vụ bổ sung nào cho homestay này</p>
                             </div>
+
+                            <!-- Debug info -->
+                            <div class="mt-4 p-2 bg-gray-100 rounded text-xs" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                                <div>Số dịch vụ: <span th:text="${additionalServices.size()}">0</span></div>
+                                <div>Số danh mục: <span th:text="${servicesByCategory.size()}">0</span></div>
+                                <div th:each="cat : ${servicesByCategory.keySet()}">
+                                    Danh mục: <span th:text="${cat.displayName}">-</span>,
+                                    ID: <span th:text="${cat.id}">-</span>,
+                                    Số dịch vụ: <span th:text="${servicesByCategory.get(cat).size()}">0</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="specialRequests">Yêu cầu đặc biệt</label>
-                        <textarea id="specialRequests" name="specialRequests" rows="3"
+                        <textarea id="specialRequests" name="specialRequests" rows="2"
                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                   placeholder="Ví dụ: Tôi cần giường phụ..."></textarea>
                     </div>
-                    <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <div class="bg-blue-50 p-3 rounded-lg mb-3">
                         <!-- Thông báo lỗi -->
                         <div id="bookingError" class="hidden">
                         </div>
@@ -635,28 +649,44 @@
                         </div>
 
                         <!-- Thông báo ngày không hợp lệ -->
-                        <div id="invalidDates" class="hidden mb-3 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+                        <div id="invalidDates" class="hidden mb-2 p-1 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded text-sm">
                             Ngày trả phòng phải sau ngày nhận phòng
                         </div>
 
                         <!-- Chi tiết giá -->
-                        <div id="priceDetails" class="hidden space-y-2 mb-3">
+                        <div id="priceDetails" class="hidden space-y-1 mb-2">
+                            <!-- Giá homestay -->
                             <div class="flex justify-between items-center text-sm">
                                 <span class="text-gray-600"><span id="nightsCount">0</span> đêm x <span id="pricePerNight">0 VND</span></span>
                                 <span class="text-gray-800" id="subtotal">0 VND</span>
                             </div>
+
+                            <!-- Tổng dịch vụ bổ sung -->
+                            <div id="additionalServicesTotalDetails" class="hidden">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Tổng dịch vụ bổ sung</span>
+                                    <span class="text-gray-800" id="additionalServicesTotal">0 VND</span>
+                                </div>
+                            </div>
+
+                            <!-- Đã ẩn các phần hiển thị chi tiết theo loại dịch vụ để tránh lặp lại thông tin -->
+                            <!-- Thông tin chi tiết sẽ được hiển thị ở phần "Chi tiết dịch vụ bổ sung" phía dưới -->
+
+                            <!-- Phí dịch vụ -->
                             <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-600">Phí dịch vụ</span>
+                                <span class="text-gray-600">Phí dịch vụ (20%)</span>
                                 <span class="text-gray-800" id="serviceFee">0 VND</span>
                             </div>
+
+                            <!-- Chi tiết dịch vụ -->
                             <div id="additionalServicesDetails" class="hidden">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-600">Dịch vụ bổ sung</span>
-                                    <span class="text-gray-800" id="additionalServicesTotal">0 VND</span>
+                                <div class="flex justify-between items-center text-sm font-medium">
+                                    <span class="text-gray-600">Chi tiết dịch vụ bổ sung:</span>
                                 </div>
                                 <div id="additionalServicesList" class="text-xs text-gray-500 ml-4 mt-1"></div>
                             </div>
-                            <div class="border-t border-gray-200 my-2 pt-2"></div>
+
+                            <div class="border-t border-gray-200 my-1 pt-1"></div>
                         </div>
 
                         <div class="flex justify-between items-center">
@@ -666,14 +696,14 @@
                     </div>
                 </form>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse modal-footer" style="position: sticky; bottom: 0; z-index: 10;">
                 <button type="button" id="bookingSubmitBtn" onclick="submitBooking()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200">
-                    <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt phòng
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200" style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">
+                    <i class="fas fa-calendar-check mr-2"></i> Đặt ngay
                 </button>
                 <button type="button" onclick="closeBookingModal()"
                         class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Hủy
+                    <i class="fas fa-times-circle mr-2"></i> Hủy
                 </button>
             </div>
         </div>
@@ -839,11 +869,10 @@
             const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
             const subtotal = nights * pricePerNight;
 
-            // Tính phí dịch vụ 20% của tổng tiền phòng
-            const serviceFee = subtotal * 0.2;
-
             // Tính tổng tiền dịch vụ bổ sung
-            let additionalServicesTotal = 0;
+            let foodServicesTotal = 0;  // Tổng giá dịch vụ đồ ăn
+            let drinkServicesTotal = 0;  // Tổng giá dịch vụ đồ uống
+            let otherServicesTotal = 0;  // Tổng giá các dịch vụ khác
             const additionalServicesList = document.getElementById('additionalServicesList');
             additionalServicesList.innerHTML = '';
 
@@ -860,9 +889,11 @@
 
                     // Tính giá dựa trên loại dịch vụ
                     let serviceTotal = price;
+                    const isFood = category === 'Bữa ăn';
+                    const isDrink = category === 'Đồ uống';
 
-                    // Nếu là bữa ăn, tính theo số người
-                    if (category === 'Bữa ăn') {
+                    // Nếu là bữa ăn hoặc đồ uống, tính theo số người
+                    if (isFood || isDrink) {
                         serviceTotal = price * guests;
                     }
 
@@ -871,7 +902,17 @@
                         serviceTotal = price * nights;
                     }
 
-                    additionalServicesTotal += serviceTotal;
+                    // Phân loại dịch vụ để tính tổng
+                    if (isFood) {
+                        foodServicesTotal += serviceTotal;
+                    } else if (isDrink) {
+                        drinkServicesTotal += serviceTotal;
+                    } else {
+                        otherServicesTotal += serviceTotal;
+                    }
+
+                    // Log thông tin dịch vụ để debug
+                    console.log('Service:', name, 'Category:', category, 'Price:', serviceTotal);
 
                     // Hiển thị chi tiết từng dịch vụ với khung giờ
                     const serviceItem = document.createElement('div');
@@ -895,17 +936,30 @@
 
                     additionalServicesList.appendChild(serviceItem);
                 });
-
-                document.getElementById('additionalServicesTotal').textContent = new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND'
-                }).format(additionalServicesTotal);
             } else {
                 document.getElementById('additionalServicesDetails').classList.add('hidden');
             }
 
-            // Tổng tiền = tiền phòng + phí dịch vụ 20% + dịch vụ bổ sung
-            const total = subtotal + serviceFee + additionalServicesTotal;
+            // Tính tổng giá dịch vụ bổ sung
+            const additionalServicesTotal = foodServicesTotal + drinkServicesTotal + otherServicesTotal;
+
+            // Tính tổng giá trị dịch vụ (homestay + đồ ăn + đồ uống + dịch vụ khác)
+            const serviceSubtotal = subtotal + additionalServicesTotal;
+
+            // Tính phí dịch vụ 20% cho tất cả dịch vụ
+            const serviceFee = serviceSubtotal * 0.2;
+
+            // Tổng tiền = tổng giá trị dịch vụ + phí dịch vụ 20%
+            const total = serviceSubtotal + serviceFee;
+
+            console.log('Subtotal:', subtotal);
+            console.log('Food Services Total:', foodServicesTotal);
+            console.log('Drink Services Total:', drinkServicesTotal);
+            console.log('Other Services Total:', otherServicesTotal);
+            console.log('Additional Services Total:', additionalServicesTotal);
+            console.log('Service Subtotal:', serviceSubtotal);
+            console.log('Service Fee:', serviceFee);
+            console.log('Total:', total);
 
             // Hiển thị chi tiết giá
             document.getElementById('nightsCount').textContent = nights;
@@ -919,10 +973,30 @@
                 currency: 'VND'
             }).format(subtotal);
 
+            // Hiển thị phí dịch vụ 20%
             document.getElementById('serviceFee').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
             }).format(serviceFee);
+
+            // Hiển thị tổng dịch vụ bổ sung nếu có
+            if (additionalServicesTotal > 0) {
+                document.getElementById('additionalServicesTotalDetails').classList.remove('hidden');
+                document.getElementById('additionalServicesTotal').textContent = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(additionalServicesTotal);
+
+                // Hiển thị chi tiết dịch vụ bổ sung
+                document.getElementById('additionalServicesDetails').classList.remove('hidden');
+
+                // Đã ẩn các phần hiển thị chi tiết theo loại dịch vụ để tránh lặp lại thông tin
+                // Các biến vẫn được tính toán để sử dụng cho tổng giá trị
+            } else {
+                document.getElementById('additionalServicesTotalDetails').classList.add('hidden');
+                // Đã ẩn các phần hiển thị chi tiết theo loại dịch vụ
+                document.getElementById('additionalServicesDetails').classList.add('hidden');
+            }
 
             document.getElementById('totalPrice').textContent = new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
@@ -943,10 +1017,67 @@
         }
     }
 
+    // Thiết lập ngày mặc định và giới hạn ngày có thể chọn
+    function setupDatePickers() {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dayAfterTomorrow = new Date(today);
+        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+
+        // Format dates for input[type="date"]
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const checkInInput = document.getElementById('checkInDate');
+        const checkOutInput = document.getElementById('checkOutDate');
+
+        // Set min date to today
+        const todayFormatted = formatDate(today);
+        checkInInput.min = todayFormatted;
+
+        // Set default check-in date to tomorrow
+        const tomorrowFormatted = formatDate(tomorrow);
+        checkInInput.value = tomorrowFormatted;
+
+        // Set default check-out date to day after tomorrow
+        const dayAfterTomorrowFormatted = formatDate(dayAfterTomorrow);
+        checkOutInput.value = dayAfterTomorrowFormatted;
+
+        // Update min date for check-out when check-in changes
+        checkInInput.addEventListener('change', function() {
+            const newCheckInDate = new Date(this.value);
+            const newMinCheckOutDate = new Date(newCheckInDate);
+            newMinCheckOutDate.setDate(newMinCheckOutDate.getDate() + 1);
+
+            checkOutInput.min = formatDate(newMinCheckOutDate);
+
+            // If current check-out date is before new min date, update it
+            const currentCheckOutDate = new Date(checkOutInput.value);
+            if (currentCheckOutDate <= newCheckInDate) {
+                checkOutInput.value = formatDate(newMinCheckOutDate);
+            }
+
+            calculateTotal();
+        });
+
+        // Event listener for check-out date change
+        checkOutInput.addEventListener('change', calculateTotal);
+
+        // Calculate total initially
+        calculateTotal();
+    }
+
+    // Call setup function when document is loaded
+    document.addEventListener('DOMContentLoaded', setupDatePickers);
+
     // Event listeners for date changes
     document.getElementById('checkInDate').addEventListener('change', calculateTotal);
     document.getElementById('checkOutDate').addEventListener('change', calculateTotal);
-    document.getElementById('guests').addEventListener('change', calculateTotal);
 
     // Event listeners for additional services
     document.querySelectorAll('.additional-service').forEach(checkbox => {
@@ -969,12 +1100,8 @@
         document.querySelectorAll('.additional-service:checked').forEach(checkbox => {
             selectedServices.push({
                 id: parseInt(checkbox.value),
-                name: checkbox.getAttribute('data-name'),
-                category: checkbox.getAttribute('data-category'),
-                price: parseFloat(checkbox.getAttribute('data-price')),
-                quantity: 1,
-                categoryId: null,  // Sẽ được xử lý ở server
-                timeSlotId: null   // Sẽ được xử lý ở server
+                quantity: 1
+                // Chỉ gửi id và quantity, các thông tin khác sẽ được lấy từ database
             });
         });
 
@@ -982,7 +1109,7 @@
             homestayId: document.getElementById('homestayId').value,
             checkInDate: document.getElementById('checkInDate').value,
             checkOutDate: document.getElementById('checkOutDate').value,
-            guests: document.getElementById('guests').value,
+            guests: document.getElementById('guests').value || 1, // Mặc định là 1 nếu không có giá trị
             specialRequests: document.getElementById('specialRequests').value,
             additionalServices: selectedServices
         };
@@ -1015,6 +1142,8 @@
                     // Nếu không parse được JSON, trả về lỗi mặc định
                     throw new Error('Có lỗi xảy ra khi đặt phòng: ' + response.status + ' ' + response.statusText);
                 }).then(data => {
+                    // Hiển thị thông báo lỗi chi tiết hơn
+                    console.error('Lỗi đặt phòng:', data);
                     throw new Error(data.message || 'Có lỗi xảy ra khi đặt phòng');
                 });
             })
@@ -1828,6 +1957,10 @@
 
         // Hàm lọc dịch vụ theo khung giờ
         function filterServicesByTimeSlot(timeSlot) {
+            console.log('Lọc dịch vụ theo khung giờ:', timeSlot);
+            console.log('Số danh mục:', serviceCategories.length);
+            console.log('Số dịch vụ:', serviceItems.length);
+
             // Ẩn tất cả các danh mục trước
             serviceCategories.forEach(category => {
                 category.style.display = 'none';
@@ -1840,7 +1973,11 @@
             serviceItems.forEach(item => {
                 const itemTimeSlot = item.getAttribute('data-time-slot');
                 const categoryElement = item.closest('.service-category');
-                const categoryId = categoryElement ? categoryElement.getAttribute('id') : null;
+                const categoryId = categoryElement ? categoryElement.id : null;
+
+                console.log('Dịch vụ:', item.querySelector('label div').textContent,
+                          'Khung giờ:', itemTimeSlot,
+                          'Danh mục ID:', categoryId);
 
                 if (timeSlot === 'all' || itemTimeSlot === timeSlot || itemTimeSlot === 'all') {
                     item.style.display = 'flex';
@@ -1854,9 +1991,14 @@
                 }
             });
 
+            console.log('Dịch vụ hiển thị theo danh mục:', visibleServicesInCategory);
+
             // Hiển thị các danh mục có ít nhất một dịch vụ hiển thị
             serviceCategories.forEach(category => {
-                const categoryId = category.getAttribute('id');
+                const categoryId = category.id;
+                console.log('Kiểm tra danh mục:', categoryId,
+                          'Số dịch vụ hiển thị:', visibleServicesInCategory[categoryId] || 0);
+
                 if (visibleServicesInCategory[categoryId] > 0) {
                     category.style.display = 'block';
                 }
@@ -1889,7 +2031,7 @@
         document.querySelectorAll('.additional-service').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 // Cập nhật thông tin khung giờ trong tổng tiền
-                updateTotalPrice();
+                calculateTotal(); // Sử dụng hàm calculateTotal thay vì updateTotalPrice
             });
         });
     });

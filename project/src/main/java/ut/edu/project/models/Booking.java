@@ -70,6 +70,10 @@ public class Booking {
     private Payment payment;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    private List<BookingAdditional> bookingAdditionals = new ArrayList<>();
+
+    // Danh sách dịch vụ bổ sung - chỉ để hiển thị, không lưu vào database
+    @Transient
     private List<Additional> additionalServices = new ArrayList<>();
 
     @Column(name = "special_requests", columnDefinition = "TEXT")
@@ -143,14 +147,15 @@ public class Booking {
         return status == BookingStatus.PAID || status == BookingStatus.COMPLETED;
     }
 
+    // Phương thức mới để thêm dịch vụ bổ sung vào danh sách hiển thị
     public void addAdditionalService(Additional service) {
         additionalServices.add(service);
-        service.setBooking(this);
+        // Không còn gọi service.setBooking(this) nữa vì đã xóa mối quan hệ trực tiếp
     }
 
     public void removeAdditionalService(Additional service) {
         additionalServices.remove(service);
-        service.setBooking(null);
+        // Không còn gọi service.setBooking(null) nữa vì đã xóa mối quan hệ trực tiếp
     }
 
     public void setCancelled(boolean cancelled) {

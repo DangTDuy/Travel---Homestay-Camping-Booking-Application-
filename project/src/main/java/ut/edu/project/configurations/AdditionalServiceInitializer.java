@@ -39,14 +39,18 @@ public class AdditionalServiceInitializer {
         return args -> {
             // Kiểm tra xem đã có dịch vụ bổ sung chưa
             if (additionalRepository.count() > 0) {
-                return; // Đã có dịch vụ bổ sung, không cần tạo mới
+                // Đã có dịch vụ bổ sung, nhưng vẫn tạo dịch vụ chung nếu chưa có
+                if (additionalRepository.findByHomestayIsNull().isEmpty()) {
+                    createCommonServices();
+                }
+                return;
             }
 
             // Lấy danh sách homestay
             List<Homestay> homestays = homestayRepository.findAll();
-            if (homestays.isEmpty()) {
-                return; // Không có homestay, không thể tạo dịch vụ bổ sung
-            }
+
+            // Tạo các dịch vụ chung (không gắn với homestay cụ thể)
+            createCommonServices();
 
             // Lấy các danh mục
             Category foodCategory = categoryRepository.findByName("food");
@@ -159,6 +163,105 @@ public class AdditionalServiceInitializer {
                 );
             }
         };
+    }
+
+    /**
+     * Tạo các dịch vụ chung không gắn với homestay cụ thể
+     */
+    private void createCommonServices() {
+        // Lấy các danh mục
+        Category foodCategory = categoryRepository.findByName("food");
+        Category drinkCategory = categoryRepository.findByName("drink");
+        Category serviceCategory = categoryRepository.findByName("service");
+        Category entertainmentCategory = categoryRepository.findByName("entertainment");
+
+        // Lấy các khung giờ
+        TimeSlot allDaySlot = timeSlotRepository.findByName("all");
+        TimeSlot morningSlot = timeSlotRepository.findByName("morning");
+        TimeSlot noonSlot = timeSlotRepository.findByName("noon");
+        TimeSlot afternoonSlot = timeSlotRepository.findByName("afternoon");
+        TimeSlot eveningSlot = timeSlotRepository.findByName("evening");
+
+        // Dịch vụ đồ ăn chung
+        createAdditionalService(
+            "Bữa sáng quốc tế",
+            "Bữa sáng phong cách quốc tế với trứng, thịt xông khói, salad, bánh mì",
+            new BigDecimal("120000"),
+            morningSlot,
+            foodCategory,
+            null,
+            LocalTime.of(6, 0),
+            LocalTime.of(10, 0)
+        );
+
+        createAdditionalService(
+            "Bữa trưa set menu",
+            "Bữa trưa với các món ăn được chế biến từ nguyên liệu tươi sạch",
+            new BigDecimal("150000"),
+            noonSlot,
+            foodCategory,
+            null,
+            LocalTime.of(11, 0),
+            LocalTime.of(14, 0)
+        );
+
+        // Dịch vụ đồ uống chung
+        createAdditionalService(
+            "Nước uống không giới hạn",
+            "Nước lọc, nước ngọt, trà đá, cà phê không giới hạn cả ngày",
+            new BigDecimal("80000"),
+            allDaySlot,
+            drinkCategory,
+            null,
+            LocalTime.of(6, 0),
+            LocalTime.of(22, 0)
+        );
+
+        // Dịch vụ giải trí chung
+        createAdditionalService(
+            "Tour tham quan thành phố buổi sáng",
+            "Tour tham quan các điểm du lịch nổi tiếng trong thành phố (4 giờ)",
+            new BigDecimal("300000"),
+            morningSlot,
+            entertainmentCategory,
+            null,
+            LocalTime.of(8, 0),
+            LocalTime.of(12, 0)
+        );
+
+        createAdditionalService(
+            "Tour tham quan thành phố buổi chiều",
+            "Tour tham quan các điểm du lịch nổi tiếng trong thành phố (4 giờ)",
+            new BigDecimal("300000"),
+            afternoonSlot,
+            entertainmentCategory,
+            null,
+            LocalTime.of(14, 0),
+            LocalTime.of(18, 0)
+        );
+
+        createAdditionalService(
+            "Tour đêm thành phố",
+            "Khám phá thành phố về đêm với các điểm tham quan đẹp nhất",
+            new BigDecimal("350000"),
+            eveningSlot,
+            entertainmentCategory,
+            null,
+            LocalTime.of(19, 0),
+            LocalTime.of(22, 0)
+        );
+
+        // Dịch vụ tiện ích chung
+        createAdditionalService(
+            "Dịch vụ giặt ủi",
+            "Dịch vụ giặt ủi quần áo trong ngày",
+            new BigDecimal("100000"),
+            allDaySlot,
+            serviceCategory,
+            null,
+            LocalTime.of(8, 0),
+            LocalTime.of(17, 0)
+        );
     }
 
     private void createAdditionalService(

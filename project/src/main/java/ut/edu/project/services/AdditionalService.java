@@ -6,6 +6,7 @@ import ut.edu.project.models.Additional;
 import ut.edu.project.repositories.AdditionalRepository;
 import ut.edu.project.dtos.AdditionalDTO;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import ut.edu.project.models.Homestay;
 import ut.edu.project.models.Category;
@@ -24,8 +25,22 @@ public class AdditionalService {
     @Autowired
     private TimeSlotRepository timeSlotRepository;
 
+    /**
+     * Lấy tất cả dịch vụ bổ sung
+     * @return Danh sách tất cả dịch vụ bổ sung
+     */
     public List<AdditionalDTO> getAllAdditionals() {
         return additionalRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy các dịch vụ bổ sung chung (không gắn với homestay cụ thể)
+     * @return Danh sách dịch vụ bổ sung chung
+     */
+    public List<AdditionalDTO> getCommonAdditionals() {
+        return additionalRepository.findByHomestayIsNull().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -52,17 +67,66 @@ public class AdditionalService {
         additionalRepository.deleteById(id);
     }
 
+    /**
+     * Lấy danh sách dịch vụ bổ sung cho homestay, bao gồm cả dịch vụ chung
+     * @param homestay Homestay cần lấy dịch vụ
+     * @return Danh sách dịch vụ bổ sung
+     */
     public List<Additional> getByHomestay(Homestay homestay) {
-        return additionalRepository.findByHomestay(homestay);
+        // Lấy dịch vụ riêng của homestay
+        List<Additional> homestayServices = additionalRepository.findByHomestay(homestay);
+
+        // Lấy dịch vụ chung (không gắn với homestay cụ thể)
+        List<Additional> commonServices = additionalRepository.findByHomestayIsNull();
+
+        // Kết hợp cả hai danh sách
+        List<Additional> allServices = new ArrayList<>();
+        allServices.addAll(homestayServices);
+        allServices.addAll(commonServices);
+
+        return allServices;
     }
 
     /**
-     * Lấy danh sách dịch vụ bổ sung theo homestay ID
+     * Lấy danh sách dịch vụ bổ sung theo homestay ID, bao gồm cả dịch vụ chung
      * @param homestayId ID của homestay
-     * @return Danh sách dịch vụ bổ sung
+     * @return Danh sách dịch vụ bổ sung dưới dạng DTO
      */
-    public List<Additional> getAdditionalsByHomestayId(Long homestayId) {
-        return additionalRepository.findByHomestayId(homestayId);
+    public List<AdditionalDTO> getAdditionalsByHomestayId(Long homestayId) {
+        // Lấy dịch vụ riêng của homestay
+        List<AdditionalDTO> homestayServices = additionalRepository.findByHomestayId(homestayId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Lấy dịch vụ chung (không gắn với homestay cụ thể)
+        List<AdditionalDTO> commonServices = getCommonAdditionals();
+
+        // Tạo một danh sách mới để lưu tất cả dịch vụ
+        List<AdditionalDTO> allServices = new ArrayList<>();
+
+        // Thêm dịch vụ riêng của homestay
+        allServices.addAll(homestayServices);
+
+        // Thêm dịch vụ chung, loại bỏ các dịch vụ trùng lặp
+        for (AdditionalDTO commonService : commonServices) {
+            // Kiểm tra xem dịch vụ chung đã có trong danh sách dịch vụ riêng của homestay chưa
+            boolean isDuplicate = false;
+            for (AdditionalDTO homestayService : homestayServices) {
+                if (commonService.getName().equals(homestayService.getName()) &&
+                    (commonService.getCategory() == null || homestayService.getCategory() == null ||
+                     commonService.getCategory().getId().equals(homestayService.getCategory().getId()))) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            // Nếu không trùng lặp, thêm vào danh sách
+            if (!isDuplicate) {
+                allServices.add(commonService);
+            }
+        }
+
+        return allServices;
     }
 
     public List<Additional> getByIds(List<Long> ids) {
@@ -171,4 +235,4 @@ public class AdditionalService {
         return timeSlotRepository.findById(id)
                 .orElseGet(this::getDefaultTimeSlot);
     }
-} 
+}

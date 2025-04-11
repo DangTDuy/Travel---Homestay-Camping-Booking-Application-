@@ -43,6 +43,15 @@ public class BookingApiController {
         }
 
         try {
+            // Log request data for debugging
+            System.out.println("Booking request received: " + bookingRequest);
+            if (bookingRequest.getAdditionalServices() != null) {
+                System.out.println("Additional services count: " + bookingRequest.getAdditionalServices().size());
+                for (AdditionalDTO service : bookingRequest.getAdditionalServices()) {
+                    System.out.println("Service ID: " + service.getId() + ", Quantity: " + service.getQuantity());
+                }
+            }
+
             String username = authentication.getName();
             Booking createdBooking = bookingService.createBookingFromApi(bookingRequest, username);
 
@@ -51,11 +60,12 @@ public class BookingApiController {
             return ResponseEntity.ok(responseDto);
 
         } catch (IllegalArgumentException e) {
+            System.err.println("Validation error: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
             System.err.println("Error creating booking: " + e.getMessage());
             // Log stack trace for better debugging of unexpected errors
-            // e.printStackTrace();
+            e.printStackTrace();
             if (e.getMessage().contains("not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
             }
@@ -136,5 +146,31 @@ public class BookingApiController {
         Optional<Booking> booking = bookingService.getBookingById(id);
         return booking.map(b -> ResponseEntity.ok(new BookingResponseDTO(b)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Endpoint for getting bookings by homestay ID
+    @GetMapping("/homestays/{homestayId}/bookings")
+    public ResponseEntity<?> getBookingsByHomestayId(@PathVariable Long homestayId) {
+        try {
+            List<Booking> bookings = bookingService.getBookingsByHomestayId(homestayId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (Booking booking : bookings) {
+                if (booking.getStatus() != Booking.BookingStatus.CANCELLED) {
+                    Map<String, Object> bookingInfo = Map.of(
+                        "id", booking.getId(),
+                        "checkIn", booking.getCheckIn().toString(),
+                        "checkOut", booking.getCheckOut().toString(),
+                        "status", booking.getStatus().toString()
+                    );
+                    result.add(bookingInfo);
+                }
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Lỗi khi lấy danh sách đặt phòng: " + e.getMessage()));
+        }
     }
 }
