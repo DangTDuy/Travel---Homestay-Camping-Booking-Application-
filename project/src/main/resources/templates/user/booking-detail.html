@@ -74,6 +74,19 @@
                 </div>
 
                 <div class="bg-blue-50 p-5 rounded-lg border border-blue-100 mb-6">
+                    <!-- Thông tin người đặt -->
+                    <div class="bg-white p-4 rounded-lg border border-blue-100 mb-4">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 rounded-full p-2 mr-3">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-blue-700 uppercase font-medium">Người đặt</p>
+                                <p class="text-lg font-bold text-gray-800 mt-1" th:text="${booking?.user?.hoTen ?: booking?.user?.username}">Nguyễn Văn A</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <!-- ID Đặt phòng và Trạng thái -->
                         <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100">
