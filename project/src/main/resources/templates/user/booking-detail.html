@@ -173,26 +173,6 @@
                             <span class="text-lg font-bold text-blue-700" th:with="homestayPrice=${booking.homestay.price * T(java.time.temporal.ChronoUnit).DAYS.between(booking.checkIn.toLocalDate(), booking.checkOut.toLocalDate())}"
                                   th:text="${#numbers.formatCurrency(homestayPrice)}">500,000 đ</span>
                         </div>
-
-                        <div class="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
-                            <span class="text-gray-700">Phí dịch vụ homestay (20%)</span>
-                            <span class="font-medium text-gray-800" th:with="homestayPrice=${booking.homestay.price * T(java.time.temporal.ChronoUnit).DAYS.between(booking.checkIn.toLocalDate(), booking.checkOut.toLocalDate())}"
-                                  th:text="${#numbers.formatCurrency(homestayPrice * 0.2)}">100,000 đ</span>
-                        </div>
-                    </div>
-
-                    <!-- Trạng thái thanh toán -->
-                    <div class="p-4 bg-white border-b border-blue-100">
-                        <div class="flex justify-between items-center">
-                            <p class="text-sm text-blue-700 uppercase font-medium">Trạng thái thanh toán</p>
-                            <span>
-                                <!-- Check status first for REFUNDED -->
-                                <span th:if="${booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
-                                <!-- Then check isPaid() -->
-                                <span th:if="${booking?.isPaid() and booking?.status != T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
-                                <span th:unless="${booking?.isPaid() or booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
-                            </span>
-                        </div>
                     </div>
 
                     <!-- Dịch vụ bổ sung -->
@@ -228,6 +208,29 @@
                         <div class="flex items-center">
                             <i class="fas fa-concierge-bell text-gray-400 mr-2"></i>
                             <span class="text-sm text-gray-500 italic">(Không có dịch vụ bổ sung nào được đặt)</span>
+                        </div>
+                    </div>
+
+                    <!-- Phí dịch vụ homestay -->
+                    <div class="p-3 bg-white border-b border-blue-100">
+                        <div class="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
+                            <span class="text-gray-700">Phí dịch vụ homestay (20%)</span>
+                            <span class="font-medium text-gray-800" th:with="homestayPrice=${booking.homestay.price * T(java.time.temporal.ChronoUnit).DAYS.between(booking.checkIn.toLocalDate(), booking.checkOut.toLocalDate())}"
+                                  th:text="${#numbers.formatCurrency(homestayPrice * 0.2)}">100,000 đ</span>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái thanh toán -->
+                    <div class="p-4 bg-white border-b border-blue-100">
+                        <div class="flex justify-between items-center">
+                            <p class="text-sm text-blue-700 uppercase font-medium">Trạng thái thanh toán</p>
+                            <span>
+                                <!-- Check status first for REFUNDED -->
+                                <span th:if="${booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
+                                <!-- Then check isPaid() -->
+                                <span th:if="${booking?.isPaid() and booking?.status != T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+                                <span th:unless="${booking?.isPaid() or booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
+                            </span>
                         </div>
                     </div>
 
@@ -320,7 +323,7 @@
                         <!-- Hủy đặt phòng -->
                         <div th:if="${booking.canCancel()}">
                             <button type="button" onclick="openCancelModal()"
-                               class="w-full flex justify-center items-center px-5 py-3 border border-red-200 rounded-lg shadow-md text-base font-medium text-red-600 bg-white hover:bg-red-50 transition-all duration-300">
+                                    class="w-full flex justify-center items-center px-5 py-3 border border-red-200 rounded-lg shadow-md text-base font-medium text-red-600 bg-white hover:bg-red-50 transition-all duration-300">
                                 <i class="fas fa-times-circle mr-2"></i> Hủy đặt chỗ
                             </button>
                         </div>

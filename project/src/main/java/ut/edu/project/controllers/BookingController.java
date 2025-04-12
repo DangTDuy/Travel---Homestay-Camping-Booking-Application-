@@ -93,8 +93,8 @@ public class BookingController {
             System.out.println("Additional Services Size: " + booking.getAdditionalServices().size());
             for (Additional service : booking.getAdditionalServices()) {
                 System.out.println("Service: " + service.getName() + ", Category: " +
-                    (service.getCategory() != null ? service.getCategory().getName() : "null") +
-                    ", TimeSlot: " + (service.getTimeSlot() != null ? service.getTimeSlot().getName() : "null"));
+                        (service.getCategory() != null ? service.getCategory().getName() : "null") +
+                        ", TimeSlot: " + (service.getTimeSlot() != null ? service.getTimeSlot().getName() : "null"));
             }
 
             model.addAttribute("booking", booking);

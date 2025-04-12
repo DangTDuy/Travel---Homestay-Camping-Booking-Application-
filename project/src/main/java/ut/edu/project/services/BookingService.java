@@ -395,8 +395,8 @@ public class BookingService {
                 bookingAdditionalRepository.save(bookingAdditional);
 
                 System.out.println("Created booking-additional link: Booking ID=" + newBooking.getId() +
-                    ", Additional ID=" + additionalDTO.getId() +
-                    ", Quantity=" + additionalDTO.getQuantity());
+                        ", Additional ID=" + additionalDTO.getId() +
+                        ", Quantity=" + additionalDTO.getQuantity());
             }
         }
 
