@@ -125,7 +125,7 @@
                             <p class="text-xs text-blue-700 uppercase font-medium">Trả phòng</p>
                             <p class="text-base font-semibold text-gray-800 mt-1" th:text="${booking?.checkOut != null ? #temporals.format(booking.checkOut, 'dd/MM/yyyy HH:mm') : 'N/A'}">12/04/2025 12:00</p>
                         </div>
-                        <div th:if="${booking?.serviceType == T(ut.edu.project.models.Booking.ServiceType).HOMESTAY}">
+                        <div th:if="${booking?.serviceType != null && booking?.serviceType.name() == 'HOMESTAY'}">
                             <p class="text-xs text-blue-700 uppercase font-medium">Thời gian lưu trú</p>
                             <p class="text-base font-semibold text-gray-800 mt-1" th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(booking.checkIn.toLocalDate(), booking.checkOut.toLocalDate()) + ' đêm'}">1 đêm</p>
                         </div>
@@ -226,10 +226,10 @@
                             <p class="text-sm text-blue-700 uppercase font-medium">Trạng thái thanh toán</p>
                             <span>
                                 <!-- Check status first for REFUNDED -->
-                                <span th:if="${booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
+                                <span th:if="${booking?.status != null && booking?.status.name() == 'REFUNDED'}" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"><i class="fas fa-undo mr-1"></i>Đã hoàn tiền</span>
                                 <!-- Then check isPaid() -->
-                                <span th:if="${booking?.isPaid() and booking?.status != T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
-                                <span th:unless="${booking?.isPaid() or booking?.status == T(ut.edu.project.models.Booking.BookingStatus).REFUNDED}" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
+                                <span th:if="${booking?.isPaid() and (booking?.status == null || booking?.status.name() != 'REFUNDED')}" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+                                <span th:unless="${booking?.isPaid() or (booking?.status != null && booking?.status.name() == 'REFUNDED')}" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm"><i class="fas fa-clock mr-1"></i>Chưa thanh toán</span>
                             </span>
                         </div>
                     </div>
@@ -276,7 +276,7 @@
                     </div>
 
                     <!-- QR Code thanh toán nếu chưa thanh toán -->
-                    <div th:if="${!booking.isPaid() and T(ut.edu.project.models.Booking.BookingStatus).PENDING == booking.status}" class="mb-6">
+                    <div th:if="${!booking.isPaid() and booking?.status != null and booking.status.name() == 'PENDING'}" class="mb-6">
                         <h4 class="text-center text-blue-700 font-medium mb-3">Thanh toán qua mã QR</h4>
 
                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 text-center">
@@ -313,7 +313,7 @@
                     <!-- Các nút thao tác -->
                     <div class="grid grid-cols-1 gap-4 mt-6">
                         <!-- Thanh toán nếu đang chờ -->
-                        <div th:if="${!booking.isPaid() and T(ut.edu.project.models.Booking.BookingStatus).PENDING == booking.status}">
+                        <div th:if="${!booking.isPaid() and booking?.status != null and booking.status.name() == 'PENDING'}">
                             <a th:href="@{/payment/process/{bookingId}(bookingId=${booking.id})}"
                                class="w-full flex justify-center items-center px-5 py-3 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-all duration-300 transform hover:scale-105">
                                 <i class="fas fa-credit-card mr-2"></i> Thanh toán ngay

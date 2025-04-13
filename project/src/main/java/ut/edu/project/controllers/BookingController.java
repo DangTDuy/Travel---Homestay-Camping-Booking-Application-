@@ -60,7 +60,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public String showBookingDetails(@PathVariable Long id, Model model, Principal principal) {
+    public String showBookingDetails(@PathVariable("id") Long id, Model model, Principal principal) {
         try {
             Optional<Booking> bookingOpt = bookingService.getBookingById(id);
             if (bookingOpt.isEmpty()) {
@@ -157,7 +157,7 @@ public class BookingController {
     }
 
     @GetMapping("/homestay/{homestayId}/book")
-    public String showHomestayBookingForm(@PathVariable Long homestayId, Model model, Principal principal) {
+    public String showHomestayBookingForm(@PathVariable("homestayId") Long homestayId, Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/auth/login-user";
         }
@@ -178,7 +178,7 @@ public class BookingController {
 
     @PostMapping("/homestay/{homestayId}/book")
     public String createHomestayBooking(
-            @PathVariable Long homestayId,
+            @PathVariable("homestayId") Long homestayId,
             @Valid @ModelAttribute Booking booking,
             BindingResult result,
             @RequestParam(required = false) List<Long> additionalIds,
@@ -255,7 +255,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}/cancel")
-    public String cancelBooking(@PathVariable Long id, Principal principal, Model model) {
+    public String cancelBooking(@PathVariable("id") Long id, Principal principal, Model model) {
         String username = principal.getName(); // Get username early
         try {
             bookingService.cancelBooking(id, username);
@@ -274,7 +274,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}/payment")
-    public String showPaymentPage(@PathVariable Long id, Model model, Principal principal) {
+    public String showPaymentPage(@PathVariable("id") Long id, Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/auth/login-user";
         }

@@ -28,7 +28,7 @@ public class TravelController {
 
     // Add new method for travel details
     @GetMapping("/{id}")
-    public String getTravelById(@PathVariable Long id, Model model) {
+    public String getTravelById(@PathVariable("id") Long id, Model model) {
         Travel travel = travelService.getTravelById(id)
                 .orElseThrow(() -> new RuntimeException("Travel not found with id: " + id)); // Or handle appropriately
         model.addAttribute("travel", travel);

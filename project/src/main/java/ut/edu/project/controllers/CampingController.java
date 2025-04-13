@@ -65,7 +65,7 @@ public class CampingController {
     // Lấy thông tin khu cắm trại theo ID qua API
     @GetMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<Camping> getCampingById(@PathVariable Long id) {
+    public ResponseEntity<Camping> getCampingById(@PathVariable("id") Long id) {
         Optional<Camping> camping = campingService.getCampingById(id);
         return camping.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -80,7 +80,7 @@ public class CampingController {
     // Cập nhật khu cắm trại qua API
     @PutMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<Camping> updateCamping(@PathVariable Long id, @RequestBody Camping campingDetails) {
+    public ResponseEntity<Camping> updateCamping(@PathVariable("id") Long id, @RequestBody Camping campingDetails) {
         Camping updatedCamping = campingService.updateCamping(id, campingDetails);
         return updatedCamping != null ? ResponseEntity.ok(updatedCamping) : ResponseEntity.notFound().build();
     }
@@ -88,7 +88,7 @@ public class CampingController {
     // Xóa khu cắm trại qua API
     @DeleteMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<Void> deleteCamping(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCamping(@PathVariable("id") Long id) {
         campingService.deleteCamping(id);
         return ResponseEntity.noContent().build();
     }
@@ -96,7 +96,7 @@ public class CampingController {
     // Đặt chỗ khu cắm trại
     @PostMapping("/book/{id}")
     public String bookCamping(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam String startDate,
             @RequestParam String endDate,
             @RequestParam int numberOfPeople,
@@ -114,7 +114,7 @@ public class CampingController {
     // Hủy đặt chỗ khu cắm trại
     @PostMapping("/cancel/{id}")
     public String cancelBooking(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam int bookingIndex,
             RedirectAttributes redirectAttributes) {
         boolean cancelled = campingService.cancelBooking(id, bookingIndex);
@@ -130,7 +130,7 @@ public class CampingController {
     @PostMapping("/api/{id}/review")
     @ResponseBody
     public ResponseEntity<Camping> addReview(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam Integer rating,
             @RequestParam String comment) {
         Camping camping = campingService.addReview(id, rating, comment, null);
@@ -141,8 +141,8 @@ public class CampingController {
     @PutMapping("/api/{id}/review/{reviewIndex}/reply")
     @ResponseBody
     public ResponseEntity<Camping> replyToReview(
-            @PathVariable Long id,
-            @PathVariable int reviewIndex,
+            @PathVariable("id") Long id,
+            @PathVariable("reviewIndex") int reviewIndex,
             @RequestParam String reply) {
         Camping camping = campingService.replyToReview(id, reviewIndex, reply);
         return ResponseEntity.ok(camping);
@@ -151,7 +151,7 @@ public class CampingController {
     // Lấy danh sách đánh giá qua API
     @GetMapping("/api/{id}/reviews")
     @ResponseBody
-    public ResponseEntity<List<String>> getReviews(@PathVariable Long id) {
+    public ResponseEntity<List<String>> getReviews(@PathVariable("id") Long id) {
         Optional<Camping> camping = campingService.getCampingById(id);
         return camping.map(c -> ResponseEntity.ok(c.getReviews()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -160,7 +160,7 @@ public class CampingController {
     // Lấy danh sách thông báo qua API
     @GetMapping("/api/{id}/notifications")
     @ResponseBody
-    public ResponseEntity<List<String>> getNotifications(@PathVariable Long id) {
+    public ResponseEntity<List<String>> getNotifications(@PathVariable("id") Long id) {
         Optional<Camping> camping = campingService.getCampingById(id);
         return camping.map(c -> ResponseEntity.ok(c.getRecentNotifications(5)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -170,7 +170,7 @@ public class CampingController {
     @PostMapping("/api/{id}/notify")
     @ResponseBody
     public ResponseEntity<Camping> addNotification(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam String message) {
         Camping camping = campingService.addNotification(id, message);
         return ResponseEntity.ok(camping);
@@ -179,7 +179,7 @@ public class CampingController {
     // Lấy danh sách gợi ý qua API
     @GetMapping("/api/{id}/suggestions")
     @ResponseBody
-    public ResponseEntity<List<String>> getSuggestions(@PathVariable Long id) {
+    public ResponseEntity<List<String>> getSuggestions(@PathVariable("id") Long id) {
         Optional<Camping> camping = campingService.getCampingById(id);
         return camping.map(c -> ResponseEntity.ok(c.getSuggestedTerms()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -189,7 +189,7 @@ public class CampingController {
     @PostMapping("/api/{id}/search")
     @ResponseBody
     public ResponseEntity<Camping> addSearchTerm(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam String term) {
         Camping camping = campingService.addSearchTerm(id, term);
         return ResponseEntity.ok(camping);
@@ -199,7 +199,7 @@ public class CampingController {
     @PostMapping("/api/{id}/pay")
     @ResponseBody
     public ResponseEntity<String> processPayment(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam Double amount) {
         String paymentStatus = campingService.processPayment(id, amount);
         return ResponseEntity.ok(paymentStatus);

@@ -73,7 +73,7 @@ public class HomestayController {
     }
 
     @GetMapping("/{id}")
-    public String getHomestayById(@PathVariable Long id, Model model, CsrfToken csrfToken, Authentication authentication) {
+    public String getHomestayById(@PathVariable("id") Long id, Model model, @Autowired(required = false) CsrfToken csrfToken, Authentication authentication) {
         try {
             Homestay homestay = homestayService.getHomestayById(id)
                     .orElseThrow(() -> new RuntimeException("Homestay not found"));
@@ -142,7 +142,7 @@ public class HomestayController {
 
     @GetMapping("/{id}/book")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public String bookHomestay(@PathVariable Long id, Model model) {
+    public String bookHomestay(@PathVariable("id") Long id, Model model) {
         Homestay homestay = homestayService.getHomestayById(id)
                 .orElseThrow(() -> new RuntimeException("Homestay not found"));
         model.addAttribute("homestay", homestay);
@@ -152,7 +152,7 @@ public class HomestayController {
 
     @PostMapping("/{id}/images")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String uploadImages(@PathVariable Long id,
+    public String uploadImages(@PathVariable("id") Long id,
                              @RequestParam("images") MultipartFile[] images) throws IOException {
         homestayService.uploadImages(id, images);
         return "redirect:/homestay/" + id;
@@ -160,7 +160,7 @@ public class HomestayController {
 
     @GetMapping("/{id}/review")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    public String showReviewForm(@PathVariable Long id, Model model, Authentication authentication) {
+    public String showReviewForm(@PathVariable("id") Long id, Model model, Authentication authentication) {
         log.info("Showing review form for homestay id: {}", id);
 
         Homestay homestay = homestayService.getHomestayById(id)
@@ -184,7 +184,7 @@ public class HomestayController {
     @PostMapping("/{id}/review")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public String submitReview(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam Integer rating,
             @RequestParam String comment,
             @RequestParam(required = false) MultipartFile[] images,
