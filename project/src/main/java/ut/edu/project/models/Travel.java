@@ -37,8 +37,7 @@ public class Travel {
     private String itinerary;
 
     @ManyToOne
-    @JoinColumn(name = "guide_id", nullable = false)
-    @NotNull(message = "Hướng dẫn viên không được để trống")
+    @JoinColumn(name = "guide_id", nullable = true)
     private User guide;
 
     @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL)

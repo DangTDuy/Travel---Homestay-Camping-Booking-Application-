@@ -181,9 +181,9 @@ public class BookingController {
             @PathVariable("homestayId") Long homestayId,
             @Valid @ModelAttribute Booking booking,
             BindingResult result,
-            @RequestParam(required = false) List<Long> additionalIds,
-            @RequestParam(required = false) String checkInTime,
-            @RequestParam(required = false) String checkOutTime,
+            @RequestParam(name = "additionalIds", required = false) List<Long> additionalIds,
+            @RequestParam(name = "checkInTime", required = false) String checkInTime,
+            @RequestParam(name = "checkOutTime", required = false) String checkOutTime,
             @RequestParam(required = false, name = "quantity-") Map<String, String> quantities,
             Principal principal,
             Model model) {

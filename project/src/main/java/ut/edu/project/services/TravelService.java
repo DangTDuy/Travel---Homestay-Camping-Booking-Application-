@@ -134,9 +134,7 @@ public class TravelService {
         if (travel.getItinerary() == null || travel.getItinerary().trim().isEmpty()) {
             throw new RuntimeException("Lịch trình không được để trống");
         }
-        if (travel.getGuide() == null) {
-            throw new RuntimeException("Hướng dẫn viên không được để trống");
-        }
+        // Không kiểm tra guide nữa vì đã loại bỏ yêu cầu này
         if (travel.getMaxParticipants() == null || travel.getMaxParticipants() <= 0) {
             throw new RuntimeException("Số người tham gia tối đa phải lớn hơn 0");
         }

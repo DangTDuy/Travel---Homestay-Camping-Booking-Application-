@@ -1,0 +1,1140 @@
+[33mcommit e7c16d4fddc7fcf11ac1810b6dafcd69fcbe7e38[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Apr 13 12:19:53 2025 +0700
+
+     fix loi
+
+[33mcommit 254552e08e7a8502b4b20224d0d83d4e33a954b6[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sat Apr 12 12:16:34 2025 +0700
+
+    updateUI
+
+[33mcommit 347af93e02f0d7cf5a9b2bea6f0fc04f3c30a182[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sat Apr 12 09:27:37 2025 +0700
+
+     update
+
+[33mcommit 79d57946599bb0db2d70844ad205afa5489f4d25[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 11 22:23:23 2025 +0700
+
+     update dich vu them
+
+[33mcommit 01add0ac656de7e2f5c8abd40ed49a25fc96e402[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 22:12:01 2025 +0700
+
+    Cải thiện giao diện người dùng và thêm quản lý dịch vụ
+
+[33mcommit ae73972970283d73cdf4ee6929491d69ac319e76[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 18:47:58 2025 +0700
+
+    cap nhat 20% tien phi dich vu
+
+[33mcommit 1a23040fde13023b33eee9cb038af925b93c3a42[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 18:30:35 2025 +0700
+
+    Fix: Khắc phục lỗi render template booking-detail.html
+
+[33mcommit 16b3cf7a52bb4af21a33f5384b3ff20256c99af4[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 17:37:06 2025 +0700
+
+    cap nhat hien thi so sao tren homestay
+
+[33mcommit 1b4de9641a046a3254e167ef2fdc28c56b5bfcbc[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 17:33:54 2025 +0700
+
+     dong bo giao dien
+
+[33mcommit fd1753a3017b0f48ebff5c2584b082917d9dd4b8[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 12:48:25 2025 +0700
+
+    cap nhat khau tru 20% cho phi dich vu
+
+[33mcommit feec466f38e7f3af23b5b16e1cb046256aba2468[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 12:41:13 2025 +0700
+
+     update <!-- Rating -->
+
+[33mcommit 166434e27f3ce7edd50ef47fee1e09915418ab5a[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 10:36:01 2025 +0700
+
+     update /admin/bookings
+
+[33mcommit 9aa9e57238445aeb2fb830b0ca4701779978900c[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 10 10:16:18 2025 +0700
+
+     update
+
+[33mcommit fbbd8983562cef237145c899f77847cc3cadfbda[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Apr 9 22:47:39 2025 +0700
+
+    Update TravelModels
+
+[33mcommit 66e594ec0a539dbc62474b26fccfcf87c1e706fc[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Apr 9 22:28:14 2025 +0700
+
+    Cập nhật Homestay
+
+[33mcommit 507fb9829561d379711351bb73301016caab45ff[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Apr 9 22:10:58 2025 +0700
+
+    Cập nhật Giao diện Search Tour
+
+[33mcommit 771f32d479ff917011c996f07f7d944268b852f6[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Apr 9 21:30:46 2025 +0700
+
+    Add Valid To Check Input
+
+[33mcommit e5c6c380292333de5a721681531505062729b07b[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 9 15:30:25 2025 +0700
+
+    capnhat
+
+[33mcommit 6c9517ed7139e97d55465bcb71511b271a1fadb2[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 9 14:08:37 2025 +0700
+
+     cap nhat cmt hien ra ten user thay thay vi ho ten
+
+[33mcommit ef12b353756c77930e9c54208da3e98326ead82e[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 9 13:08:35 2025 +0700
+
+    Update bucking homestay & raiting
+
+[33mcommit 31415260352153aa6a5062bfcfa2e7e5b89b787d[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 9 02:20:28 2025 +0700
+
+     update
+
+[33mcommit 4eb012373d111d19366830bfe302788284fe15cf[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 9 00:04:49 2025 +0700
+
+    Update booking and homestay logic
+
+[33mcommit 8225ba1b4a19c0a2812d33638156c806f14fb9a8[m
+Merge: 9a044e4 01438fc
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 22:47:29 2025 +0700
+
+    dong bo giao dien
+
+[33mcommit 9a044e45fe53c6787f891b049c12c9d35fb031a0[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 22:45:33 2025 +0700
+
+    Cải thiện giao diện
+
+[33mcommit 01438fce582dcd4237a7c081a9b59d0120594c23[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Tue Apr 8 20:14:22 2025 +0700
+
+    camping
+
+[33mcommit 569041f8214fb7311d1e86a3f818fd3be9dc334f[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 18:28:35 2025 +0700
+
+    update Securityconfig
+
+[33mcommit f35eb4682378b3c8b3368982fbc075c2cd6ff3f0[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 17:51:26 2025 +0700
+
+    cap nhat Homestay
+
+[33mcommit 8a8986609bf5e818eb4f64160aa73aaa4d6f58d3[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 15:53:59 2025 +0700
+
+     update
+
+[33mcommit 2c24d0024016a5f40ece8ecd5e45b3df58cbd55e[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 15:02:05 2025 +0700
+
+     update yeu thich nguoi dung
+
+[33mcommit df8fb892765bb557b94d132ca6bc798ca1c1d074[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 8 00:09:44 2025 +0700
+
+     update AdminHomestay
+
+[33mcommit 362772645e2aa8324c2c4e404d5d159543c79539[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Mon Apr 7 23:40:54 2025 +0700
+
+    update
+
+[33mcommit 843800f9eb6426f42a2d0c154dab560c78529239[m
+Merge: e68a758 e4294dc
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 23:34:50 2025 +0700
+
+    Merge conflict resolved
+
+[33mcommit e68a75885c428cce406b9e73a81e980f58f3080c[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 23:31:48 2025 +0700
+
+    update homestay logic and shared components
+
+[33mcommit e4294dcbc65db406f2359638d31ef802496fa5c1[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Mon Apr 7 23:30:41 2025 +0700
+
+    feat: update booking logic, services, and templates for detail/history view
+
+[33mcommit d3d86192439709aaae232db6b7c21a6b7c7aed0d[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:46:38 2025 +0700
+
+    Thêm ảnh homestay mặc định và thư mục lưu trữ ảnh
+
+[33mcommit ef7828ab42970acfee5ad75e8224985a8ae9228a[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:46:26 2025 +0700
+
+    Thêm các templates mới cho các tính năng bổ sung, đặt phòng, doanh thu, đánh giá và quản lý người dùng
+
+[33mcommit 1860ac96881a69aad9b4803a5ca0473dd37eb9a0[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:46:05 2025 +0700
+
+    Cập nhật templates adminhomestay
+
+[33mcommit db092a359cd9948aa1e2533d474a6c51a95c9476[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:45:31 2025 +0700
+
+    Cập nhật các fragments giao diện
+
+[33mcommit 64b97b7c5039fa69ddc0e80cbf4e266d5926fbc5[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:45:06 2025 +0700
+
+    Cập nhật cấu hình bảo mật
+
+[33mcommit 2d0e0b6378304c131ef0fd59e9b6e1c52c131f01[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:44:49 2025 +0700
+
+    Thêm các controllers mới cho Additional, AdminTravel, BookingAPI và Revenue
+
+[33mcommit 46d2380ee062f24918f3ebe749c09ca36990957a[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:44:37 2025 +0700
+
+    Cập nhật các controllers chính với chức năng mới
+
+[33mcommit 85c0ad3973a2f7b5b6723d1492e18aa57c299e39[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:44:22 2025 +0700
+
+    Thêm các DTOs cho việc giao tiếp API
+
+[33mcommit 811266c09357bb748f0420e44af5ee86ac4d06b0[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:44:14 2025 +0700
+
+    Thêm các services mới: Additional, QRCode và Revenue
+
+[33mcommit 5aa4e8b9c0c9fc87b8b8fffd2c47476a0bd8aaa3[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:44:07 2025 +0700
+
+    Cập nhật các services cơ bản và xóa ReviewServiceImpl
+
+[33mcommit 68a5565bbc9f27301897de5d786b0848a92fb60e[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:43:49 2025 +0700
+
+    Cập nhật repositories và  thêm repositories mới
+
+[33mcommit 6c5575c369bed53d26ee5dc6b4fc9a02408250bb[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:43:19 2025 +0700
+
+    Thêm các mô hình dữ liệu mới: Additional, Category, Revenue và theo dõi hành vi người dùng
+
+[33mcommit 8779ee27d8abe697a351fa79ae9ebd856f22a8bf[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Apr 7 15:43:13 2025 +0700
+
+    Cập nhật các mô hình dữ liệu cơ bản (Booking, Camping, Homestay, Review, Travel)
+
+[33mcommit 7588a970846469b1ec310bf9b38fe6e5946717e8[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Apr 6 18:37:30 2025 +0700
+
+     update UI
+
+[33mcommit 04e9eac0f0adf5101ea3ccebdad47dbfa957a360[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Apr 6 04:37:21 2025 +0700
+
+    Update recommendation controller & UI , Update & tach dashboard.html thanh nhung fragments
+
+[33mcommit 864272fdadd85a5b3160564b00ce9d478635df28[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sat Apr 5 15:18:40 2025 +0700
+
+    update UI homestay-detail.html
+
+[33mcommit f6b417dd23be0fc4fa30df650313faa87e29fe8e[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sat Apr 5 14:17:44 2025 +0700
+
+    them chuc nang goi y homestay cho khach hang o va update UI
+
+[33mcommit 32ac276666649889cc5e0895e2e92a97e9d2351f[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 23:07:42 2025 +0700
+
+     add AdminUserController voi cac chuc nang CURD
+
+[33mcommit 8ef2d989a4b164bd18eb76e9fa639a8cc87221b4[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 19:33:44 2025 +0700
+
+     update khi logout tra ve /home
+
+[33mcommit cf81d5ef9042bfcf375d3fbb2227bafd3beea39f[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 14:18:12 2025 +0700
+
+     update chuc nang CRUD cho admin homestay
+
+[33mcommit a1440a9c8c8ec72331355db110c83cbd40fc0dc0[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 13:16:13 2025 +0700
+
+    update urls tra ve khi login & logout
+
+[33mcommit fd9aeb4d1706cf0a5bba1de4eecd993574e54a96[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 12:42:16 2025 +0700
+
+    update UI cua login register, update cac chuc nang homestay cua admin & UI
+
+[33mcommit 1b8d976d99e0753d2631ac4969b0a98df8dbd6b7[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Fri Apr 4 04:19:53 2025 +0700
+
+    Add files via upload
+
+[33mcommit 002a96f51d7d7e4039566d996675f4bf628cbb18[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Fri Apr 4 04:18:44 2025 +0700
+
+    Update ReviewServiceImpl.java
+
+[33mcommit 864f46edd6d85c99bf68c1fb5efba2a58b49ce51[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Fri Apr 4 04:18:17 2025 +0700
+
+    Update ReviewService.java
+
+[33mcommit cb4e18f6b822b1c7ddeb49a5c83305d8daddb89d[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Fri Apr 4 04:17:42 2025 +0700
+
+    Update ReviewRepository.java
+
+[33mcommit 8e2a2f9926e71a5d41b81acf9b643b98d644b552[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Fri Apr 4 04:17:06 2025 +0700
+
+    Update Review.java
+
+[33mcommit 5bd7689cdc6d0320172fd8c67111c4642357254d[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Fri Apr 4 04:16:17 2025 +0700
+
+    Update ReviewController.java
+
+[33mcommit 9ace3704a4b923740662888150aed39cf7ffb7e5[m
+Merge: c74f6d8 b1bd3d3
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Fri Apr 4 01:06:35 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit c74f6d80517beee3ef8c8b8299e83f0ffcf8eadd[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Fri Apr 4 01:06:32 2025 +0700
+
+    booking features
+
+[33mcommit b1bd3d330cef1133147a156566ed080d1c0b8505[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 00:01:33 2025 +0700
+
+    update cac chuc nang user cho admin va user & UI home, dashboard
+
+[33mcommit bac4143dcb37516e372b3a56603c2b7c2c9a0f4d[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Fri Apr 4 00:00:25 2025 +0700
+
+    update cac chuc nang user cho admin va user & UI home, dashboard
+
+[33mcommit c862eaa4c39a7b3c808fc11056a1f95521390eb8[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Thu Apr 3 23:21:23 2025 +0700
+
+    Update dataSources.xml
+
+[33mcommit 6e09c5d81b3508c22093a1835a4ac4cb8e897c51[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 21:56:06 2025 +0700
+
+    change jdk
+
+[33mcommit 67aa8d04c8949f6611c8843dbe3e84fa43cb76dc[m
+Merge: 289c3a3 7813f24
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 21:52:25 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 7813f24bf61ce9ab45002f6a680b99b82bbdebd5[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 3 21:34:54 2025 +0700
+
+    update phan quyen cho cac urls
+
+[33mcommit 289c3a3292f707ade4be34b44b74cffc9680cb7e[m
+Merge: 7272b9b 73a99fc
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 20:11:31 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 7272b9b39fbf203039fa38f1b7fe74623f99658e[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 20:00:35 2025 +0700
+
+    update features
+
+[33mcommit 73a99fcd05f854a510acafdedd8bc6c900da068a[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 3 18:44:32 2025 +0700
+
+    Cập nhật bảo mật, controller, DTO và giao diện
+
+[33mcommit 5d2499368b0590d7cc5984a2f4c1c89e83135b25[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Thu Apr 3 11:31:21 2025 +0700
+
+    Done(html_Travelcontroller)
+
+[33mcommit 1395d6c1504d077c4dc2afca8f55d0c0927c1725[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 3 11:24:59 2025 +0700
+
+    update chi admin moi co quyen tao homestay, user thi khong
+
+[33mcommit ccba4a272f250307e639d355590461c9a08f333a[m
+Merge: 1005c2f 3b5221c
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Thu Apr 3 10:41:28 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 1005c2f4d4a3c360f90acad597848b71cafcc3fe[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Thu Apr 3 10:41:18 2025 +0700
+
+    camping_update_feature_html_css
+
+[33mcommit 3b5221c6e6a1f7dc5a41f4fcc3b02acae7c8a085[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Thu Apr 3 10:36:51 2025 +0700
+
+    cap nhat phan quyen User co the chinh profile
+
+[33mcommit 6371e60a56cc07622a289479f9a7c4be78065be6[m
+Merge: ad1b777 1ac46f5
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Thu Apr 3 00:45:33 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit ad1b7773f4bfa499281395609b20bdcf56f9e0d1[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Thu Apr 3 00:45:02 2025 +0700
+
+    change source for Travel.html
+
+[33mcommit 1ac46f5de12afab5800d84b8d713f1124dd1ed78[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 00:41:18 2025 +0700
+
+    fr
+
+[33mcommit 3806c93f6067168de8e237aa769e25dec0395e6a[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 00:15:22 2025 +0700
+
+    Update misc.xml
+
+[33mcommit b215c7e542d521e85b266c0a7aacefaa5419896d[m
+Merge: 41e7e48 073d5da
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 00:15:12 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 41e7e4804149c4b856ee974a123a2ea349138784[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Apr 3 00:10:17 2025 +0700
+
+    update service
+
+[33mcommit 073d5da6bc2fe677fe1fae32e332f3a147b2c316[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Apr 2 23:34:49 2025 +0700
+
+    Add HTML for TravelModule
+
+[33mcommit 09a723645732e61e528605e71e81a620b1c6401a[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Apr 2 21:51:55 2025 +0700
+
+    update_feature
+
+[33mcommit dffa9abdc87f8e1bd2f1503171de7996e037a992[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Apr 2 21:28:37 2025 +0700
+
+    update_camping
+
+[33mcommit f82aa85624954d54f2040ade6c709f9217a1fef2[m
+Merge: 249fc2e b228332
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Apr 2 20:16:40 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 249fc2ef9ae0464db3a9297184118e5a2d382fff[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Apr 2 20:16:24 2025 +0700
+
+    update
+
+[33mcommit b228332a94cf5c114e4792967999621c76a59b11[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 2 18:52:05 2025 +0700
+
+    Update ReviewController.java
+
+[33mcommit 44c0feac0750d033e7d575363eddf9e63472422a[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 2 18:31:51 2025 +0700
+
+    Update ReviewServiceImpl.java
+
+[33mcommit 946b1ab2264f7be0503c17fcf4bb26df8ad046fa[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 2 18:31:29 2025 +0700
+
+    Update ReviewService.java
+
+[33mcommit 8819caa1b4840cbc61e1f4f36038bea3c1f8fb5d[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 2 18:30:59 2025 +0700
+
+    Update ReviewRepository.java
+
+[33mcommit 0597d30e174b1941bd8cbbedf31552134e7c39a0[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 2 18:30:29 2025 +0700
+
+    Update Review.java
+
+[33mcommit 1e8dc445c1749253d423a6006abcc085fddea280[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Apr 2 18:29:51 2025 +0700
+
+    Update ReviewController.java
+
+[33mcommit b2fccd49a680a5af90f51b709f50866190f3afe3[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 2 17:30:02 2025 +0700
+
+    Update Homestay model and service
+
+[33mcommit 9b1903d618f7563c127876d742cb1422225ae54a[m
+Merge: 34c8f78 3014953
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Apr 2 12:56:52 2025 +0700
+
+    Fix
+
+[33mcommit 3014953042c97008cb07d36c656cbcee8d5bca65[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 2 12:22:04 2025 +0700
+
+    update chuc nang user edit profile va phan quyen
+
+[33mcommit 9178b1c5fde9f00f618fe3d40077d5e64c867261[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 2 10:25:44 2025 +0700
+
+    Update phân quyền User
+
+[33mcommit ebdb568a9a8f2a260a83ca06c88d5b47609270b7[m
+Merge: fe608b4 4326f5a
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 2 00:36:15 2025 +0700
+
+    phan quyen va update homestay
+
+[33mcommit fe608b4aaaefaa0323b7bbe50d99f102c6d51ca4[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Apr 2 00:32:55 2025 +0700
+
+    phan quyen cho homestay va cap nhat chuc nang homestay
+
+[33mcommit 34c8f784d22165575b5d6f6f185f5129a23a4d78[m
+Merge: 1328bf9 4326f5a
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Apr 2 00:27:39 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 1328bf9ffa44e56f69c9715432589691ad2e87a6[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 23:57:52 2025 +0700
+
+    update features
+
+[33mcommit 4326f5a98a696278b959305ca3f43169845cc024[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Tue Apr 1 23:51:59 2025 +0700
+
+    update
+
+[33mcommit 9eb7b0ba8d0375e08964e2c33669af3a6839e93f[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 23:10:56 2025 +0700
+
+    create exceptions
+
+[33mcommit fb725ec52004f3633b4f3fd7dad2315acef6ed17[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 23:00:47 2025 +0700
+
+    Update DeleteMapping
+
+[33mcommit 4b350481e463401fe8f521951c0a47ce24e8ba3b[m
+Merge: 34b4f9e 5228911
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 22:40:46 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 34b4f9ef4426d65700eb73bff13915862dec92ae[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 22:39:07 2025 +0700
+
+    up old version
+
+[33mcommit 522891187e3a1dae87ac383bbce9017414800918[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 22:12:40 2025 +0700
+
+    phan quyen user
+
+[33mcommit 744cd4c3f364078bc0b45b8f1b906ebdd8553b15[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 22:08:09 2025 +0700
+
+    update UserService.java
+
+[33mcommit 40f0ac92706228434d5a1ca36e241062f4c13a4c[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 22:11:51 2025 +0700
+
+    Update misc.xml
+
+[33mcommit 10eb7b5fadf1946542fad1b60a02490c72b7d4bd[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Tue Apr 1 22:11:49 2025 +0700
+
+    Create .name
+
+[33mcommit bc5d79376877eb0c8be779a26ea0703085922756[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Tue Apr 1 19:23:04 2025 +0700
+
+    Add TravelService
+
+[33mcommit 500df43d71ad5f8d7c46cb3b495e3e447804b308[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Tue Apr 1 19:22:31 2025 +0700
+
+    Add TravelRepository and Models
+
+[33mcommit ff0dba264aab9aea0e63d8658d0e446d3303cfa9[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Tue Apr 1 19:21:34 2025 +0700
+
+    Add TravelController
+
+[33mcommit 72a33cf9a7f2f147270a3d1c013f26d560d16730[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Tue Apr 1 19:20:14 2025 +0700
+
+    FixBug Of Database
+
+[33mcommit 0b89f7dbe07f2f7a3ba9db4ecde21ea51034579c[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 16:11:53 2025 +0700
+
+    update pom.xml & html css
+
+[33mcommit 7dd912e4454799dd052dda32d7a3326efff85061[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 16:10:43 2025 +0700
+
+    Update models, service, reponsitory cua User
+
+[33mcommit 5b6399b6f764b2d3b66a3a8451707774fc3d6e5e[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 16:05:41 2025 +0700
+
+    jwt
+
+[33mcommit 7ac72cc714e63ec73a8f5876884f574fa0223865[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 16:04:37 2025 +0700
+
+    dtos
+
+[33mcommit f701d33208f991fd537c336b8c6f4ff808e6702d[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 16:02:52 2025 +0700
+
+    Update HomeController and UserController
+
+[33mcommit d4679970611ccbcb27ddf32761f24af5ea39083c[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 16:00:57 2025 +0700
+
+     controller res & auth
+
+[33mcommit 7219029421b6b6fd7a7a0f4f2e09b0cec116b387[m
+Merge: 98e856b 62226d5
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 15:57:40 2025 +0700
+
+    configurations
+
+[33mcommit 98e856b15ef6101aabbd85c950da21edd044aa83[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Tue Apr 1 15:55:00 2025 +0700
+
+    configurations
+
+[33mcommit 62226d5092cabf23c476942db48f8f8cf16cc14f[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Tue Apr 1 14:19:43 2025 +0700
+
+    update camping
+
+[33mcommit 01e555816ab7105ca508e53aa4db57f75441d6be[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Mar 31 18:33:25 2025 +0700
+
+    Cập nhật style.css và home.html
+
+[33mcommit d8be49e3a8a68c677d6daf5e9fb158239618c749[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Mar 30 01:05:22 2025 +0700
+
+     home.html & css trang home
+
+[33mcommit 6aba330b3798f1e418a215b2729a7414e2b4eeac[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Thu Mar 27 10:40:52 2025 +0700
+
+    cap nhat project
+
+[33mcommit 8eaeb88c22089ebf2773490b188ed47e2022f556[m
+Merge: 5ace36d 82534f1
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 10:04:41 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 82534f1c22cdbebbc68696f1984f96b8d5538b30[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Thu Mar 27 09:50:56 2025 +0700
+
+    Xóa phần bug của model TravelController
+
+[33mcommit 6fb40c29c3e016855f019ee42536c3fd47b42641[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Thu Mar 27 09:49:57 2025 +0700
+
+    fixbug travelControllers
+
+[33mcommit 5ace36d2c6d2260696f053231bd0ef5205912819[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 00:26:46 2025 +0700
+
+    Create PaymentController.java
+
+[33mcommit 6c1fdb79a21b04306c9c3df0469192ed1d987a41[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 00:25:46 2025 +0700
+
+    Create BookingController.java
+
+[33mcommit 677c3cea8d66ad06a068199b4ac40afe718fe46b[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 00:25:43 2025 +0700
+
+    Create BookingServiceImpl.java
+
+[33mcommit bd78f78abf7398f7ac4e9ea37a3f3be60d6e02f4[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 00:25:38 2025 +0700
+
+    Create BookingService.java
+
+[33mcommit ede3fa4f31ed96f95d11a4926c23f21dcf4da60c[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 00:25:26 2025 +0700
+
+    Create BookingRepository.java
+
+[33mcommit f03217c716ee092a08589b541ad8bf0ce7033211[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Thu Mar 27 00:16:39 2025 +0700
+
+    Create Booking.java
+
+[33mcommit d8411e192d848977aab4eb97f08d13627bf022f6[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:34:29 2025 +0700
+
+    ReviewService.java
+
+[33mcommit 886383097ad1c4a84c5adae0ec53232486742133[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:33:26 2025 +0700
+
+    ReviewServiceImpl.java
+
+[33mcommit 01f9a5d9f79b78f7585ed748378e9b5a5980f003[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:32:53 2025 +0700
+
+    ReviewServiceImpl.java
+
+[33mcommit 6a4ed2bcdbe9df7b359e921dbc4b745059c62e5b[m
+Merge: 555f44a feda07f
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 23:10:17 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 555f44a2ea2c32972099cb1a5afac1ed521f79f6[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 23:10:12 2025 +0700
+
+    fix bug package
+
+[33mcommit feda07f841d51b465f909bcb903b7c8d147589c5[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:08:40 2025 +0700
+
+    Add files via upload
+
+[33mcommit 0cfe72711939a59458cbce29c08efef99af42c7c[m
+Merge: c3c9104 492bfc6
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 23:08:00 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit 492bfc6a870b9298d6e4874699b34c8922e0930d[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:07:46 2025 +0700
+
+    Delete project/src/main/java/ut/edu/project/models/ReviewController.java
+
+[33mcommit c3c9104f84381773c6e7cdae4ee2b6f804fa1ce5[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 23:05:23 2025 +0700
+
+    Imple Of PS
+
+[33mcommit c6734cc20f126c9cc3e6e9454e2be12d98c4b30b[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:05:06 2025 +0700
+
+    Add files via upload
+
+[33mcommit 975bd0176e1422c7815db1a32c49c0f49eb00ce3[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 23:05:05 2025 +0700
+
+    PaymentService
+
+[33mcommit 5c3b988520815fe0f0c561588d1a3968795db0f1[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:03:48 2025 +0700
+
+    Add files via upload
+
+[33mcommit a5610da1d9817819175349edaf9c23ca1fdb8429[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 23:00:40 2025 +0700
+
+    Add files via upload
+
+[33mcommit a03bdb3d2234c6c25451178182979fd5430aa4e3[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:55:25 2025 +0700
+
+    Update payment repository
+
+[33mcommit e1d1fc350e0e64eb5257c3528f8dd22c7ab012f1[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 22:54:06 2025 +0700
+
+    fix
+
+[33mcommit c755fa7e35f9d6f54409ecc45e3e83fdc49e7d98[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:45:59 2025 +0700
+
+    Capnhat models payment
+
+[33mcommit d3cafa0594e42c168d9d9a11bd39097c97bedff3[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:47:48 2025 +0700
+
+    Chỉnh sửa travelModel
+
+[33mcommit 1301f2676ca443c69afcf76e4f36c6aeeee18a0a[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:46:44 2025 +0700
+
+    Update Travel.java
+
+[33mcommit a2750036105e9a411e73dbec3dea2b292a93f4e2[m
+Merge: d15d8bc efdf580
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:36:56 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit efdf5805e3e21abd453f0c9d852e0e14a2931eab[m
+Merge: d3a5d8e 592b249
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:39:30 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit d3a5d8e8e020a88d1068e9871b770c6d7ecbcda0[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:38:30 2025 +0700
+
+    Sửa lại travelService
+
+[33mcommit d15d8bcbc4844086ef9b2024353709fec148860c[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:36:24 2025 +0700
+
+    capnhat
+
+[33mcommit 592b249475470a49ebfd0f4899d1c663197691c3[m
+Merge: f88bb4e c7f36bc
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:35:38 2025 +0700
+
+    Merge branch 'main' of https://github.com/DangTDuy/Travel---Homestay-Camping-Booking-Application-
+
+[33mcommit f88bb4e99f3d39e4583d2a0260bef8f995ea7737[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:35:19 2025 +0700
+
+    Delete Review.java
+
+[33mcommit c7f36bc271b084fe03cd9a3b566ab4f111dda334[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Wed Mar 26 22:31:08 2025 +0700
+
+    Cập nhật model User
+
+[33mcommit 906f3ea5bb58e51a3128d9f41baa5f1676aeff41[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:36:38 2025 +0700
+
+    Update TravelService.java
+
+[33mcommit bbdc936c53bac006d43971b3c503866d5f019e24[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 22:27:07 2025 +0700
+
+    update
+
+[33mcommit 8f9197b8b1a925bf0d06f2e44ef1e63925e7422c[m
+Merge: fbf5731 740a12e
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:21:49 2025 +0700
+
+    Merge remote-tracking branch 'origin/main'
+    
+    # Conflicts:
+    #       project/src/main/java/ut/edu/project/repositories/Camping.java
+
+[33mcommit fbf5731a39ebf15d6c0879f224ac85d2ca679c58[m
+Author: huynh-dang187 <112720090+huynh-dang187@users.noreply.github.com>
+Date:   Wed Mar 26 22:16:43 2025 +0700
+
+    cập nhật chức năng tùy chọn cho travel
+
+[33mcommit 740a12e7eb80673c4eed20176e97277a1953bd10[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 22:10:23 2025 +0700
+
+    cap nhat
+
+[33mcommit aea4cb3b772fdb537d6d1bd0b25bf6e1aec47cea[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 21:57:13 2025 +0700
+
+    cap nhat
+
+[33mcommit bd7ae58c709cb6895d0e6eb28d52d8a1514e1902[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 21:57:01 2025 +0700
+
+    cap nhat
+
+[33mcommit 986fbb6959aaae4919c16b467fcfe5af3a8c94f2[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 21:56:43 2025 +0700
+
+    cap nhat
+
+[33mcommit 8468f3e7e20db96a80a49e5d5c87a2ecd7eec6b5[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 21:51:51 2025 +0700
+
+    cap nhat
+
+[33mcommit 887e0e3d937fb984f5cac317c62fad4859ec721a[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Wed Mar 26 21:47:57 2025 +0700
+
+    cap nhat
+
+[33mcommit d40a903d9044e6367b982f66d3f76f6cc75fcd8f[m
+Author: 66TranMinhNhut <tranminhnhut200125@gmail.com>
+Date:   Wed Mar 26 21:17:04 2025 +0700
+
+    Cập nhật code
+
+[33mcommit e381bf96cf166580a57d6a68460a430ff67701e8[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 21:17:43 2025 +0700
+
+    Add files via upload
+
+[33mcommit 2c6bafd09fc4bed17943c1bd3c025060da8ed88b[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 21:16:15 2025 +0700
+
+    Add files via upload
+
+[33mcommit 7df6130f827d77ccbe6dc165605a86d2cf6845a2[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 21:15:22 2025 +0700
+
+    Add files via upload
+
+[33mcommit dea856fdfc7f40d1448f3ec123714dc14c919d0c[m
+Author: Khanh-Kiet <khanhkietbt2020@gmail.com>
+Date:   Wed Mar 26 21:13:41 2025 +0700
+
+    Add files via upload
+
+[33mcommit 9b496f9366d8c277c30d08d33e45f9a4141a7982[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Mar 24 18:29:06 2025 +0700
+
+    update
+
+[33mcommit a5c31607dfb320061abbe5c4bc29fa8eb5d78ab2[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Mon Mar 24 14:13:01 2025 +0700
+
+    java Spring boot Layout Step-by-step
+
+[33mcommit 2df558274096e32377c33172246aaa87de4857c2[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Mar 23 18:35:20 2025 +0700
+
+    done
+
+[33mcommit 40de66b8ca5cdee576fa2eed01f87ed60bf18267[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Mar 23 18:33:28 2025 +0700
+
+    Thêm PutMapping
+
+[33mcommit 350c7dbc96978ea90236e63ff0ec085116928021[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Mar 23 17:33:17 2025 +0700
+
+    Thêm PutMapping
+
+[33mcommit 9d06dbfa61baf9dd5732cd9a0a777779fdf2b348[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sun Mar 23 16:35:47 2025 +0700
+
+    Cập nhật chức năng Homestay
+
+[33mcommit 0e7093538e4c79e1982edc394fd5d59bd076630e[m
+Merge: ffbf262 935e107
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sat Mar 22 19:49:40 2025 +0700
+
+    Resolve merge conflict and finalize merge
+
+[33mcommit ffbf2620adde07f49902739d33bab399bf85100f[m
+Author: chi-trung <trungnc7062@ut.edu.vn>
+Date:   Sat Mar 22 19:46:12 2025 +0700
+
+    Initial commit
+
+[33mcommit 935e107a12937fb426a1b3327ecc73ee6093004b[m
+Author: Duy <dangthanhduyofficial@gmail.com>
+Date:   Thu Feb 27 12:40:12 2025 +0700
+
+    Initial commit

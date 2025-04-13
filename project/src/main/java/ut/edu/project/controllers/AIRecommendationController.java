@@ -29,11 +29,11 @@ public class AIRecommendationController {
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || 
+        if (authentication == null || !authentication.isAuthenticated() ||
             authentication.getPrincipal().equals("anonymousUser")) {
             throw new RuntimeException("User not authenticated");
         }
-        
+
         String username = authentication.getName();
         return userService.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -67,11 +67,11 @@ public class AIRecommendationController {
 
     @GetMapping("/homestays/filter")
     public ResponseEntity<?> getFilteredRecommendations(
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) List<String> amenities,
-            @RequestParam(defaultValue = "5") int limit) {
+            @RequestParam(name = "minPrice", required = false) Double minPrice,
+            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(name = "location", required = false) String location,
+            @RequestParam(name = "amenities", required = false) List<String> amenities,
+            @RequestParam(name = "limit", defaultValue = "5") int limit) {
         try {
             User user = getCurrentUser();
             List<Homestay> recommendations = aiRecommendationService.getFilteredRecommendations(
@@ -119,4 +119,4 @@ public class AIRecommendationController {
             return ResponseEntity.internalServerError().body("Error updating preferences: " + e.getMessage());
         }
     }
-} 
+}

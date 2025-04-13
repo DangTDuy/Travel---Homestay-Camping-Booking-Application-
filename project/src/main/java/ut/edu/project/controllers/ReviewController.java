@@ -149,12 +149,12 @@ public class ReviewController {
     // Tìm kiếm review
     @GetMapping("/search")
     public ResponseEntity<List<Review>> searchReviews(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Long homestayId,
-            @RequestParam(required = false) Long campingId,
-            @RequestParam(required = false) Long travelId,
-            @RequestParam(required = false) Integer minRating,
-            @RequestParam(required = false) Integer maxRating) {
+            @RequestParam(name = "userId", required = false) Long userId,
+            @RequestParam(name = "homestayId", required = false) Long homestayId,
+            @RequestParam(name = "campingId", required = false) Long campingId,
+            @RequestParam(name = "travelId", required = false) Long travelId,
+            @RequestParam(name = "minRating", required = false) Integer minRating,
+            @RequestParam(name = "maxRating", required = false) Integer maxRating) {
         return ResponseEntity.ok(reviewService.searchReviews(
                 userId, homestayId, campingId, travelId, minRating, maxRating));
     }

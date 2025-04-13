@@ -49,9 +49,9 @@ public class HomestayController {
 
     @GetMapping
     public String getAllHomestays(Model model,
-                                @RequestParam(required = false) String location,
-                                @RequestParam(required = false) String priceRange,
-                                @RequestParam(required = false) String rating) {
+                                @RequestParam(name = "location", required = false) String location,
+                                @RequestParam(name = "priceRange", required = false) String priceRange,
+                                @RequestParam(name = "rating", required = false) String rating) {
         try {
             log.info("Getting all homestays for user with filters - location: {}, priceRange: {}, rating: {}",
                     location, priceRange, rating);

@@ -35,7 +35,9 @@ public class AdminHomestayController {
     private static final Logger log = LoggerFactory.getLogger(AdminHomestayController.class);
 
     @GetMapping
-    public String adminHomestayPage(Model model, @RequestParam(required = false) String location, Authentication authentication) {
+    public String adminHomestayPage(Model model,
+            @RequestParam(name = "location", required = false) String location,
+            Authentication authentication) {
         try {
             log.info("Admin homestay page requested by user: {}", authentication != null ? authentication.getName() : "anonymous");
             log.info("User roles: {}", authentication != null ? authentication.getAuthorities() : "none");
@@ -264,8 +266,8 @@ public class AdminHomestayController {
     @GetMapping("/api/list")
     @ResponseBody
     public ResponseEntity<?> getAllHomestays(
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) String priceRange) {
+            @RequestParam(name = "location", required = false) String location,
+            @RequestParam(name = "priceRange", required = false) String priceRange) {
         try {
             log.info("Getting homestays for admin with filters - location: {}, priceRange: {}",
                     location, priceRange);

@@ -23,13 +23,13 @@ public class CampingController {
     // Hiển thị danh sách khu cắm trại với tìm kiếm và phân trang
     @GetMapping
     public String showCampingList(
-            @RequestParam(required = false) String searchTerm,
-            @RequestParam(required = false) Integer minPlaces,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
-            @RequestParam(required = false) String sort,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(name = "searchTerm", required = false) String searchTerm,
+            @RequestParam(name = "minPlaces", required = false) Integer minPlaces,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestParam(name = "sort", required = false) String sort,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "6") int size,
             Model model) {
         model.addAttribute("searchTerm", searchTerm);
         model.addAttribute("minPlaces", minPlaces);
