@@ -116,4 +116,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      */
     @Query("SELECT b FROM Booking b WHERE b.homestay.id = :homestayId AND b.status != ut.edu.project.models.Booking.BookingStatus.CANCELLED")
     List<Booking> findByHomestayId(@Param("homestayId") Long homestayId);
+
+    /**
+     * Đếm số lượng booking đã hoàn thành của user đối với một travel cụ thể
+     */
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.user.id = :userId AND b.travel.id = :travelId AND b.status = :status")
+    Long countByUserIdAndTravelIdAndStatus(
+            @Param("userId") Long userId,
+            @Param("travelId") Long travelId,
+            @Param("status") String status);
 }

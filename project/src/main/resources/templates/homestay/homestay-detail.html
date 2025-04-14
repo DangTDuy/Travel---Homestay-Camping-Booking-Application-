@@ -591,7 +591,8 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                                     <div th:each="service : ${servicesByCategory.get(category)}"
                                          th:attr="data-time-slot=${service.timeSlot != null ? service.timeSlot.name : 'all'}"
-                                         class="flex items-center p-1 border rounded hover:bg-blue-50 transition-colors service-item">
+                                         class="flex flex-col p-1 border rounded hover:bg-blue-50 transition-colors service-item">
+                                        <div class="flex items-center">
                                         <input type="checkbox"
                                                th:id="${'service-' + service.id}"
                                                name="additionalServices"
@@ -835,7 +836,7 @@
     });
 
     // Booking modal functions
-    function openBookingModal() {
+    window.openBookingModal = function() {
         document.getElementById('bookingModal').classList.remove('hidden');
         // Set default dates
         const today = new Date().toISOString().split('T')[0];
@@ -846,7 +847,7 @@
         calculateTotal();
     }
 
-    function closeBookingModal() {
+    window.closeBookingModal = function() {
         document.getElementById('bookingModal').classList.add('hidden');
     }
 
@@ -881,25 +882,30 @@
                 document.getElementById('additionalServicesDetails').classList.remove('hidden');
 
                 selectedServices.forEach(service => {
+                    const serviceId = parseInt(service.value);
                     const price = parseFloat(service.getAttribute('data-price'));
                     const category = service.getAttribute('data-category');
                     const name = service.parentElement.querySelector('.font-medium').textContent;
                     const timeSlot = service.getAttribute('data-time-slot');
                     const timeSlotDisplay = service.getAttribute('data-time-slot-display');
 
-                    // Tính giá dựa trên loại dịch vụ
-                    let serviceTotal = price;
+                    // Lấy số lượng từ input
+                    const quantityInput = document.getElementById('quantity-' + serviceId);
+                    const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+                    // Tính giá dựa trên loại dịch vụ và số lượng
+                    let serviceTotal = price * quantity;
                     const isFood = category === 'Bữa ăn';
                     const isDrink = category === 'Đồ uống';
 
-                    // Nếu là bữa ăn hoặc đồ uống, tính theo số người
+                    // Nếu là bữa ăn hoặc đồ uống, tính thêm theo số người
                     if (isFood || isDrink) {
-                        serviceTotal = price * guests;
+                        serviceTotal = price * quantity * guests;
                     }
 
-                    // Nếu là gói dịch vụ, tính theo số ngày
+                    // Nếu là gói dịch vụ, tính thêm theo số ngày
                     if (category === 'Dịch vụ') {
-                        serviceTotal = price * nights;
+                        serviceTotal = price * quantity * nights;
                     }
 
                     // Phân loại dịch vụ để tính tổng
@@ -914,22 +920,27 @@
                     // Log thông tin dịch vụ để debug
                     console.log('Service:', name, 'Category:', category, 'Price:', serviceTotal);
 
-                    // Hiển thị chi tiết từng dịch vụ với khung giờ
+                    // Hiển thị chi tiết từng dịch vụ với khung giờ và số lượng
                     const serviceItem = document.createElement('div');
                     const formattedPrice = new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
                         currency: 'VND'
                     }).format(serviceTotal);
 
-                    // Thêm thông tin khung giờ nếu có
+                    // Thêm thông tin khung giờ và số lượng
+                    let serviceText = `${name}`;
+                    if (quantity > 1) {
+                        serviceText += ` (x${quantity})`;
+                    }
+
                     if (timeSlot && timeSlot !== 'all') {
                         serviceItem.innerHTML = `<div class="flex justify-between items-center">
-                            <span>${name} <span class="text-xs text-blue-600 ml-1">(${timeSlotDisplay})</span></span>
+                            <span>${serviceText} <span class="text-xs text-blue-600 ml-1">(${timeSlotDisplay})</span></span>
                             <span>${formattedPrice}</span>
                         </div>`;
                     } else {
                         serviceItem.innerHTML = `<div class="flex justify-between items-center">
-                            <span>${name}</span>
+                            <span>${serviceText}</span>
                             <span>${formattedPrice}</span>
                         </div>`;
                     }
@@ -1081,7 +1092,61 @@
 
     // Event listeners for additional services
     document.querySelectorAll('.additional-service').forEach(checkbox => {
-        checkbox.addEventListener('change', calculateTotal);
+        checkbox.addEventListener('change', function() {
+            const serviceId = this.value;
+            const quantityControl = document.getElementById('quantity-control-' + serviceId);
+
+            // Kiểm tra xem phần tử có tồn tại không trước khi truy cập classList
+            if (quantityControl) {
+                if (this.checked) {
+                    quantityControl.classList.remove('hidden');
+                } else {
+                    quantityControl.classList.add('hidden');
+                }
+            } else {
+                console.log('Không tìm thấy phần tử điều khiển số lượng cho dịch vụ ID:', serviceId);
+            }
+
+            calculateTotal();
+        });
+    });
+
+    // Xử lý nút tăng số lượng
+    document.querySelectorAll('.quantity-increase').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentElement ? this.parentElement.querySelector('.service-quantity-input') : null;
+            if (input) {
+                input.value = parseInt(input.value) + 1;
+                calculateTotal();
+            } else {
+                console.log('Không tìm thấy phần tử nhập số lượng');
+            }
+        });
+    });
+
+    // Xử lý nút giảm số lượng
+    document.querySelectorAll('.quantity-decrease').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentElement ? this.parentElement.querySelector('.service-quantity-input') : null;
+            if (input && parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+                calculateTotal();
+            } else if (!input) {
+                console.log('Không tìm thấy phần tử nhập số lượng');
+            }
+        });
+    });
+
+    // Xử lý thay đổi số lượng trực tiếp
+    document.querySelectorAll('.service-quantity-input').forEach(input => {
+        if (input) {
+            input.addEventListener('change', function() {
+                if (parseInt(this.value) < 1) {
+                    this.value = 1;
+                }
+                calculateTotal();
+            });
+        }
     });
 
     // Submit booking
@@ -1098,11 +1163,28 @@
         // Lấy các dịch vụ bổ sung đã chọn
         const selectedServices = [];
         document.querySelectorAll('.additional-service:checked').forEach(checkbox => {
-            selectedServices.push({
-                id: parseInt(checkbox.value),
-                quantity: 1
-                // Chỉ gửi id và quantity, các thông tin khác sẽ được lấy từ database
-            });
+            if (checkbox && checkbox.value) {
+                const serviceId = parseInt(checkbox.value);
+                const quantityInput = document.getElementById('quantity-' + serviceId);
+                let quantity = 1; // Mặc định là 1
+
+                // Kiểm tra xem phần tử input số lượng có tồn tại không
+                if (quantityInput && quantityInput.value) {
+                    try {
+                        quantity = parseInt(quantityInput.value) || 1;
+                    } catch (e) {
+                        console.error('Lỗi khi đọc số lượng:', e);
+                    }
+                }
+
+                selectedServices.push({
+                    id: serviceId,
+                    quantity: quantity
+                    // Chỉ gửi id và quantity, các thông tin khác sẽ được lấy từ database
+                });
+
+                console.log('Thêm dịch vụ:', serviceId, 'Số lượng:', quantity);
+            }
         });
 
         const formData = {

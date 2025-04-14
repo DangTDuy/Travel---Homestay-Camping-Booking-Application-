@@ -148,7 +148,44 @@
                         <p class="text-gray-700 leading-relaxed whitespace-pre-line" th:text="${travel.requirements} ?: 'Không có yêu cầu đặc biệt'"></p>
                     </div>
 
-                    <!-- Reviews Section (can be added if needed) -->
+                    <!-- Reviews Section -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold text-dark">Đánh giá từ khách hàng</h3>
+                            <button th:if="${hasBookedTravel and not hasReviewed}" onclick="openReviewModal()"
+                                    class="text-primary hover:text-blue-700 font-medium text-sm flex items-center">
+                                <i class="fas fa-star mr-1"></i> Viết đánh giá
+                            </button>
+                        </div>
+
+                        <div th:if="${reviews != null and not #lists.isEmpty(reviews)}" class="space-y-4">
+                            <div th:each="review : ${reviews}" class="border-b border-gray-200 pb-4 mb-4 last:border-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex items-start">
+                                        <div class="mr-3">
+                                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-800" th:text="${review.user.username}"></div>
+                                            <div class="text-yellow-400 flex text-sm">
+                                                <i th:each="i : ${#numbers.sequence(1, review.rating)}" class="fas fa-star"></i>
+                                                <i th:each="i : ${#numbers.sequence(review.rating + 1, 5)}" class="far fa-star"></i>
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-gray-700" th:text="${review.comment}"></p>
+                            </div>
+                        </div>
+
+                        <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="bg-gray-50 p-6 rounded-lg text-center">
+                            <i class="far fa-comment-dots text-gray-400 text-4xl mb-2"></i>
+                            <p class="text-gray-500">Chưa có đánh giá nào cho tour này</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Right Column (Booking/Summary Info) -->
@@ -188,12 +225,7 @@
                                 </span>
                                 <span class="font-medium" th:text="${travel.maxParticipants} + ' người'"></span>
                             </div>
-                            <div class="flex justify-between items-center text-gray-700">
-                                <span class="flex items-center">
-                                    <i class="fas fa-user-check mr-2 w-4 text-center text-gray-500"></i>Hướng dẫn viên:
-                                </span>
-                                <span class="font-medium" th:text="${travel.guide.fullName}"></span>
-                            </div>
+                            <!-- Đã loại bỏ hiển thị hướng dẫn viên -->
                             <div class="flex justify-between items-center text-gray-700">
                                 <span class="flex items-center">
                                     <i class="fas fa-hiking mr-2 w-4 text-center text-gray-500"></i>Độ khó:
@@ -212,12 +244,12 @@
                         </div>
 
                         <!-- Booking Button -->
-                         <button th:if="${travel.isAvailable}" 
-                                 onclick="openBookingModal()" 
+                         <button th:if="${travel.isAvailable}"
+                                 onclick="openBookingModal()"
                                  class="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:scale-105 active:scale-95 transition duration-200 flex items-center justify-center">
                             <i class="fas fa-ticket-alt mr-2"></i> Đặt tour
                         </button>
-                        <button th:unless="${travel.isAvailable}" 
+                        <button th:unless="${travel.isAvailable}"
                                 disabled
                                 class="w-full bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg shadow-md cursor-not-allowed flex items-center justify-center">
                             <i class="fas fa-ticket-alt mr-2"></i> Hết chỗ
@@ -240,6 +272,7 @@
 
 <!-- Booking Modal -->
 <div id="bookingModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
+
     <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 transition-opacity" aria-hidden="true">
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -347,15 +380,185 @@
                 throw new Error('Network response was not ok.');
             })
             .then(data => {
-                alert('Đặt tour thành công!');
+                alert('Đặt tour thành công! Bạn sẽ được chuyển đến trang lịch sử đặt tour.');
                 closeBookingModal();
+                // Redirect to booking history page
+                window.location.href = '/bookings/my-history';
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra khi đặt tour: ' + error.message);
             });
     }
+
+    // Review modal functions
+    function openReviewModal() {
+        document.getElementById('reviewModal').classList.remove('hidden');
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.add('hidden');
+    }
+
+    // Submit review
+    function submitReview() {
+        const rating = document.querySelector('input[name="rating"]:checked').value;
+        const comment = document.getElementById('reviewComment').value;
+
+        if (!rating) {
+            alert('Vui lòng chọn số sao đánh giá!');
+            return;
+        }
+
+        if (!comment) {
+            alert('Vui lòng nhập nội dung đánh giá!');
+            return;
+        }
+
+        const formData = {
+            travelId: document.getElementById('travelId').value,
+            rating: rating,
+            comment: comment
+        };
+
+        fetch('/api/travel-reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                alert('Đánh giá của bạn đã được gửi thành công!');
+                closeReviewModal();
+                // Reload page to show the new review
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi gửi đánh giá: ' + error.message);
+            });
+    }
+</script>
+
+<!-- Review Modal -->
+<div id="reviewModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Đánh giá tour du lịch</h3>
+                <form id="reviewForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Đánh giá của bạn</label>
+                        <div class="flex space-x-4 text-2xl text-yellow-400">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rating" value="1" class="hidden">
+                                <i class="far fa-star hover:text-yellow-500 transition-colors duration-150"></i>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rating" value="2" class="hidden">
+                                <i class="far fa-star hover:text-yellow-500 transition-colors duration-150"></i>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rating" value="3" class="hidden">
+                                <i class="far fa-star hover:text-yellow-500 transition-colors duration-150"></i>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rating" value="4" class="hidden">
+                                <i class="far fa-star hover:text-yellow-500 transition-colors duration-150"></i>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rating" value="5" class="hidden">
+                                <i class="far fa-star hover:text-yellow-500 transition-colors duration-150"></i>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="reviewComment">Nhận xét của bạn</label>
+                        <textarea id="reviewComment" name="comment" rows="4"
+                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                  placeholder="Chia sẻ trải nghiệm của bạn về tour du lịch này..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="submitReview()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm hover:scale-105 active:scale-95 transition-all duration-150">
+                    <i class="fas fa-paper-plane mr-2"></i> Gửi đánh giá
+                </button>
+                <button type="button" onclick="closeReviewModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Star rating functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('#reviewForm input[name="rating"]');
+
+        stars.forEach(star => {
+            star.addEventListener('change', function() {
+                const rating = parseInt(this.value);
+                const starIcons = document.querySelectorAll('#reviewForm .fa-star');
+
+                starIcons.forEach((icon, index) => {
+                    if (index < rating) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                });
+            });
+
+            // Add hover effect
+            const starLabel = star.parentElement;
+            starLabel.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.querySelector('input').value);
+                const starIcons = document.querySelectorAll('#reviewForm .fa-star');
+
+                starIcons.forEach((icon, index) => {
+                    if (index < rating) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    }
+                });
+            });
+
+            starLabel.addEventListener('mouseleave', function() {
+                const checkedStar = document.querySelector('#reviewForm input[name="rating"]:checked');
+                const rating = checkedStar ? parseInt(checkedStar.value) : 0;
+                const starIcons = document.querySelectorAll('#reviewForm .fa-star');
+
+                starIcons.forEach((icon, index) => {
+                    if (index < rating) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                });
+            });
+        });
+    });
 </script>
 
 </body>
-</html> 
+</html>

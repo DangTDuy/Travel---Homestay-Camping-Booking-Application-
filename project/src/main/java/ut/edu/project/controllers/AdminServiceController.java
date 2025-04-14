@@ -38,21 +38,64 @@ public class AdminServiceController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Long timeSlotId,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String serviceType,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
             Model model) {
 
-        log.info("Fetching services with filters - categoryId: {}, timeSlotId: {}, search: {}",
-                categoryId, timeSlotId, search);
+        log.info("Fetching services with filters - categoryId: {}, timeSlotId: {}, search: {}, serviceType: {}",
+                categoryId, timeSlotId, search, serviceType);
 
         // Lấy danh sách dịch vụ bổ sung với bộ lọc
         List<AdditionalDTO> services;
 
-        if (categoryId != null || timeSlotId != null || search != null) {
+        // Xử lý lọc theo loại dịch vụ (homestay, camping, travel)
+        Long homestayId = null;
+        Long campingId = null;
+        Long travelId = null;
+
+        if ("homestay".equalsIgnoreCase(serviceType)) {
+            // Lọc theo homestay (homestayId = -1 để chỉ lấy dịch vụ của homestay)
+            homestayId = -1L;
+        } else if ("camping".equalsIgnoreCase(serviceType)) {
+            // Lọc theo camping (campingId = -1 để chỉ lấy dịch vụ của camping)
+            campingId = -1L;
+        } else if ("travel".equalsIgnoreCase(serviceType)) {
+            // Lọc theo travel (travelId = -1 để chỉ lấy dịch vụ của travel)
+            travelId = -1L;
+        } else if ("all".equalsIgnoreCase(serviceType)) {
+            // Lọc theo dịch vụ áp dụng cho tất cả (serviceType = ALL)
+            // Không cần set homestayId, campingId, travelId
+        }
+
+        if (categoryId != null || timeSlotId != null || search != null || serviceType != null) {
             // Nếu có bộ lọc, sử dụng phương thức tìm kiếm
             Pageable pageable = PageRequest.of(page, size);
-            Page<Additional> filteredServices = additionalServiceRepository.findByFilters(
-                    categoryId, timeSlotId, null, search, pageable);
+            Page<Additional> filteredServices;
+
+            if ("homestay".equalsIgnoreCase(serviceType)) {
+                // Lọc theo homestay
+                filteredServices = additionalServiceRepository.findByFilters(
+                        categoryId, timeSlotId, homestayId, null, null, search, pageable);
+            } else if ("camping".equalsIgnoreCase(serviceType)) {
+                // Lọc theo camping
+                filteredServices = additionalServiceRepository.findByFilters(
+                        categoryId, timeSlotId, null, campingId, null, search, pageable);
+            } else if ("travel".equalsIgnoreCase(serviceType)) {
+                // Lọc theo travel
+                filteredServices = additionalServiceRepository.findByFilters(
+                        categoryId, timeSlotId, null, null, travelId, search, pageable);
+            } else if ("all".equalsIgnoreCase(serviceType)) {
+                // Lọc theo dịch vụ áp dụng cho tất cả (serviceType = ALL)
+                // Tìm kiếm dịch vụ có serviceType = ALL
+                filteredServices = additionalServiceRepository.findByFilters(
+                        categoryId, timeSlotId, null, null, null, search, pageable);
+                // TODO: Cần bổ sung logic để lọc theo serviceType = ALL
+            } else {
+                // Lọc theo các tiêu chí khác
+                filteredServices = additionalServiceRepository.findByFilters(
+                        categoryId, timeSlotId, null, null, null, search, pageable);
+            }
 
             services = filteredServices.getContent().stream()
                     .map(additionalService::convertToDTO)
@@ -60,7 +103,7 @@ public class AdminServiceController {
 
             log.info("Found {} services matching filters", services.size());
         } else {
-            // Nếu không có bộ lọc, lấy tất cả
+            // Nếu không có bộ lọc, lấy tất cả dịch vụ (cả hoạt động và không hoạt động)
             services = additionalService.getAllAdditionals();
             log.info("Fetched all {} services", services.size());
         }
@@ -74,6 +117,7 @@ public class AdminServiceController {
         if (categoryId != null) model.addAttribute("categoryId", categoryId);
         if (timeSlotId != null) model.addAttribute("timeSlotId", timeSlotId);
         if (search != null) model.addAttribute("search", search);
+        if (serviceType != null) model.addAttribute("serviceType", serviceType);
 
         return "admin/services";
     }

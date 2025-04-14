@@ -9,10 +9,15 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import ut.edu.project.models.Homestay;
+import ut.edu.project.models.Camping;
+import ut.edu.project.models.Travel;
 import ut.edu.project.models.Category;
 import ut.edu.project.models.TimeSlot;
 import ut.edu.project.repositories.CategoryRepository;
 import ut.edu.project.repositories.TimeSlotRepository;
+import ut.edu.project.repositories.HomestayRepository;
+import ut.edu.project.repositories.CampingRepository;
+import ut.edu.project.repositories.TravelRepository;
 
 @Service
 public class AdditionalService {
@@ -25,12 +30,32 @@ public class AdditionalService {
     @Autowired
     private TimeSlotRepository timeSlotRepository;
 
+    @Autowired
+    private HomestayRepository homestayRepository;
+
+    @Autowired
+    private CampingRepository campingRepository;
+
+    @Autowired
+    private TravelRepository travelRepository;
+
     /**
      * Lấy tất cả dịch vụ bổ sung
      * @return Danh sách tất cả dịch vụ bổ sung
      */
     public List<AdditionalDTO> getAllAdditionals() {
         return additionalRepository.findAll().stream()
+                .filter(additional -> !additional.getName().startsWith("[DELETED]")) // Lọc bỏ các dịch vụ đã xóa
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy tất cả dịch vụ bổ sung đang hoạt động
+     * @return Danh sách tất cả dịch vụ bổ sung đang hoạt động
+     */
+    public List<AdditionalDTO> getAllActiveAdditionals() {
+        return additionalRepository.findByIsActive(true).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -41,6 +66,7 @@ public class AdditionalService {
      */
     public List<AdditionalDTO> getCommonAdditionals() {
         return additionalRepository.findByHomestayIsNull().stream()
+                .filter(Additional::isActive) // Chỉ lấy dịch vụ đang hoạt động
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -63,8 +89,27 @@ public class AdditionalService {
         return convertToDTO(additionalRepository.save(existing));
     }
 
+    /**
+     * Xóa dịch vụ bổ sung (soft delete)
+     * Thay vì xóa hoàn toàn, chỉ đánh dấu là không hoạt động
+     * @param id ID của dịch vụ cần xóa
+     */
     public void deleteAdditional(Long id) {
-        additionalRepository.deleteById(id);
+        try {
+            Additional additional = additionalRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Additional not found"));
+
+            // Soft delete: đánh dấu là không hoạt động thay vì xóa
+            additional.setActive(false);
+
+            // Đổi tên để biết là đã bị xóa
+            additional.setName("[DELETED] " + additional.getName());
+
+            // Lưu lại vào database
+            additionalRepository.save(additional);
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể xóa dịch vụ: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -93,8 +138,9 @@ public class AdditionalService {
      * @return Danh sách dịch vụ bổ sung dưới dạng DTO
      */
     public List<AdditionalDTO> getAdditionalsByHomestayId(Long homestayId) {
-        // Lấy dịch vụ riêng của homestay
+        // Lấy dịch vụ riêng của homestay (chỉ lấy dịch vụ đang hoạt động)
         List<AdditionalDTO> homestayServices = additionalRepository.findByHomestayId(homestayId).stream()
+                .filter(Additional::isActive) // Chỉ lấy dịch vụ đang hoạt động
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
@@ -107,7 +153,7 @@ public class AdditionalService {
         // Thêm dịch vụ riêng của homestay
         allServices.addAll(homestayServices);
 
-        // Thêm dịch vụ chung, loại bỏ các dịch vụ trùng lặp
+        // Thêm dịch vụ chung, loại bỏ các dịch vụ trùng lặp và chỉ lấy dịch vụ cho HOMESTAY hoặc ALL
         for (AdditionalDTO commonService : commonServices) {
             // Kiểm tra xem dịch vụ chung đã có trong danh sách dịch vụ riêng của homestay chưa
             boolean isDuplicate = false;
@@ -120,8 +166,9 @@ public class AdditionalService {
                 }
             }
 
-            // Nếu không trùng lặp, thêm vào danh sách
-            if (!isDuplicate) {
+            // Nếu không trùng lặp và là dịch vụ cho HOMESTAY hoặc ALL, thêm vào danh sách
+            if (!isDuplicate && (commonService.getServiceType() == Additional.ServiceType.HOMESTAY ||
+                                 commonService.getServiceType() == Additional.ServiceType.ALL)) {
                 allServices.add(commonService);
             }
         }
@@ -131,6 +178,50 @@ public class AdditionalService {
 
     public List<Additional> getByIds(List<Long> ids) {
         return additionalRepository.findAllById(ids);
+    }
+
+    /**
+     * Lấy danh sách dịch vụ bổ sung theo travel ID, bao gồm cả dịch vụ chung
+     * @param travelId ID của travel
+     * @return Danh sách dịch vụ bổ sung dưới dạng DTO
+     */
+    public List<AdditionalDTO> getAdditionalsByTravelId(Long travelId) {
+        // Lấy dịch vụ riêng của travel (chỉ lấy dịch vụ đang hoạt động)
+        List<AdditionalDTO> travelServices = additionalRepository.findByTravelId(travelId).stream()
+                .filter(Additional::isActive) // Chỉ lấy dịch vụ đang hoạt động
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Lấy dịch vụ chung (không gắn với homestay cụ thể)
+        List<AdditionalDTO> commonServices = getCommonAdditionals();
+
+        // Tạo một danh sách mới để lưu tất cả dịch vụ
+        List<AdditionalDTO> allServices = new ArrayList<>();
+
+        // Thêm dịch vụ riêng của travel
+        allServices.addAll(travelServices);
+
+        // Thêm dịch vụ chung, loại bỏ các dịch vụ trùng lặp và chỉ lấy dịch vụ cho TRAVEL hoặc ALL
+        for (AdditionalDTO commonService : commonServices) {
+            // Kiểm tra xem dịch vụ chung đã có trong danh sách dịch vụ riêng của travel chưa
+            boolean isDuplicate = false;
+            for (AdditionalDTO travelService : travelServices) {
+                if (commonService.getName().equals(travelService.getName()) &&
+                    (commonService.getCategory() == null || travelService.getCategory() == null ||
+                     commonService.getCategory().getId().equals(travelService.getCategory().getId()))) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            // Nếu không trùng lặp và là dịch vụ cho TRAVEL hoặc ALL, thêm vào danh sách
+            if (!isDuplicate && (commonService.getServiceType() == Additional.ServiceType.TRAVEL ||
+                                 commonService.getServiceType() == Additional.ServiceType.ALL)) {
+                allServices.add(commonService);
+            }
+        }
+
+        return allServices;
     }
 
     public AdditionalDTO convertToDTO(Additional entity) {
@@ -143,10 +234,13 @@ public class AdditionalService {
         dto.setCategory(entity.getCategory());
         dto.setHomestayId(entity.getHomestay() != null ? entity.getHomestay().getId() : null);
         dto.setCampingId(entity.getCamping() != null ? entity.getCamping().getId() : null);
+        dto.setTravelId(entity.getTravel() != null ? entity.getTravel().getId() : null);
         dto.setStartTime(entity.getStartTime());
         dto.setEndTime(entity.getEndTime());
         dto.setActive(entity.isActive());
         dto.setImageUrl(entity.getImageUrl());
+        dto.setQuantity(entity.getQuantity());
+        dto.setServiceType(entity.getServiceType());
         return dto;
     }
 
@@ -166,6 +260,50 @@ public class AdditionalService {
         entity.setEndTime(dto.getEndTime());
         entity.setActive(dto.isActive());
         entity.setImageUrl(dto.getImageUrl());
+        entity.setQuantity(dto.getQuantity());
+        entity.setServiceType(dto.getServiceType());
+
+        // Set homestay if provided
+        if (dto.getHomestayId() != null && dto.getHomestayId() > 0) {
+            Homestay homestay = homestayRepository.findById(dto.getHomestayId())
+                    .orElseThrow(() -> new RuntimeException("Homestay not found"));
+            entity.setHomestay(homestay);
+
+            // Nếu gắn với homestay, đặt loại dịch vụ là HOMESTAY
+            if (dto.getServiceType() == null || dto.getServiceType() == Additional.ServiceType.ALL) {
+                entity.setServiceType(Additional.ServiceType.HOMESTAY);
+            }
+        } else {
+            entity.setHomestay(null);
+        }
+
+        // Set camping if provided
+        if (dto.getCampingId() != null && dto.getCampingId() > 0) {
+            Camping camping = campingRepository.findById(dto.getCampingId())
+                    .orElseThrow(() -> new RuntimeException("Camping not found"));
+            entity.setCamping(camping);
+
+            // Nếu gắn với camping, đặt loại dịch vụ là CAMPING
+            if (dto.getServiceType() == null || dto.getServiceType() == Additional.ServiceType.ALL) {
+                entity.setServiceType(Additional.ServiceType.CAMPING);
+            }
+        } else {
+            entity.setCamping(null);
+        }
+
+        // Set travel if provided
+        if (dto.getTravelId() != null && dto.getTravelId() > 0) {
+            Travel travel = travelRepository.findById(dto.getTravelId())
+                    .orElseThrow(() -> new RuntimeException("Travel not found"));
+            entity.setTravel(travel);
+
+            // Nếu gắn với travel, đặt loại dịch vụ là TRAVEL
+            if (dto.getServiceType() == null || dto.getServiceType() == Additional.ServiceType.ALL) {
+                entity.setServiceType(Additional.ServiceType.TRAVEL);
+            }
+        } else {
+            entity.setTravel(null);
+        }
     }
 
     /**

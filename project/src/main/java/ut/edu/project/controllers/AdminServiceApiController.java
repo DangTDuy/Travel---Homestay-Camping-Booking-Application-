@@ -95,6 +95,52 @@ public class AdminServiceApiController {
                 }
             }
 
+            // Handle camping
+            if (requestData.get("campingId") != null) {
+                Long campingId;
+                if (requestData.get("campingId") instanceof Number) {
+                    campingId = ((Number) requestData.get("campingId")).longValue();
+                } else {
+                    campingId = Long.parseLong(requestData.get("campingId").toString());
+                }
+
+                // Nếu campingId = -1, đặt là null để áp dụng cho tất cả camping
+                if (campingId == -1) {
+                    dto.setCampingId(null);
+                } else {
+                    dto.setCampingId(campingId);
+                }
+            }
+
+            // Handle travel
+            if (requestData.get("travelId") != null) {
+                Long travelId;
+                if (requestData.get("travelId") instanceof Number) {
+                    travelId = ((Number) requestData.get("travelId")).longValue();
+                } else {
+                    travelId = Long.parseLong(requestData.get("travelId").toString());
+                }
+
+                // Nếu travelId = -1, đặt là null để áp dụng cho tất cả travel
+                if (travelId == -1) {
+                    dto.setTravelId(null);
+                } else {
+                    dto.setTravelId(travelId);
+                }
+            }
+
+            // Handle serviceType
+            if (requestData.get("serviceType") != null) {
+                String serviceTypeStr = (String) requestData.get("serviceType");
+                try {
+                    ut.edu.project.models.Additional.ServiceType serviceType =
+                        ut.edu.project.models.Additional.ServiceType.valueOf(serviceTypeStr);
+                    dto.setServiceType(serviceType);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid serviceType: {}", serviceTypeStr);
+                }
+            }
+
             // Handle time fields
             if (requestData.get("startTime") != null) {
                 dto.setStartTime(java.time.LocalTime.parse((String) requestData.get("startTime")));
@@ -105,8 +151,23 @@ public class AdminServiceApiController {
             }
 
             // Handle active status
+            log.info("isActive value from request: {}, type: {}", requestData.get("isActive"),
+                    requestData.get("isActive") != null ? requestData.get("isActive").getClass().getName() : "null");
+
             if (requestData.get("isActive") != null) {
-                dto.setActive((Boolean) requestData.get("isActive"));
+                boolean isActive;
+                if (requestData.get("isActive") instanceof Boolean) {
+                    isActive = (Boolean) requestData.get("isActive");
+                } else {
+                    // Convert from string or other types
+                    isActive = Boolean.parseBoolean(requestData.get("isActive").toString());
+                }
+                dto.setActive(isActive);
+                log.info("Setting isActive to: {}", isActive);
+            } else {
+                // Mặc định là hoạt động nếu không có giá trị
+                dto.setActive(true);
+                log.info("No isActive value provided, defaulting to true");
             }
 
             AdditionalDTO createdService = additionalService.createAdditional(dto);
@@ -188,6 +249,52 @@ public class AdminServiceApiController {
                 }
             }
 
+            // Handle camping
+            if (requestData.get("campingId") != null) {
+                Long campingId;
+                if (requestData.get("campingId") instanceof Number) {
+                    campingId = ((Number) requestData.get("campingId")).longValue();
+                } else {
+                    campingId = Long.parseLong(requestData.get("campingId").toString());
+                }
+
+                // Nếu campingId = -1, đặt là null để áp dụng cho tất cả camping
+                if (campingId == -1) {
+                    dto.setCampingId(null);
+                } else {
+                    dto.setCampingId(campingId);
+                }
+            }
+
+            // Handle travel
+            if (requestData.get("travelId") != null) {
+                Long travelId;
+                if (requestData.get("travelId") instanceof Number) {
+                    travelId = ((Number) requestData.get("travelId")).longValue();
+                } else {
+                    travelId = Long.parseLong(requestData.get("travelId").toString());
+                }
+
+                // Nếu travelId = -1, đặt là null để áp dụng cho tất cả travel
+                if (travelId == -1) {
+                    dto.setTravelId(null);
+                } else {
+                    dto.setTravelId(travelId);
+                }
+            }
+
+            // Handle serviceType
+            if (requestData.get("serviceType") != null) {
+                String serviceTypeStr = (String) requestData.get("serviceType");
+                try {
+                    ut.edu.project.models.Additional.ServiceType serviceType =
+                        ut.edu.project.models.Additional.ServiceType.valueOf(serviceTypeStr);
+                    dto.setServiceType(serviceType);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid serviceType: {}", serviceTypeStr);
+                }
+            }
+
             // Handle time fields
             if (requestData.get("startTime") != null) {
                 dto.setStartTime(java.time.LocalTime.parse((String) requestData.get("startTime")));
@@ -198,8 +305,22 @@ public class AdminServiceApiController {
             }
 
             // Handle active status
+            log.info("isActive value from request: {}, type: {}", requestData.get("isActive"),
+                    requestData.get("isActive") != null ? requestData.get("isActive").getClass().getName() : "null");
+
             if (requestData.get("isActive") != null) {
-                dto.setActive((Boolean) requestData.get("isActive"));
+                boolean isActive;
+                if (requestData.get("isActive") instanceof Boolean) {
+                    isActive = (Boolean) requestData.get("isActive");
+                } else {
+                    // Convert from string or other types
+                    isActive = Boolean.parseBoolean(requestData.get("isActive").toString());
+                }
+                dto.setActive(isActive);
+                log.info("Setting isActive to: {}", isActive);
+            } else {
+                // Giữ nguyên trạng thái hoạt động hiện tại nếu không có giá trị mới
+                log.info("No isActive value provided, keeping current value: {}", dto.isActive());
             }
 
             AdditionalDTO updatedService = additionalService.updateAdditional(id, dto);

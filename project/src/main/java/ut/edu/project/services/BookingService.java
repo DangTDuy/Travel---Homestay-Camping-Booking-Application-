@@ -464,6 +464,23 @@ public class BookingService {
     }
 
     /**
+     * Kiểm tra xem người dùng đã đặt tour này chưa
+     * @param username Tên người dùng
+     * @param travelId ID của tour
+     * @return true nếu người dùng đã đặt tour này, false nếu chưa
+     */
+    public boolean hasUserBookedTravel(String username, Long travelId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        // Đếm số lượng booking đã hoàn thành của user đối với travel này
+        Long count = bookingRepository.countByUserIdAndTravelIdAndStatus(
+                user.getId(), travelId, Booking.BookingStatus.COMPLETED.toString());
+
+        return count != null && count > 0;
+    }
+
+    /**
      * Lấy danh sách booking theo homestay ID
      * @param homestayId ID của homestay
      * @return Danh sách booking của homestay

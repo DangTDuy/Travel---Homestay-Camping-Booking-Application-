@@ -12,6 +12,7 @@ import ut.edu.project.models.Homestay;
 public interface AdditionalRepository extends JpaRepository<Additional, Long> {
     List<Additional> findByHomestayId(Long homestayId);
     List<Additional> findByCampingId(Long campingId);
+    List<Additional> findByTravelId(Long travelId);
     List<Additional> findByTimeSlot(TimeSlot timeSlot);
     List<Additional> findByCategory(Category category);
     List<Additional> findByIsActive(boolean isActive);

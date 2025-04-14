@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import ut.edu.project.models.TimeSlot;
 import ut.edu.project.models.Category;
+import ut.edu.project.models.Additional.ServiceType;
 
 /**
  * DTO cho dịch vụ bổ sung
@@ -27,6 +28,7 @@ public class AdditionalDTO {
     private Category category;
     private Long homestayId;
     private Long campingId;
+    private Long travelId;
 
     // Thông tin thời gian
     private LocalTime startTime;
@@ -39,7 +41,10 @@ public class AdditionalDTO {
     // Thông tin bổ sung cho đặt phòng
     private int quantity = 1;
 
+    // Loại dịch vụ
+    private ServiceType serviceType = ServiceType.ALL;
+
     // ID tham chiếu (dùng khi không cần đối tượng đầy đủ)
     private Long categoryId;
     private Long timeSlotId;
-} 
+}

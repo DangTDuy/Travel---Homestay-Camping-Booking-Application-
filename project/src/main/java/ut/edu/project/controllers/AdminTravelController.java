@@ -49,7 +49,7 @@ public class AdminTravelController {
                 : travelService.getAllTravels();
 
             model.addAttribute("travels", travels);
-            model.addAttribute("difficultyLevels", Travel.DifficultyLevel.values());
+            // Đã loại bỏ việc truyền danh sách độ khó
 
             // Đã loại bỏ việc lấy danh sách hướng dẫn viên vì không còn cần thiết
 
@@ -65,20 +65,19 @@ public class AdminTravelController {
         return "admin/admin-travel";
     }
 
-    @PostMapping("/create")
-    public String createTravel(
+    @PostMapping("/api/create")
+    @ResponseBody
+    public ResponseEntity<?> createTravel(
             @Valid @ModelAttribute Travel travel,
             BindingResult result,
             @RequestParam(name = "includedServices", required = false) List<String> includedServices,
-            @RequestParam(name = "images", required = false) List<MultipartFile> images,
-            Model model) {
+            @RequestParam(name = "images", required = false) MultipartFile[] images) {
 
         if (result.hasErrors()) {
-            model.addAttribute("travels", travelService.getAllTravels());
-            model.addAttribute("difficultyLevels", Travel.DifficultyLevel.values());
-            // Đã loại bỏ việc thêm danh sách guides vào model
-            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin nhập vào");
-            return "admin/admin-travel";
+            Map<String, String> errors = new HashMap<>();
+            result.getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(Map.of("errors", errors));
         }
 
         try {
@@ -87,64 +86,60 @@ public class AdminTravelController {
                 travel.setIncludedServices(includedServices);
             }
 
-            // Xử lý image uploads
-            List<String> imageUrls = new ArrayList<>();
-            if (images != null && !images.isEmpty()) {
-                for (MultipartFile image : images) {
-                    if (!image.isEmpty()) {
-                        // Lưu ảnh và lấy URL - thông thường sẽ có service riêng để xử lý việc này
-                        // Ở đây giả định URL được lưu trữ dưới dạng chuỗi
-                        String imageUrl = "https://example.com/image/" + image.getOriginalFilename(); // Điều này cần được thay bằng code thực tế để lưu ảnh
-                        imageUrls.add(imageUrl);
-                    }
-                }
-                travel.setImageUrls(imageUrls);
+            // Lưu tour mới
+            Travel savedTravel = travelService.createTravel(travel);
+
+            // Upload ảnh nếu có
+            if (images != null && images.length > 0) {
+                travelService.uploadImages(savedTravel.getId(), images);
+                // Lấy lại travel sau khi upload ảnh
+                savedTravel = travelService.getTravelById(savedTravel.getId())
+                        .orElse(savedTravel);
             }
 
-            // Lưu tour mới
-            travelService.createTravel(travel);
-            return "redirect:/admin/travel";
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Tạo tour du lịch mới thành công",
+                "travel", savedTravel
+            ));
         } catch (Exception e) {
-            model.addAttribute("travels", travelService.getAllTravels());
-            model.addAttribute("difficultyLevels", Travel.DifficultyLevel.values());
-            // Đã loại bỏ việc thêm danh sách guides vào model
-            model.addAttribute("error", "Lỗi khi tạo tour du lịch: " + e.getMessage());
             log.error("Error creating travel", e);
-            return "admin/admin-travel";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
-    @GetMapping("/{id}")
-    public String getTravelDetails(@PathVariable Long id, Model model) {
+    @GetMapping("/api/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getTravelDetails(@PathVariable Long id) {
         try {
             Travel travel = travelService.getTravelById(id)
                 .orElseThrow(() -> new RuntimeException("Tour du lịch không tồn tại"));
 
-            model.addAttribute("travel", travel);
-            model.addAttribute("difficultyLevels", Travel.DifficultyLevel.values());
-            // Đã loại bỏ việc thêm danh sách guides vào model
-
-            return "admin/admin-travel-form";
+            return ResponseEntity.ok(travel);
         } catch (Exception e) {
-            return "redirect:/admin/travel?error=" + e.getMessage();
+            log.error("Error getting travel details", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
-    @PostMapping("/{id}")
-    public String updateTravel(
+    @PostMapping("/api/update/{id}")
+    @ResponseBody
+    public ResponseEntity<?> updateTravel(
             @PathVariable Long id,
             @Valid @ModelAttribute Travel travel,
             BindingResult result,
             @RequestParam(required = false) List<String> includedServices,
-            @RequestParam(required = false) List<MultipartFile> newImages,
+            @RequestParam(required = false) MultipartFile[] newImages,
             @RequestParam(required = false) List<String> existingImages,
-            Model model) {
+            @RequestParam(required = false) List<String> removedImages) {
 
         if (result.hasErrors()) {
-            model.addAttribute("difficultyLevels", Travel.DifficultyLevel.values());
-            // Đã loại bỏ việc thêm danh sách guides vào model
-            model.addAttribute("error", "Vui lòng kiểm tra lại thông tin nhập vào");
-            return "admin/admin-travel-form";
+            Map<String, String> errors = new HashMap<>();
+            result.getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(Map.of("errors", errors));
         }
 
         try {
@@ -155,37 +150,44 @@ public class AdminTravelController {
                 travel.setIncludedServices(new ArrayList<>());
             }
 
-            // Xử lý image URLs
-            List<String> imageUrls = new ArrayList<>();
+            // Log trước khi cập nhật
+            log.info("Updating travel with ID: {}, isAvailable: {}", id, travel.isAvailable());
 
-            // Giữ lại các ảnh hiện có nếu được chọn
+            // Cập nhật thông tin cơ bản của tour
+            Travel updatedTravel = travelService.updateTravel(id, travel);
+
+            // Log sau khi cập nhật
+            log.info("Updated travel with ID: {}, isAvailable: {}", id, updatedTravel.isAvailable());
+
+            // Log thông tin về ảnh
+            log.info("Existing images count: {}", existingImages != null ? existingImages.size() : 0);
             if (existingImages != null && !existingImages.isEmpty()) {
-                imageUrls.addAll(existingImages);
+                log.info("Existing images: {}", existingImages);
             }
 
-            // Thêm ảnh mới nếu có
-            if (newImages != null && !newImages.isEmpty()) {
-                for (MultipartFile image : newImages) {
-                    if (!image.isEmpty()) {
-                        // Xử lý tương tự như trong phương thức create
-                        String imageUrl = "https://example.com/image/" + image.getOriginalFilename();
-                        imageUrls.add(imageUrl);
-                    }
-                }
+            // Log thông tin về ảnh đã xóa
+            if (removedImages != null && !removedImages.isEmpty()) {
+                log.info("Removed images count: {}", removedImages.size());
+                log.info("Removed images: {}", removedImages);
             }
 
-            travel.setImageUrls(imageUrls);
+            log.info("New images count: {}", newImages != null ? newImages.length : 0);
 
-            // Cập nhật tour
-            travelService.updateTravel(id, travel);
-            return "redirect:/admin/travel";
+            // Cập nhật ảnh
+            updatedTravel = travelService.updateTravelImages(updatedTravel, existingImages, newImages);
+
+            // Log sau khi cập nhật ảnh
+            log.info("Updated travel images. Total images: {}", updatedTravel.getImageUrls().size());
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Cập nhật tour du lịch thành công",
+                "travel", updatedTravel
+            ));
         } catch (Exception e) {
-            model.addAttribute("difficultyLevels", Travel.DifficultyLevel.values());
-            // Đã loại bỏ việc thêm danh sách guides vào model
-            model.addAttribute("error", "Lỗi khi cập nhật tour du lịch: " + e.getMessage());
-            model.addAttribute("currentPage", "admin/travel");
             log.error("Error updating travel", e);
-            return "admin/admin-travel-form";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 

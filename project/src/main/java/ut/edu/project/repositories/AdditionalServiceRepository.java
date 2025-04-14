@@ -19,12 +19,17 @@ public interface AdditionalServiceRepository extends AdditionalRepository {
     @Query("SELECT s FROM Additional s WHERE " +
            "(:categoryId IS NULL OR s.category.id = :categoryId) AND " +
            "(:timeSlotId IS NULL OR s.timeSlot.id = :timeSlotId) AND " +
-           "(:homestayId IS NULL OR s.homestay.id = :homestayId) AND " +
-           "(:search IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "(:homestayId IS NULL OR (:homestayId = -1 AND s.homestay IS NOT NULL) OR s.homestay.id = :homestayId) AND " +
+           "(:campingId IS NULL OR (:campingId = -1 AND s.camping IS NOT NULL) OR s.camping.id = :campingId) AND " +
+           "(:travelId IS NULL OR (:travelId = -1 AND s.travel IS NOT NULL) OR s.travel.id = :travelId) AND " +
+           "(:search IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "NOT s.name LIKE '[DELETED]%'")
     Page<Additional> findByFilters(
             @Param("categoryId") Long categoryId,
             @Param("timeSlotId") Long timeSlotId,
             @Param("homestayId") Long homestayId,
+            @Param("campingId") Long campingId,
+            @Param("travelId") Long travelId,
             @Param("search") String search,
             Pageable pageable);
 
