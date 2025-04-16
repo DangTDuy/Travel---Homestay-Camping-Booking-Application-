@@ -1,6 +1,7 @@
 package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ut.edu.project.models.Homestay;
@@ -52,12 +53,17 @@ public class HomestayService {
     @Autowired
     private BookingRepository bookingRepository;
 
-    private final String UPLOAD_DIR = "src/main/resources/static/homestay_images";
-    private final Path rootLocation = Paths.get(UPLOAD_DIR);
+    @Value("${app.upload.dir:project/src/main/resources/static/homestay_images}")
+    private String UPLOAD_DIR;
+
+    private Path rootLocation;
 
     @PostConstruct
     public void init() {
         try {
+            // Initialize rootLocation
+            rootLocation = Paths.get(UPLOAD_DIR);
+
             // Create upload directory if it doesn't exist
             File uploadDir = new File(UPLOAD_DIR);
             if (!uploadDir.exists()) {
@@ -183,16 +189,16 @@ public class HomestayService {
         try {
             Homestay homestay = homestayRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Homestay not found"));
-            
+
             // Initialize lazy-loaded collections
             Hibernate.initialize(homestay.getImages());
             Hibernate.initialize(homestay.getImageUrls());
             Hibernate.initialize(homestay.getAmenities());
             Hibernate.initialize(homestay.getReviews());
-            
+
             // Initialize owner
             Hibernate.initialize(homestay.getOwner());
-            
+
             return Optional.of(homestay);
         } catch (Exception e) {
             log.error("Error getting homestay: {}", e.getMessage(), e);
@@ -290,21 +296,21 @@ public class HomestayService {
 
             // Lọc bỏ các homestay null (nếu có)
             List<Homestay> validHomestays = new ArrayList<>();
-            
+
             // Ensure all necessary collections are initialized within the transaction
             for (Homestay homestay : homestays) {
                 if (homestay == null) {
                     log.warn("Found null homestay in result list, skipping");
                     continue;
                 }
-                
+
                 try {
                     // Đảm bảo ID không null
                     if (homestay.getId() == null) {
                         log.warn("Found homestay with null ID, skipping");
                         continue;
                     }
-                    
+
                     // Khởi tạo các collection cần thiết một cách an toàn
                     // Nếu collection là null, tạo mới thay vì bỏ qua
                     if (homestay.getAmenities() == null) {
@@ -312,31 +318,31 @@ public class HomestayService {
                     } else {
                         Hibernate.initialize(homestay.getAmenities());
                     }
-                    
+
                     if (homestay.getImages() == null) {
                         homestay.setImages(new ArrayList<>());
                     } else {
                         Hibernate.initialize(homestay.getImages());
                     }
-                    
+
                     if (homestay.getImageUrls() == null) {
                         homestay.setImageUrls(new ArrayList<>());
                     } else {
                         Hibernate.initialize(homestay.getImageUrls());
                     }
-                    
+
                     // Đảm bảo các trường cơ bản không null
                     if (homestay.getBookingCount() == null) {
                         homestay.setBookingCount(0);
                     }
-                    
+
                     if (homestay.getRating() == null) {
                         homestay.setRating(0.0);
                     }
-                    
+
                     validHomestays.add(homestay);
                 } catch (Exception e) {
-                    log.error("Error initializing collections for homestay ID {}: {}", 
+                    log.error("Error initializing collections for homestay ID {}: {}",
                             homestay.getId(), e.getMessage());
                     // Thêm homestay vào danh sách ngay cả khi có lỗi để đảm bảo hiển thị đủ
                     try {
@@ -346,7 +352,7 @@ public class HomestayService {
                         if (homestay.getImageUrls() == null) homestay.setImageUrls(new ArrayList<>());
                         if (homestay.getBookingCount() == null) homestay.setBookingCount(0);
                         if (homestay.getRating() == null) homestay.setRating(0.0);
-                        
+
                         validHomestays.add(homestay);
                     } catch (Exception ex) {
                         log.error("Cannot recover homestay ID {}: {}", homestay.getId(), ex.getMessage());
@@ -372,27 +378,28 @@ public class HomestayService {
         Homestay homestay = homestayRepository.findById(homestayId)
             .orElseThrow(() -> new RuntimeException("Homestay không tồn tại"));
 
-        Path uploadPath = Paths.get("src/main/resources/static/homestay_images");
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
+        // Sử dụng rootLocation đã được khởi tạo
+        if (!Files.exists(rootLocation)) {
+            Files.createDirectories(rootLocation);
         }
 
         List<String> newUrls = new ArrayList<>();
         for (MultipartFile image : images) {
             String originalFilename = image.getOriginalFilename();
+            if (originalFilename == null) {
+                continue;
+            }
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
-            
-            Path targetPath = uploadPath.resolve(filename);
+
+            Path targetPath = rootLocation.resolve(filename);
             Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-            
+
             newUrls.add("/homestay_images/" + filename);
         }
-        
-        if (homestay.getImageUrls() == null) {
-            homestay.setImageUrls(new ArrayList<>());
-        }
-        homestay.getImageUrls().addAll(newUrls);
+
+        // Thay thế danh sách ảnh hiện tại bằng danh sách mới
+        homestay.setImageUrls(newUrls);
         homestayRepository.save(homestay);
     }
 
@@ -406,9 +413,12 @@ public class HomestayService {
         }
 
         // Get current image filenames from paths
-        List<String> currentFilenames = currentImages.stream()
-                .map(path -> path.substring(path.lastIndexOf('/') + 1))
-                .collect(Collectors.toList());
+        List<String> currentFilenames = new ArrayList<>();
+        if (currentImages != null && !currentImages.isEmpty()) {
+            currentFilenames = currentImages.stream()
+                    .map(path -> path.substring(path.lastIndexOf('/') + 1))
+                    .collect(Collectors.toList());
+        }
 
         // Delete removed images
         if (homestay.getImages() != null) {
@@ -431,6 +441,9 @@ public class HomestayService {
                 for (MultipartFile image : newImages) {
                     validateImage(image);
                     String originalFilename = image.getOriginalFilename();
+                    if (originalFilename == null) {
+                        continue;
+                    }
                     String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                     String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + fileExtension;
 
@@ -464,15 +477,15 @@ public class HomestayService {
     public void deleteImages(Long homestayId, List<String> imageUrls) {
         Homestay homestay = homestayRepository.findById(homestayId)
             .orElseThrow(() -> new RuntimeException("Homestay không tồn tại"));
-        
+
         // Xóa các URL khỏi danh sách ảnh của homestay
         List<String> remainingImages = homestay.getImageUrls().stream()
             .filter(url -> !imageUrls.contains(url))
             .collect(Collectors.toList());
-        
+
         homestay.setImageUrls(remainingImages);
         homestayRepository.save(homestay);
-        
+
 
     }
 
@@ -603,6 +616,9 @@ public class HomestayService {
 
                 // Tạo tên file duy nhất
                 String originalFilename = image.getOriginalFilename();
+                if (originalFilename == null) {
+                    continue;
+                }
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String newFilename = System.currentTimeMillis() + "_" + fileExtension;
 

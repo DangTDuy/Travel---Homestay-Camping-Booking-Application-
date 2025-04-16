@@ -3,6 +3,7 @@ package ut.edu.project.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.annotation.PostConstruct;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,10 +14,19 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class FileStorageService {
 
-    private final Path rootLocation = Paths.get("src/main/resources/static/travel_images");
+    private Path rootLocation;
+
+    @Value("${app.upload.travel-dir:project/src/main/resources/static/travel_images}")
+    private String uploadDir;
 
     public FileStorageService() {
+        // Constructor rỗng - khởi tạo sẽ được thực hiện trong phương thức init()
+    }
+
+    @PostConstruct
+    public void init() {
         try {
+            rootLocation = Paths.get(uploadDir);
             if (!Files.exists(rootLocation)) {
                 Files.createDirectories(rootLocation);
             }

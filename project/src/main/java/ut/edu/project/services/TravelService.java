@@ -1,12 +1,14 @@
 package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ut.edu.project.models.Travel;
 import ut.edu.project.repositories.TravelRepository;
 import ut.edu.project.models.Travel.DifficultyLevel;
+import jakarta.annotation.PostConstruct;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,8 +16,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,7 +31,23 @@ import org.slf4j.LoggerFactory;
 public class TravelService {
 
     private static final Logger log = LoggerFactory.getLogger(TravelService.class);
-    private final Path rootLocation = Paths.get("src/main/resources/static/travel_images");
+
+    @Value("${app.upload.travel-dir:project/src/main/resources/static/travel_images}")
+    private String uploadDir;
+
+    private Path rootLocation;
+
+    @PostConstruct
+    public void init() {
+        try {
+            rootLocation = Paths.get(uploadDir);
+            if (!Files.exists(rootLocation)) {
+                Files.createDirectories(rootLocation);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not initialize storage location", e);
+        }
+    }
 
     @Autowired
     private TravelRepository travelRepository;
@@ -64,7 +85,17 @@ public class TravelService {
     }
 
     public Optional<Travel> getTravelById(Long id) {
-        return travelRepository.findById(id);
+        Optional<Travel> travelOpt = travelRepository.findById(id);
+
+        // Đảm bảo danh sách ảnh không trùng lặp
+        travelOpt.ifPresent(travel -> {
+            if (travel.getImageUrls() != null) {
+                // getImageUrls() đã trả về ArrayList từ LinkedHashSet nên không cần xử lý thêm
+                log.debug("Travel {} has {} unique images", id, travel.getImageUrls().size());
+            }
+        });
+
+        return travelOpt;
     }
 
     public List<Travel> getAllTravels() {
@@ -193,7 +224,30 @@ public class TravelService {
             Files.createDirectories(rootLocation);
         }
 
-        List<String> newUrls = new ArrayList<>();
+        // Lấy danh sách ảnh hiện tại (nếu có)
+        List<String> existingUrls = new ArrayList<>();
+        if (travel.getImageUrls() != null) {
+            existingUrls.addAll(travel.getImageUrls());
+        }
+        log.info("Existing image URLs: {}", existingUrls);
+
+        // Kiểm tra tổng số ảnh
+        int totalImages = existingUrls.size() + images.length;
+        log.info("Total images count: {}, Existing: {}, New: {}",
+                 totalImages, existingUrls.size(), images.length);
+
+        if (totalImages > 5) {
+            throw new IllegalArgumentException("Tổng số ảnh không được vượt quá 5");
+        }
+
+        if (totalImages == 0) {
+            throw new IllegalArgumentException("Phải có ít nhất 1 ảnh cho tour du lịch");
+        }
+
+        // Sử dụng Map để theo dõi các file đã được thêm
+        Map<String, String> fileHashToUrl = new HashMap<>();
+        Set<String> newUrls = new LinkedHashSet<>();
+
         for (MultipartFile image : images) {
             if (image.isEmpty()) {
                 continue;
@@ -203,17 +257,45 @@ public class TravelService {
             if (originalFilename == null) {
                 continue;
             }
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
 
-            Path targetPath = rootLocation.resolve(filename);
-            Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                // Tạo một hash duy nhất cho file dựa trên nội dung
+                byte[] bytes = image.getBytes();
+                String fileHash = Integer.toString(Arrays.hashCode(bytes));
 
-            newUrls.add("/travel_images/" + filename);
+                // Kiểm tra xem file này đã được thêm chưa
+                if (fileHashToUrl.containsKey(fileHash)) {
+                    // File đã được thêm, sử dụng URL đã có
+                    String existingUrl = fileHashToUrl.get(fileHash);
+                    newUrls.add(existingUrl);
+                    log.info("Reusing existing image URL for duplicate content: {}", existingUrl);
+                    continue;
+                }
+
+                // File chưa được thêm, tạo một tên file mới
+                String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
+
+                Path targetPath = rootLocation.resolve(filename);
+                Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                String newUrl = "/travel_images/" + filename;
+                newUrls.add(newUrl);
+                fileHashToUrl.put(fileHash, newUrl);
+                log.info("Added new image URL: {}", newUrl);
+            } catch (IOException e) {
+                log.error("Error processing image: {}", originalFilename, e);
+            }
         }
 
-        // Đặt danh sách ảnh mới thay vì thêm vào danh sách hiện có
-        travel.setImageUrls(newUrls);
+        // Thêm các URL mới vào danh sách
+        // Vì Travel.imageUrls đã là Set nên tự động loại bỏ trùng lặp
+        List<String> currentUrls = travel.getImageUrls(); // Đã là ArrayList từ LinkedHashSet
+        currentUrls.addAll(newUrls);
+        travel.setImageUrls(currentUrls); // Sẽ chuyển thành LinkedHashSet trong setter
+
+        log.info("Added {} new unique images to travel", newUrls.size());
+        log.info("Total unique images after update: {}", travel.getImageUrls().size());
         travelRepository.save(travel);
     }
 
@@ -255,8 +337,16 @@ public class TravelService {
 
         // Thêm các ảnh hiện tại được chọn vào danh sách mới
         if (currentImages != null && !currentImages.isEmpty()) {
-            // Sử dụng Set để loại bỏ trùng lặp
-            Set<String> uniqueImages = new HashSet<>(currentImages);
+            // Sử dụng LinkedHashSet để loại bỏ trùng lặp nhưng giữ thứ tự
+            Set<String> uniqueImages = new LinkedHashSet<>();
+
+            // Chỉ thêm các ảnh từ currentImages mà thực sự tồn tại trong oldImageUrls
+            for (String img : currentImages) {
+                if (oldImageUrls.contains(img) && !uniqueImages.contains(img)) {
+                    uniqueImages.add(img);
+                }
+            }
+
             travel.getImageUrls().addAll(uniqueImages);
             log.info("Added {} existing images to travel", uniqueImages.size());
         }
@@ -287,6 +377,10 @@ public class TravelService {
                 Files.createDirectories(rootLocation);
             }
 
+            // Sử dụng Map để theo dõi các file đã được thêm
+            Map<String, String> fileHashToUrl = new HashMap<>();
+            Set<String> newImageUrls = new LinkedHashSet<>();
+
             for (MultipartFile image : newImages) {
                 if (image.isEmpty()) {
                     continue;
@@ -296,17 +390,45 @@ public class TravelService {
                 if (originalFilename == null) {
                     continue;
                 }
-                String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
 
-                Path targetPath = rootLocation.resolve(filename);
-                Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+                try {
+                    // Tạo một hash duy nhất cho file dựa trên nội dung
+                    byte[] bytes = image.getBytes();
+                    String fileHash = Integer.toString(Arrays.hashCode(bytes));
 
-                String imageUrl = "/travel_images/" + filename;
-                travel.getImageUrls().add(imageUrl);
-                log.info("Added new image: {}", imageUrl);
+                    // Kiểm tra xem file này đã được thêm chưa
+                    if (fileHashToUrl.containsKey(fileHash)) {
+                        // File đã được thêm, sử dụng URL đã có
+                        String existingUrl = fileHashToUrl.get(fileHash);
+                        newImageUrls.add(existingUrl);
+                        log.info("Reusing existing image URL for duplicate content: {}", existingUrl);
+                        continue;
+                    }
+
+                    // File chưa được thêm, tạo một tên file mới
+                    String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                    String filename = System.currentTimeMillis() + "_" + Math.round(Math.random() * 1000) + extension;
+
+                    Path targetPath = rootLocation.resolve(filename);
+                    Files.copy(image.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                    String imageUrl = "/travel_images/" + filename;
+                    newImageUrls.add(imageUrl);
+                    fileHashToUrl.put(fileHash, imageUrl);
+                    log.info("Added new image: {}", imageUrl);
+                } catch (IOException e) {
+                    log.error("Error processing image: {}", originalFilename, e);
+                }
             }
-            log.info("Added {} new images to travel", travel.getImageUrls().size() - (currentImages != null ? currentImages.size() : 0));
+
+            // Thêm các URL ảnh mới vào danh sách
+            // Vì Travel.imageUrls đã là Set nên tự động loại bỏ trùng lặp
+            List<String> currentUrls = travel.getImageUrls(); // Đã là ArrayList từ LinkedHashSet
+            currentUrls.addAll(newImageUrls);
+            travel.setImageUrls(currentUrls); // Sẽ chuyển thành LinkedHashSet trong setter
+
+            log.info("Added {} new unique images to travel", newImageUrls.size());
+            log.info("Total unique images after update: {}", travel.getImageUrls().size());
         }
 
         return travelRepository.save(travel);

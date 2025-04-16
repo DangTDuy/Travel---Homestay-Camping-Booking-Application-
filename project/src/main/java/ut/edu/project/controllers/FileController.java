@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 @Controller
 public class FileController {
 
-    @Value("${file.upload-dir:uploads}")
+    @Value("${file.upload-dir:project/src/main/resources/static/uploads}")
     private String uploadDir;
 
     @GetMapping("/uploads/{fileName:.+}")
@@ -27,7 +27,7 @@ public class FileController {
         try {
             Path filePath = Paths.get(uploadDir).resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-            
+
             if (resource.exists()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.IMAGE_JPEG) // Giả định là ảnh JPEG, có thể cải thiện để xác định đúng loại

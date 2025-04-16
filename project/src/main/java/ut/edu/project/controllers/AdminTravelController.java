@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-// import java.util.stream.Collectors; // Không còn cần thiết
+// Đã loại bỏ các import không cần thiết
 
 @Controller
 @RequestMapping("/admin/travel")
@@ -91,10 +91,14 @@ public class AdminTravelController {
 
             // Upload ảnh nếu có
             if (images != null && images.length > 0) {
+                // Đã sử dụng uploadImages đã được cải tiến để loại bỏ trùng lặp
                 travelService.uploadImages(savedTravel.getId(), images);
                 // Lấy lại travel sau khi upload ảnh
                 savedTravel = travelService.getTravelById(savedTravel.getId())
                         .orElse(savedTravel);
+
+                log.info("Travel created with {} images",
+                        savedTravel.getImageUrls() != null ? savedTravel.getImageUrls().size() : 0);
             }
 
             return ResponseEntity.ok(Map.of(
@@ -115,6 +119,11 @@ public class AdminTravelController {
         try {
             Travel travel = travelService.getTravelById(id)
                 .orElseThrow(() -> new RuntimeException("Tour du lịch không tồn tại"));
+
+            // Kiểm tra danh sách URL ảnh
+            if (travel.getImageUrls() != null) {
+                log.info("Travel {} has {} unique images", id, travel.getImageUrls().size());
+            }
 
             return ResponseEntity.ok(travel);
         } catch (Exception e) {

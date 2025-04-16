@@ -325,7 +325,7 @@
                 </div>
             </div>
 
-            <!-- Đã loại bỏ trường Lịch trình -->
+            <!-- Lịch trình (sử dụng giá trị từ mô tả) -->
             <input type="hidden" id="itinerary" name="itinerary" value="">
 
             <!-- Ẩn các trường không cần thiết -->
@@ -450,12 +450,18 @@
                 document.getElementById('durationDays').value = travel.durationDays || 1;
                 document.getElementById('maxParticipants').value = travel.maxParticipants || 1;
                 // minParticipants is now a hidden field with default value 1
-                document.getElementById('description').value = travel.description || '';
-                // Sao chép giá trị lịch trình vào mô tả nếu có
-                if (travel.itinerary && (!travel.description || travel.description.trim() === '')) {
+                // Xử lý mô tả và lịch trình
+                if (travel.description && travel.description.trim() !== '') {
+                    document.getElementById('description').value = travel.description;
+                } else if (travel.itinerary && travel.itinerary.trim() !== '') {
+                    // Nếu không có mô tả nhưng có lịch trình, sử dụng lịch trình làm mô tả
                     document.getElementById('description').value = travel.itinerary;
+                } else {
+                    document.getElementById('description').value = '';
                 }
-                document.getElementById('itinerary').value = travel.description || '';
+
+                // Đặt giá trị cho trường lịch trình ẩn (sẽ được cập nhật khi gửi form)
+                document.getElementById('itinerary').value = document.getElementById('description').value;
                 // highlights and requirements are now hidden fields
 
                 // Đã loại bỏ việc xử lý độ khó
@@ -515,9 +521,17 @@
                     existingImagesList.innerHTML = '';
                     document.querySelectorAll('input[name="removedImages"]').forEach(el => el.remove());
 
-                    console.log('Loading existing images:', travel.imageUrls.length);
-                    travel.imageUrls.forEach((imageUrl, index) => {
-                        console.log(`Loading image ${index + 1}/${travel.imageUrls.length}: ${imageUrl}`);
+                    // Loại bỏ các ảnh trùng lặp
+                    const uniqueImageUrls = [];
+                    travel.imageUrls.forEach(url => {
+                        if (!uniqueImageUrls.includes(url)) {
+                            uniqueImageUrls.push(url);
+                        }
+                    });
+
+                    console.log('Loading existing images:', uniqueImageUrls.length, '(after removing duplicates)');
+                    uniqueImageUrls.forEach((imageUrl, index) => {
+                        console.log(`Loading image ${index + 1}/${uniqueImageUrls.length}: ${imageUrl}`);
                         const imageContainer = document.createElement('div');
                         imageContainer.className = 'relative w-20 h-20 m-1';
 
@@ -536,9 +550,14 @@
                             const newImages = document.querySelectorAll('#imagePreview > div').length;
 
                             // Chỉ kiểm tra nếu số lượng ảnh còn lại là 0 (sau khi xóa)
-                            if ((remainingImages === 1 && newImages === 0) || (remainingImages === 0 && newImages <= 1)) {
-                                alert('Phải có ít nhất 1 ảnh cho tour du lịch');
-                                return;
+                            if (remainingImages + newImages <= 1) {
+                                // Nếu còn ít nhất 1 ảnh, cho phép xóa
+                                if (remainingImages + newImages === 1) {
+                                    // Tiếp tục cho phép xóa
+                                } else {
+                                    alert('Phải có ít nhất 1 ảnh cho tour du lịch');
+                                    return;
+                                }
                             }
 
                             console.log('Xóa ảnh, còn lại:', remainingImages - 1, 'existing +', newImages, 'new images');
@@ -611,6 +630,10 @@
             return;
         }
 
+        // Sao chép giá trị từ trường mô tả vào trường lịch trình
+        const description = document.getElementById('description').value;
+        document.getElementById('itinerary').value = description;
+
         const formData = new FormData(document.getElementById('travelForm'));
         const travelId = document.getElementById('travelId').value;
         const isUpdate = travelId !== '';
@@ -638,18 +661,36 @@
         if (fileInput.files.length > 0) {
             console.log(`Đang gửi ${fileInput.files.length} ảnh mới`);
 
+            // Sử dụng Set để theo dõi các file đã được thêm vào formData
+            const addedFiles = new Set();
+
             // Add each file to formData
             for (let i = 0; i < fileInput.files.length; i++) {
                 const file = fileInput.files[i];
-                console.log(`Thêm ảnh: ${file.name}, kích thước: ${file.size} bytes, loại: ${file.type}`);
 
-                // Chỉ thêm vào formData một lần, tùy thuộc vào loại thao tác
-                if (isUpdate) {
-                    formData.append('newImages', file);
+                // Tạo một key duy nhất cho file dựa trên tên và kích thước
+                const fileKey = `${file.name}_${file.size}`;
+
+                // Chỉ thêm file nếu nó chưa được thêm vào formData
+                if (!addedFiles.has(fileKey)) {
+                    console.log(`Thêm ảnh: ${file.name}, kích thước: ${file.size} bytes, loại: ${file.type}`);
+
+                    // Thêm file vào formData (chỉ thêm một lần)
+                    if (isUpdate) {
+                        formData.append('newImages', file);
+                    } else {
+                        // Chỉ thêm với một tên trường duy nhất để tránh trùng lặp
+                        formData.append('images', file);
+                    }
+
+                    // Đánh dấu file đã được thêm
+                    addedFiles.add(fileKey);
                 } else {
-                    formData.append('images', file);
+                    console.log(`Bỏ qua ảnh trùng lặp: ${file.name}`);
                 }
             }
+
+            console.log(`Đã thêm ${addedFiles.size} ảnh duy nhất vào formData`);
         }
 
         // Process existing images for updates
@@ -661,11 +702,19 @@
                 // Xóa bỏ trùng lặp bằng cách sử dụng Set
                 const uniqueImages = new Set();
 
+                // Log tất cả các ảnh hiện tại trước khi lọc
+                console.log('All existing images before filtering:');
+                existingImages.forEach(img => {
+                    console.log(' - ' + img.value);
+                });
+
                 existingImages.forEach(img => {
                     if (!uniqueImages.has(img.value)) {
                         uniqueImages.add(img.value);
                         formData.append('existingImages', img.value);
                         console.log('Adding existing image to form:', img.value);
+                    } else {
+                        console.log('Skipping duplicate image:', img.value);
                     }
                 });
 
@@ -811,49 +860,71 @@
             return;
         }
 
+        // Sử dụng Set để theo dõi các file đã được thêm vào preview
+        const addedFiles = new Set();
+
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (!file.type.match('image.*')) {
                 continue;
             }
 
-            const reader = new FileReader();
+            // Tạo một key duy nhất cho file dựa trên tên và kích thước
+            const fileKey = `${file.name}_${file.size}`;
 
-            reader.onload = function(e) {
-                const imgContainer = document.createElement('div');
-                imgContainer.className = 'relative w-20 h-20';
+            // Chỉ thêm file nếu nó chưa được thêm vào preview
+            if (!addedFiles.has(fileKey)) {
+                // Đánh dấu file đã được thêm
+                addedFiles.add(fileKey);
+                console.log(`Thêm ảnh vào preview: ${file.name}, kích thước: ${file.size} bytes`);
 
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'w-20 h-20 object-cover rounded-md border border-gray-200';
+                const reader = new FileReader();
 
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs';
-                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                removeBtn.onclick = function() {
-                    // Kiểm tra số lượng ảnh còn lại
-                    const remainingImages = document.querySelectorAll('#existingImagesList > div').length;
-                    const newImages = document.querySelectorAll('#imagePreview > div').length;
+                reader.onload = function(e) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'relative w-20 h-20';
 
-                    // Chỉ kiểm tra nếu số lượng ảnh còn lại là 0 (sau khi xóa)
-                    if ((remainingImages === 0 && newImages === 1) || (remainingImages === 0 && newImages === 0)) {
-                        alert('Phải có ít nhất 1 ảnh cho tour du lịch');
-                        return;
-                    }
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-20 h-20 object-cover rounded-md border border-gray-200';
 
-                    console.log('Xóa ảnh mới, còn lại:', remainingImages, 'existing +', newImages - 1, 'new images');
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.onclick = function() {
+                        // Kiểm tra số lượng ảnh còn lại
+                        const remainingImages = document.querySelectorAll('#existingImagesList > div').length;
+                        const newImages = document.querySelectorAll('#imagePreview > div').length;
 
-                    imgContainer.remove();
+                        // Chỉ kiểm tra nếu số lượng ảnh còn lại là 0 (sau khi xóa)
+                        if (remainingImages + newImages <= 1) {
+                            // Nếu còn ít nhất 1 ảnh, cho phép xóa
+                            if (remainingImages + newImages === 1) {
+                                // Tiếp tục cho phép xóa
+                            } else {
+                                alert('Phải có ít nhất 1 ảnh cho tour du lịch');
+                                return;
+                            }
+                        }
+
+                        console.log('Xóa ảnh mới, còn lại:', remainingImages, 'existing +', newImages - 1, 'new images');
+
+                        imgContainer.remove();
+                    };
+
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeBtn);
+                    preview.appendChild(imgContainer);
                 };
 
-                imgContainer.appendChild(img);
-                imgContainer.appendChild(removeBtn);
-                preview.appendChild(imgContainer);
-            };
-
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            } else {
+                console.log(`Bỏ qua ảnh trùng lặp trong preview: ${file.name}`);
+            }
         }
+
+        console.log(`Đã thêm ${addedFiles.size} ảnh duy nhất vào preview`);
     });
 
     // Set active navigation item

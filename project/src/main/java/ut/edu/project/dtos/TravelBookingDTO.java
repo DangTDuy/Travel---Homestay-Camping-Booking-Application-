@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +19,13 @@ public class TravelBookingDTO {
     private String contactPhone;
     private String contactEmail;
     private String specialRequests;
+    private List<AdditionalServiceDTO> additionalServices = new ArrayList<>();
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AdditionalServiceDTO {
+        private Long id;
+        private Integer quantity = 1;
+    }
 }

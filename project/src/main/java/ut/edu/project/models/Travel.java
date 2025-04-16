@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -57,7 +59,17 @@ public class Travel {
     @CollectionTable(name = "travel_image_urls", joinColumns = @JoinColumn(name = "travel_id"))
     @Column(name = "image_url")
     @Size(max = 5, message = "Tối đa 5 URL ảnh")
-    private List<String> imageUrls = new ArrayList<>();
+    private Set<String> imageUrls = new LinkedHashSet<>();
+
+    // Getter trả về List để tương thích với code hiện tại
+    public List<String> getImageUrls() {
+        return new ArrayList<>(imageUrls);
+    }
+
+    // Setter nhận List nhưng chuyển thành Set để loại bỏ trùng lặp
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = new LinkedHashSet<>(imageUrls);
+    }
 
     @ElementCollection
     @CollectionTable(name = "travel_included_services", joinColumns = @JoinColumn(name = "travel_id"))
