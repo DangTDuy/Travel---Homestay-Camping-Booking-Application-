@@ -13,6 +13,8 @@ import ut.edu.project.services.CampingService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.csrf.CsrfToken;
 
 @Controller
 @RequestMapping("/camping")
@@ -53,6 +55,44 @@ public class CampingController {
         model.addAttribute("campings", campingPage.getContent());
         model.addAttribute("totalPages", campingPage.getTotalPages());
         return "camping";
+    }
+
+    // Hiển thị trang chi tiết khu cắm trại theo ID
+    @GetMapping("/{id}")
+    public String getCampingDetailById(@PathVariable("id") Long id, Model model, @Autowired(required = false) CsrfToken csrfToken, Authentication authentication) {
+        try {
+            Camping camping = campingService.getCampingById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+            
+            model.addAttribute("camping", camping);
+            model.addAttribute("currentPage", "camping");
+            
+            // Thêm thông tin đã đăng nhập và có thể đánh giá
+            boolean hasBookedCamping = false;
+            boolean canReview = false;
+            boolean isOwner = false;
+            
+            if (authentication != null && authentication.isAuthenticated()) {
+                String username = authentication.getName();
+                // Kiểm tra có phải chủ sở hữu không
+                if (camping.getOwner() != null && camping.getOwner().getUsername() != null && 
+                    camping.getOwner().getUsername().equals(username)) {
+                    isOwner = true;
+                }
+                
+                // Logic kiểm tra đã đặt camping và có thể đánh giá
+                // Sẽ được bổ sung khi có đánh giá
+            }
+            
+            model.addAttribute("hasBookedCamping", hasBookedCamping);
+            model.addAttribute("canReview", canReview);
+            model.addAttribute("isOwner", isOwner);
+            
+            return "camping/camping-detail";
+        } catch (Exception e) {
+            model.addAttribute("error", "Không thể tải chi tiết khu cắm trại: " + e.getMessage());
+            return "camping/camping";
+        }
     }
 
     // Lấy tất cả khu cắm trại qua API

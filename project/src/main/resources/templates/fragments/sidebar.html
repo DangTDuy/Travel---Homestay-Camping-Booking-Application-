@@ -35,6 +35,10 @@
                         <i class="fas fa-search mr-3"></i>
                         Tìm kiếm Homestay
                     </a>
+                    <a href="/camping" th:classappend="${#strings.startsWith(currentPage, 'camping') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
+                        <i class="fas fa-campground mr-3"></i>
+                        Tìm kiếm Camping
+                    </a>
                     <a href="/travels" th:classappend="${#strings.startsWith(currentPage, 'travels') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-route mr-3"></i>
                         Tìm kiếm Tour
@@ -52,6 +56,10 @@
                     <a href="/admin/homestay" th:classappend="${#strings.startsWith(currentPage, 'admin/homestay') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-home mr-3"></i>
                         Quản lý Homestay
+                    </a>
+                    <a href="/admin/camping" th:classappend="${#strings.startsWith(currentPage, 'admin/camping') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
+                        <i class="fas fa-campground mr-3"></i>
+                        Quản lý Camping
                     </a>
                     <a href="/admin/travel" th:classappend="${#strings.startsWith(currentPage, 'admin/travel') ? 'text-primary bg-blue-50' : 'text-gray-600 hover:text-primary'}" class="nav-link flex items-center px-4 py-2 text-sm font-medium rounded-lg">
                         <i class="fas fa-route mr-3"></i>

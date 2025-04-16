@@ -175,12 +175,34 @@ public class AdditionalServiceInitializer {
         Category serviceCategory = categoryRepository.findByName("service");
         Category entertainmentCategory = categoryRepository.findByName("entertainment");
 
+        // Kiểm tra và tạo các danh mục nếu chưa tồn tại
+        if (foodCategory == null) {
+            foodCategory = createCategoryIfNotExists("food", "Bữa ăn", "Các loại bữa ăn: sáng, trưa, tối");
+        }
+
+        if (drinkCategory == null) {
+            drinkCategory = createCategoryIfNotExists("drink", "Đồ uống", "Các loại đồ uống: nước ngọt, nước trái cây, rượu, bia");
+        }
+
+        if (serviceCategory == null) {
+            serviceCategory = createCategoryIfNotExists("service", "Dịch vụ", "Các dịch vụ bổ sung: dọn phòng, giặt ủi, đưa đón");
+        }
+
+        if (entertainmentCategory == null) {
+            entertainmentCategory = createCategoryIfNotExists("entertainment", "Giải trí", "Các dịch vụ giải trí: karaoke, BBQ, tour du lịch");
+        }
+
         // Lấy các khung giờ
         TimeSlot allDaySlot = timeSlotRepository.findByName("all");
         TimeSlot morningSlot = timeSlotRepository.findByName("morning");
         TimeSlot noonSlot = timeSlotRepository.findByName("noon");
         TimeSlot afternoonSlot = timeSlotRepository.findByName("afternoon");
         TimeSlot eveningSlot = timeSlotRepository.findByName("evening");
+
+        // Kiểm tra và tạo các khung giờ nếu chưa tồn tại
+        if (allDaySlot == null || morningSlot == null || noonSlot == null || afternoonSlot == null || eveningSlot == null) {
+            throw new RuntimeException("Các khung giờ chưa được khởi tạo. Vui lòng khởi tạo khung giờ trước khi tạo dịch vụ bổ sung.");
+        }
 
         // Dịch vụ đồ ăn chung
         createAdditionalService(
@@ -264,6 +286,22 @@ public class AdditionalServiceInitializer {
         );
     }
 
+    /**
+     * Tạo một danh mục mới nếu chưa tồn tại
+     * @param name Tên danh mục
+     * @param displayName Tên hiển thị
+     * @param description Mô tả
+     * @return Danh mục đã tạo
+     */
+    private Category createCategoryIfNotExists(String name, String displayName, String description) {
+        Category category = new Category();
+        category.setName(name);
+        category.setDisplayName(displayName);
+        category.setDescription(description);
+        category.setActive(true);
+        return categoryRepository.save(category);
+    }
+
     private void createAdditionalService(
             String name,
             String description,
@@ -273,6 +311,34 @@ public class AdditionalServiceInitializer {
             Homestay homestay,
             LocalTime startTime,
             LocalTime endTime) {
+
+        // Kiểm tra category có null không
+        if (category == null) {
+            // Tìm category mặc định hoặc tạo mới nếu không tìm thấy
+            List<Category> categories = categoryRepository.findAll();
+            if (!categories.isEmpty()) {
+                category = categories.get(0);
+            } else {
+                // Tạo một category mặc định nếu không có category nào
+                Category defaultCategory = new Category();
+                defaultCategory.setName("default");
+                defaultCategory.setDisplayName("Mặc định");
+                defaultCategory.setActive(true);
+                category = categoryRepository.save(defaultCategory);
+            }
+        }
+
+        // Kiểm tra timeSlot có null không
+        if (timeSlot == null) {
+            // Tìm timeSlot mặc định hoặc tạo mới nếu không tìm thấy
+            List<TimeSlot> timeSlots = timeSlotRepository.findAll();
+            if (!timeSlots.isEmpty()) {
+                timeSlot = timeSlots.get(0);
+            } else {
+                // Không thể tạo Additional nếu không có TimeSlot
+                throw new RuntimeException("Không thể tạo dịch vụ bổ sung vì không có khung giờ");
+            }
+        }
 
         Additional additional = new Additional();
         additional.setName(name);
