@@ -3,6 +3,7 @@ package ut.edu.project.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "campings")
 public class Camping {
     @Id

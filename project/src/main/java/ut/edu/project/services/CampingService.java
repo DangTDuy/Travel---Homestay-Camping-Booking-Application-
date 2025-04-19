@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -120,8 +121,9 @@ public class CampingService {
         existingCamping.setLocation(camping.getLocation()); // Cập nhật địa điểm
         existingCamping.setDescription(camping.getDescription()); // Cập nhật mô tả
         existingCamping.setPrice(camping.getPrice()); // Cập nhật giá
-        existingCamping.setMaxPlaces(camping.getMaxPlaces()); // Cập nhật số chỗ tối đa
-        existingCamping.setIsAvailable(camping.isAvailable()); // Cập nhật trạng thái sẵn sàng (sử dụng phương thức có sẵn)
+        existingCamping.setCapacity(camping.getCapacity()); // Cập nhật sức chứa tối đa
+        existingCamping.setAvailableSlots(camping.getAvailableSlots()); // Cập nhật số chỗ có sẵn
+        existingCamping.setIsAvailable(camping.isAvailable()); // Cập nhật trạng thái sẵn sàng
         existingCamping.setImageUrls(camping.getImageUrls()); // Cập nhật danh sách URL ảnh
         existingCamping.setFacilities(camping.getFacilities()); // Cập nhật danh sách tiện ích
         existingCamping.setRules(camping.getRules()); // Cập nhật quy tắc
@@ -218,8 +220,8 @@ public class CampingService {
             throw new IllegalArgumentException("Giá phải lớn hơn 0");
         }
 
-        if (camping.getMaxPlaces() == null || camping.getMaxPlaces() <= 0) {
-            throw new IllegalArgumentException("Số chỗ phải lớn hơn 0");
+        if (camping.getCapacity() == null || camping.getCapacity() <= 0) {
+            throw new IllegalArgumentException("Sức chứa phải lớn hơn 0");
         }
 
         if (camping.getOwner() == null) {
@@ -230,7 +232,7 @@ public class CampingService {
     // Đặt chỗ khu cắm trại
     public boolean bookCamping(Long id, LocalDate startDate, LocalDate endDate, int numberOfPeople, String customerName) {
         return campingRepository.findById(id).map(camping -> {
-            if (camping.isAvailable() && numberOfPeople <= camping.getMaxPlaces() && isAvailableForDates(camping, startDate, endDate)) {
+            if (camping.isAvailable() && numberOfPeople <= camping.getCapacity() && isAvailableForDates(camping, startDate, endDate)) {
                 Booking booking = new Booking(); // Tạo đặt chỗ mới
                 booking.setCheckIn(startDate.atStartOfDay()); // Ngày nhận chỗ
                 booking.setCheckOut(endDate.atStartOfDay()); // Ngày trả chỗ
@@ -269,7 +271,7 @@ public class CampingService {
     // Lấy khu cắm trại theo số chỗ tối thiểu với phân trang
     public Page<Camping> getCampingsByMinPlaces(int minPlaces, int page, int size, String sort) {
         PageRequest pageRequest = buildPageRequest(page, size, sort); // Tạo yêu cầu phân trang
-        return campingRepository.findByMaxPlacesGreaterThanEqual(minPlaces, pageRequest); // Trả về trang kết quả
+        return campingRepository.findByCapacityGreaterThanEqual(minPlaces, pageRequest); // Trả về trang kết quả
     }
 
     // Lấy danh sách khu cắm trại với phân trang và lọc theo ngày
@@ -307,10 +309,10 @@ public class CampingService {
                 return PageRequest.of(page, size, Sort.by("price").ascending()); // Sắp xếp giá tăng dần
             case "price_desc":
                 return PageRequest.of(page, size, Sort.by("price").descending()); // Sắp xếp giá giảm dần
-            case "maxPlaces_asc":
-                return PageRequest.of(page, size, Sort.by("maxPlaces").ascending()); // Sắp xếp số chỗ tăng dần
-            case "maxPlaces_desc":
-                return PageRequest.of(page, size, Sort.by("maxPlaces").descending()); // Sắp xếp số chỗ giảm dần
+            case "capacity_asc":
+                return PageRequest.of(page, size, Sort.by("capacity").ascending()); // Sắp xếp sức chứa tăng dần
+            case "capacity_desc":
+                return PageRequest.of(page, size, Sort.by("capacity").descending()); // Sắp xếp sức chứa giảm dần
             default:
                 return PageRequest.of(page, size); // Mặc định không sắp xếp
         }

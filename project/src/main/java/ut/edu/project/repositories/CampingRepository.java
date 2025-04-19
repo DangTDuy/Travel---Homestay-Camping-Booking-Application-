@@ -20,8 +20,8 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
     // Tìm khu cắm trại theo khoảng giá
     List<Camping> findByPriceBetween(Double minPrice, Double maxPrice);
 
-    // Tìm khu cắm trại có số chỗ lớn hơn hoặc bằng
-    List<Camping> findByMaxPlacesGreaterThanEqual(Integer places);
+    // Tìm khu cắm trại có sức chứa lớn hơn hoặc bằng
+    List<Camping> findByCapacityGreaterThanEqual(Integer places);
 
     // Tìm khu cắm trại theo chủ sở hữu
     List<Camping> findByOwner(User owner);
@@ -41,7 +41,7 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
             "(:location IS NULL OR LOWER(c.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
             "(:minPrice IS NULL OR c.price >= :minPrice) AND " +
             "(:maxPrice IS NULL OR c.price <= :maxPrice) AND " +
-            "(:minPlaces IS NULL OR c.maxPlaces >= :minPlaces) AND " +
+            "(:minPlaces IS NULL OR c.capacity >= :minPlaces) AND " +
             "(:isAvailable IS NULL OR c.isAvailable = :isAvailable)")
     List<Camping> searchCampings(
             @Param("location") String location,
@@ -73,7 +73,7 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
     Page<Camping> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     // Tìm khu cắm trại theo số chỗ tối thiểu với phân trang
-    Page<Camping> findByMaxPlacesGreaterThanEqual(int places, Pageable pageable);
+    Page<Camping> findByCapacityGreaterThanEqual(int places, Pageable pageable);
 
     // Tìm khu cắm trại theo trạng thái sẵn sàng với phân trang
     Page<Camping> findByIsAvailable(boolean isAvailable, Pageable pageable);
