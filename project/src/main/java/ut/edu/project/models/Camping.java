@@ -32,12 +32,21 @@ public class Camping {
     @Positive(message = "Giá phải lớn hơn 0")
     private Double price; // Giá thuê khu cắm trại
 
-    @NotNull(message = "Số chỗ không được để trống")
-    @Min(value = 1, message = "Số chỗ phải ít nhất là 1")
-    private Integer maxPlaces; // Số chỗ tối đa
+    @NotNull(message = "Sức chứa không được để trống")
+    @Min(value = 1, message = "Sức chứa phải ít nhất là 1")
+    private Integer capacity; // Sức chứa tối đa (thay thế cho maxPlaces)
+    
+    @NotNull(message = "Số chỗ có sẵn không được để trống")
+    @Min(value = 0, message = "Số chỗ có sẵn không được âm")
+    private Integer availableSlots; // Số chỗ có sẵn hiện tại
 
     @Column(nullable = false)
     private boolean isAvailable = true; // Trạng thái sẵn sàng của khu cắm trại
+
+    @ElementCollection
+    @CollectionTable(name = "camping_images", joinColumns = @JoinColumn(name = "camping_id"))
+    @Column(name = "image_name")
+    private List<String> images = new ArrayList<>(); // Danh sách tên file ảnh
 
     @ElementCollection
     @CollectionTable(name = "camping_image_urls", joinColumns = @JoinColumn(name = "camping_id"))
@@ -49,6 +58,16 @@ public class Camping {
     @CollectionTable(name = "camping_facilities", joinColumns = @JoinColumn(name = "camping_id"))
     @Column(name = "facility")
     private List<String> facilities = new ArrayList<>(); // Danh sách tiện ích
+    
+    @ElementCollection
+    @CollectionTable(name = "camping_equipment", joinColumns = @JoinColumn(name = "camping_id"))
+    @Column(name = "equipment")
+    private List<String> equipment = new ArrayList<>(); // Danh sách thiết bị có sẵn
+    
+    @ElementCollection
+    @CollectionTable(name = "camping_rules", joinColumns = @JoinColumn(name = "camping_id"))
+    @Column(name = "rule")
+    private List<String> rules = new ArrayList<>(); // Danh sách quy tắc
 
     @OneToMany(mappedBy = "camping", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>(); // Danh sách đặt chỗ
@@ -66,16 +85,10 @@ public class Camping {
     private Double rating; // Điểm đánh giá trung bình
 
     @Column(columnDefinition = "TEXT")
-    private String rules; // Quy tắc cắm trại
-
-    @Column(columnDefinition = "TEXT")
     private String terrain; // Địa hình khu cắm trại
 
     @Column(columnDefinition = "TEXT")
     private String weather; // Thông tin thời tiết
-
-    @Column(columnDefinition = "TEXT")
-    private String equipment; // Trang thiết bị có sẵn
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt; // Thời gian tạo
@@ -125,6 +138,7 @@ public class Camping {
         updatedAt = LocalDateTime.now();
         if (bookingCount == null) bookingCount = 0;
         if (rating == null) rating = 0.0;
+        if (availableSlots == null) availableSlots = capacity;
     }
 
     @PreUpdate
@@ -139,6 +153,10 @@ public class Camping {
         bookings.add(booking);
         booking.setCamping(this);
         bookingCount++;
+        // Giảm số chỗ có sẵn
+        if (availableSlots > 0) {
+            availableSlots--;
+        }
         addNotification("Đặt chỗ mới được thêm cho " + name);
     }
 
@@ -147,6 +165,10 @@ public class Camping {
         bookings.remove(booking);
         booking.setCamping(null);
         bookingCount--;
+        // Tăng số chỗ có sẵn
+        if (availableSlots < capacity) {
+            availableSlots++;
+        }
         addNotification("Đặt chỗ đã bị xóa cho " + name);
     }
 
@@ -237,5 +259,17 @@ public class Camping {
     }
 
     public void setIsAvailable(boolean available) {
+        this.isAvailable = available;
+    }
+    
+    // Cho tương thích với code cũ sử dụng maxPlaces
+    @Deprecated
+    public Integer getMaxPlaces() {
+        return capacity;
+    }
+    
+    @Deprecated
+    public void setMaxPlaces(Integer maxPlaces) {
+        this.capacity = maxPlaces;
     }
 }

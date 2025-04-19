@@ -1,32 +1,114 @@
 package ut.edu.project.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ut.edu.project.models.Camping;
 import ut.edu.project.models.User;
 import ut.edu.project.models.Booking;
 import ut.edu.project.repositories.CampingRepository;
+import ut.edu.project.repositories.UserBehaviorRepository;
+import ut.edu.project.repositories.ReviewRepository;
+import ut.edu.project.repositories.BookingRepository;
+import ut.edu.project.repositories.UserRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 
-import java.time.LocalDate;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.io.File;
+import java.nio.file.StandardCopyOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 
 @Service
+@Slf4j
+@Transactional
 public class CampingService {
     @Autowired
     private CampingRepository campingRepository; // Repository quản lý khu cắm trại
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserBehaviorRepository userBehaviorRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Value("${app.upload.dir.camping:project/src/main/resources/static/camping_images}")
+    private String UPLOAD_DIR;
+
+    private Path rootLocation;
+
+    @PostConstruct
+    public void init() {
+        try {
+            // Initialize rootLocation
+            rootLocation = Paths.get(UPLOAD_DIR);
+
+            // Create upload directory if it doesn't exist
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            Files.createDirectories(rootLocation);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not initialize storage location", e);
+        }
+    }
+
     // Tạo khu cắm trại mới
     @Transactional
-    public Camping createCamping(Camping camping) {
-        validateCamping(camping); // Kiểm tra tính hợp lệ của khu cắm trại
-        return campingRepository.save(camping); // Lưu khu cắm trại vào cơ sở dữ liệu
+    public Camping createCamping(Camping camping, String username) {
+        try {
+            // Validate user
+            User user = userService.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if (!user.getRole().equals("ADMIN")) {
+                throw new RuntimeException("Bạn không có quyền tạo khu cắm trại");
+            }
+
+            // Basic validation
+            validateCamping(camping);
+
+            // Set owner and initialize lists
+            camping.setOwner(user);
+            if (camping.getImages() == null) camping.setImages(new ArrayList<>());
+            if (camping.getImageUrls() == null) camping.setImageUrls(new ArrayList<>());
+            if (camping.getFacilities() == null) camping.setFacilities(new ArrayList<>());
+            if (camping.getEquipment() == null) camping.setEquipment(new ArrayList<>());
+            if (camping.getRules() == null) camping.setRules(new ArrayList<>());
+
+            // Save camping first to get ID
+            Camping savedCamping = campingRepository.saveAndFlush(camping);
+            return savedCamping;
+        } catch (Exception e) {
+            log.error("Error creating camping: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tạo khu cắm trại: " + e.getMessage(), e);
+        }
     }
 
     // Cập nhật thông tin khu cắm trại
@@ -51,42 +133,97 @@ public class CampingService {
     }
 
     // Lấy thông tin khu cắm trại theo ID
+    @Transactional
     public Optional<Camping> getCampingById(Long id) {
-        return campingRepository.findById(id); // Trả về khu cắm trại nếu tồn tại
+        try {
+            Camping camping = campingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Khu cắm trại không tìm thấy"));
+
+            // Initialize lazy-loaded collections
+            Hibernate.initialize(camping.getImages());
+            Hibernate.initialize(camping.getImageUrls());
+            Hibernate.initialize(camping.getFacilities());
+            Hibernate.initialize(camping.getEquipment());
+            Hibernate.initialize(camping.getRules());
+            Hibernate.initialize(camping.getReviews());
+
+            // Initialize owner
+            Hibernate.initialize(camping.getOwner());
+
+            return Optional.of(camping);
+        } catch (Exception e) {
+            log.error("Error getting camping: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
     }
 
     // Lấy tất cả khu cắm trại
+    @Transactional(readOnly = true)
     public List<Camping> getAllCampings() {
-        return campingRepository.findAll(); // Trả về danh sách tất cả khu cắm trại
+        try {
+            List<Camping> campings = campingRepository.findAll();
+            log.info("Retrieved {} campings", campings.size());
+            return campings;
+        } catch (Exception e) {
+            log.error("Error retrieving all campings: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi lấy danh sách khu cắm trại: " + e.getMessage());
+        }
     }
 
     // Xóa khu cắm trại
     @Transactional
     public void deleteCamping(Long id) {
-        Camping camping = campingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại")); // Tìm khu cắm trại
-        if (!camping.getBookings().isEmpty()) {
-            throw new RuntimeException("Không thể xóa khu cắm trại đã có đặt chỗ"); // Báo lỗi nếu có đặt chỗ
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Khu cắm trại không tồn tại"));
+
+            // Xóa ảnh liên quan
+            if (camping.getImages() != null && !camping.getImages().isEmpty()) {
+                for (String image : camping.getImages()) {
+                    deleteImage(image);
+                }
+            }
+
+            // Xóa khu cắm trại
+            campingRepository.deleteById(id);
+            log.info("Deleted camping with ID: {}", id);
+        } catch (IllegalArgumentException e) {
+            log.error("Cannot delete camping: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Error deleting camping: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi xóa khu cắm trại: " + e.getMessage());
         }
-        campingRepository.delete(camping); // Xóa khu cắm trại
     }
 
     // Kiểm tra tính hợp lệ của khu cắm trại
     private void validateCamping(Camping camping) {
+        if (camping == null) {
+            throw new IllegalArgumentException("Thông tin khu cắm trại không được để trống");
+        }
+
         if (camping.getName() == null || camping.getName().trim().isEmpty()) {
-            throw new RuntimeException("Tên khu cắm trại không được để trống");
+            throw new IllegalArgumentException("Tên khu cắm trại không được để trống");
         }
+
         if (camping.getLocation() == null || camping.getLocation().trim().isEmpty()) {
-            throw new RuntimeException("Địa điểm không được để trống");
+            throw new IllegalArgumentException("Địa điểm không được để trống");
         }
+
+        if (camping.getDescription() == null || camping.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mô tả không được để trống");
+        }
+
         if (camping.getPrice() == null || camping.getPrice() <= 0) {
-            throw new RuntimeException("Giá phải lớn hơn 0");
+            throw new IllegalArgumentException("Giá phải lớn hơn 0");
         }
+
         if (camping.getMaxPlaces() == null || camping.getMaxPlaces() <= 0) {
-            throw new RuntimeException("Số chỗ phải lớn hơn 0");
+            throw new IllegalArgumentException("Số chỗ phải lớn hơn 0");
         }
+
         if (camping.getOwner() == null) {
-            throw new RuntimeException("Chủ sở hữu không được để trống");
+            throw new IllegalArgumentException("Chủ sở hữu không được để trống");
         }
     }
 
@@ -242,5 +379,189 @@ public class CampingService {
         camping.setPaymentStatus("SUCCESS"); // Cập nhật trạng thái thành công
         campingRepository.save(camping); // Lưu thay đổi
         return "Thanh toán thành công";
+    }
+
+    @Transactional
+    public synchronized void uploadImages(Long campingId, MultipartFile[] images) throws IOException {
+        try {
+            Camping camping = campingRepository.findById(campingId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khu cắm trại"));
+
+            for (MultipartFile file : images) {
+                if (file.isEmpty()) {
+                    continue;
+                }
+
+                validateImage(file);
+
+                // Tạo tên file duy nhất
+                String fileExtension = getFileExtension(file.getOriginalFilename());
+                String newFileName = "camping_" + campingId + "_" + System.currentTimeMillis() + fileExtension;
+
+                // Lưu file
+                Path targetLocation = rootLocation.resolve(newFileName);
+                Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+                // Cập nhật danh sách ảnh
+                camping.getImages().add(newFileName);
+                camping.getImageUrls().add("/camping_images/" + newFileName);
+            }
+
+            // Lưu cập nhật vào database
+            campingRepository.save(camping);
+        } catch (IOException e) {
+            log.error("Error uploading images: {}", e.getMessage(), e);
+            throw new IOException("Lỗi khi tải lên hình ảnh: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Error during image upload: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi xử lý tải lên hình ảnh: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public Camping updateCampingImages(Camping camping, List<String> currentImages, MultipartFile[] newImages) throws IOException {
+        try {
+            // Xóa các ảnh không còn trong danh sách mới
+            List<String> oldImageUrls = new ArrayList<>(camping.getImageUrls());
+            List<String> oldImages = new ArrayList<>(camping.getImages());
+
+            // Xóa ảnh cũ không còn trong danh sách hiện tại
+            for (int i = 0; i < oldImageUrls.size(); i++) {
+                String oldImageUrl = oldImageUrls.get(i);
+                if (!currentImages.contains(oldImageUrl)) {
+                    // Xóa file ảnh
+                    String oldImage = oldImages.get(i);
+                    deleteImage(oldImage);
+                    
+                    // Xóa khỏi danh sách
+                    camping.getImageUrls().remove(oldImageUrl);
+                    camping.getImages().remove(oldImage);
+                }
+            }
+
+            // Lưu cập nhật
+            Camping updatedCamping = campingRepository.save(camping);
+
+            // Thêm ảnh mới nếu có
+            if (newImages != null && newImages.length > 0) {
+                uploadImages(camping.getId(), newImages);
+                // Lấy lại camping sau khi upload ảnh mới
+                updatedCamping = campingRepository.findById(camping.getId()).orElse(camping);
+            }
+
+            return updatedCamping;
+        } catch (Exception e) {
+            log.error("Error updating camping images: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật hình ảnh khu cắm trại: " + e.getMessage());
+        }
+    }
+    
+    @Transactional
+    public void deleteImages(Long campingId, List<String> imageUrls) {
+        try {
+            Camping camping = campingRepository.findById(campingId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khu cắm trại"));
+
+            for (String imageUrl : imageUrls) {
+                if (camping.getImageUrls().contains(imageUrl)) {
+                    int index = camping.getImageUrls().indexOf(imageUrl);
+                    if (index >= 0 && index < camping.getImages().size()) {
+                        String imageName = camping.getImages().get(index);
+                        deleteImage(imageName);
+                        camping.getImageUrls().remove(imageUrl);
+                        camping.getImages().remove(imageName);
+                    }
+                }
+            }
+
+            campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error deleting images: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi xóa hình ảnh: " + e.getMessage());
+        }
+    }
+
+    private void deleteImage(String filename) {
+        try {
+            Path filePath = rootLocation.resolve(filename);
+            Files.deleteIfExists(filePath);
+            log.info("Deleted image: {}", filename);
+        } catch (IOException e) {
+            log.error("Error deleting image file: {}", filename, e);
+        }
+    }
+
+    private void validateImage(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Uploaded file cannot be empty");
+        }
+
+        // Check file size (e.g., limit to 10MB)
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new IllegalArgumentException("File size exceeds maximum limit of 10MB");
+        }
+
+        // Check file type
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.startsWith("image/"))) {
+            throw new IllegalArgumentException("File must be an image");
+        }
+
+        // Additional validation for common image formats
+        String[] allowedTypes = {"image/jpeg", "image/png", "image/gif", "image/webp"};
+        boolean isAllowed = false;
+        for (String type : allowedTypes) {
+            if (type.equals(contentType)) {
+                isAllowed = true;
+                break;
+            }
+        }
+
+        if (!isAllowed) {
+            throw new IllegalArgumentException("Only JPEG, PNG, GIF, and WEBP images are allowed");
+        }
+    }
+
+    private String getFileExtension(String filename) {
+        if (filename == null || filename.lastIndexOf(".") == -1) {
+            return ".jpg"; // Default extension
+        }
+        return filename.substring(filename.lastIndexOf("."));
+    }
+
+    public List<Camping> searchCampings(String location, Double minPrice, Double maxPrice) {
+        try {
+            log.info("Searching campings with location: {}, minPrice: {}, maxPrice: {}",
+                    location, minPrice, maxPrice);
+
+            // If no search parameters, return all campings
+            if ((location == null || location.isEmpty()) &&
+                    minPrice == null &&
+                    maxPrice == null) {
+                log.info("No search parameters, returning all campings");
+                return getAllCampings();
+            }
+
+            log.info("Searching with parameters - location: {}, minPrice: {}, maxPrice: {}",
+                    location, minPrice, maxPrice);
+
+            List<Camping> results = campingRepository.searchCampings(
+                    location,
+                    minPrice,
+                    maxPrice
+            );
+
+            log.info("Found {} campings matching search criteria", results.size());
+            return results;
+        } catch (Exception e) {
+            log.error("Error searching campings: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tìm kiếm khu cắm trại: " + e.getMessage());
+        }
+    }
+
+    public List<Camping> getCampingsByOwner(String username) {
+        User owner = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return campingRepository.findByOwner(owner);
     }
 }

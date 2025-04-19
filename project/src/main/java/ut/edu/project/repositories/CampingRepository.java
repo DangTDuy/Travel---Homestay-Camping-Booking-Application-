@@ -49,6 +49,16 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
             @Param("maxPrice") Double maxPrice,
             @Param("minPlaces") Integer minPlaces,
             @Param("isAvailable") Boolean isAvailable);
+            
+    // Tìm kiếm đơn giản với địa điểm và giá (cho trang admin)
+    @Query("SELECT c FROM Camping c WHERE " +
+            "(:location IS NULL OR LOWER(c.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
+            "(:minPrice IS NULL OR c.price >= :minPrice) AND " +
+            "(:maxPrice IS NULL OR c.price <= :maxPrice)")
+    List<Camping> searchCampings(
+            @Param("location") String location,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice);
 
     // Lấy top 10 khu cắm trại theo điểm đánh giá
     List<Camping> findTop10ByOrderByRatingDesc();
