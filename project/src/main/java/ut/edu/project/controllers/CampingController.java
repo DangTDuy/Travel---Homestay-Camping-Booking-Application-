@@ -113,8 +113,12 @@ public class CampingController {
     // Thêm khu cắm trại mới qua API
     @PostMapping("/api")
     @ResponseBody
-    public ResponseEntity<Camping> addCamping(@RequestBody Camping camping) {
-        return ResponseEntity.ok(campingService.createCamping(camping));
+    public ResponseEntity<Camping> addCamping(@RequestBody Camping camping, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden if not authenticated
+        }
+        String username = authentication.getName();
+        return ResponseEntity.ok(campingService.createCamping(camping, username));
     }
 
     // Cập nhật khu cắm trại qua API
@@ -141,7 +145,13 @@ public class CampingController {
             @RequestParam String endDate,
             @RequestParam int numberOfPeople,
             @RequestParam String customerName,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập để đặt chỗ!");
+            return "redirect:/camping/" + id;
+        }
+        
         boolean booked = campingService.bookCamping(id, LocalDate.parse(startDate), LocalDate.parse(endDate), numberOfPeople, customerName);
         if (booked) {
             redirectAttributes.addFlashAttribute("message", "Đặt chỗ thành công!");
@@ -156,7 +166,13 @@ public class CampingController {
     public String cancelBooking(
             @PathVariable("id") Long id,
             @RequestParam int bookingIndex,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập để hủy đặt chỗ!");
+            return "redirect:/camping/" + id;
+        }
+        
         boolean cancelled = campingService.cancelBooking(id, bookingIndex);
         if (cancelled) {
             redirectAttributes.addFlashAttribute("message", "Hủy đặt chỗ thành công!");
@@ -172,7 +188,12 @@ public class CampingController {
     public ResponseEntity<Camping> addReview(
             @PathVariable("id") Long id,
             @RequestParam Integer rating,
-            @RequestParam String comment) {
+            @RequestParam String comment,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
         Camping camping = campingService.addReview(id, rating, comment, null);
         return ResponseEntity.ok(camping);
     }
@@ -183,7 +204,12 @@ public class CampingController {
     public ResponseEntity<Camping> replyToReview(
             @PathVariable("id") Long id,
             @PathVariable("reviewIndex") int reviewIndex,
-            @RequestParam String reply) {
+            @RequestParam String reply,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
         Camping camping = campingService.replyToReview(id, reviewIndex, reply);
         return ResponseEntity.ok(camping);
     }
@@ -211,7 +237,12 @@ public class CampingController {
     @ResponseBody
     public ResponseEntity<Camping> addNotification(
             @PathVariable("id") Long id,
-            @RequestParam String message) {
+            @RequestParam String message,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
         Camping camping = campingService.addNotification(id, message);
         return ResponseEntity.ok(camping);
     }
@@ -230,7 +261,12 @@ public class CampingController {
     @ResponseBody
     public ResponseEntity<Camping> addSearchTerm(
             @PathVariable("id") Long id,
-            @RequestParam String term) {
+            @RequestParam String term,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
         Camping camping = campingService.addSearchTerm(id, term);
         return ResponseEntity.ok(camping);
     }
@@ -240,7 +276,12 @@ public class CampingController {
     @ResponseBody
     public ResponseEntity<String> processPayment(
             @PathVariable("id") Long id,
-            @RequestParam Double amount) {
+            @RequestParam Double amount,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
         String paymentStatus = campingService.processPayment(id, amount);
         return ResponseEntity.ok(paymentStatus);
     }
