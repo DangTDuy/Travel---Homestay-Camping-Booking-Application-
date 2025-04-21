@@ -80,6 +80,161 @@ public class CampingService {
         }
     }
 
+    @PostConstruct
+    public void initSampleData() {
+        try {
+            // Nếu không có camping nào, tạo dữ liệu mẫu
+            if (campingRepository.count() == 0) {
+                log.info("Initializing sample camping data");
+                User admin = userRepository.findByUsername("admin")
+                        .orElseGet(() -> {
+                            log.warn("Admin user not found for sample data, creating one");
+                            User newAdmin = new User();
+                            newAdmin.setUsername("admin");
+                            newAdmin.setPassword("$2a$10$rCWVH0Xmc8QCiLqZsYwPNebhAT6mVrYVUXuJAifSa2xYCVLCvY2xq"); // bcrypt hash for "admin"
+                            newAdmin.setEmail("admin@example.com");
+                            newAdmin.setRole("ADMIN");
+                            newAdmin.setHoTen("Quản trị viên");
+                            return userRepository.save(newAdmin);
+                        });
+
+                createSampleCamping(
+                    "Rừng Thông Đà Lạt Camping",
+                    "Đà Lạt, Lâm Đồng",
+                    "Khu cắm trại giữa rừng thông với không khí trong lành, cảnh quan thiên nhiên tuyệt đẹp. Phù hợp cho những người yêu thích không gian yên tĩnh, gần gũi với thiên nhiên.",
+                    300000.0,
+                    50,
+                    30,
+                    List.of("Điện", "Nước sạch", "Nhà vệ sinh", "Bãi đỗ xe", "Khu BBQ"),
+                    List.of("Lều 2 người", "Túi ngủ", "Đèn cắm trại", "Bếp gas mini"),
+                    List.of("Không xả rác bừa bãi", "Không gây ồn sau 10 giờ tối", "Không đốt lửa trại khi có gió lớn"),
+                    List.of(
+                        "https://images.unsplash.com/photo-1612632184609-3b171ab91b29?q=80&w=1000&auto=format&fit=crop",
+                        "https://images.unsplash.com/photo-1564577160324-112d375abdc8?q=80&w=1000&auto=format&fit=crop"
+                    ),
+                    admin
+                );
+
+                createSampleCamping(
+                    "Đồi Cỏ Hồng Camping",
+                    "Đà Lạt, Lâm Đồng",
+                    "Khu cắm trại nằm trên đồi cỏ hồng, view tuyệt đẹp, đặc biệt vào mùa cỏ hồng từ tháng 11 đến tháng 12. Nơi đây có không gian rộng rãi, thích hợp cho nhóm bạn, gia đình.",
+                    400000.0,
+                    40,
+                    20,
+                    List.of("Điện", "Nước sạch", "Nhà vệ sinh", "Bãi đỗ xe", "Khu BBQ", "Wifi", "Quầy cafe"),
+                    List.of("Lều 4 người", "Túi ngủ", "Đèn cắm trại", "Bếp gas mini", "Bàn ghế ngoài trời"),
+                    List.of("Không xả rác bừa bãi", "Không hái hoa cỏ", "Không gây ồn sau 11 giờ tối"),
+                    List.of(
+                        "https://storage.googleapis.com/vin-e-photos/grass-hill-camping.jpg",
+                        "https://storage.googleapis.com/vin-e-photos/grass-hill-camping-2.jpg"
+                    ),
+                    admin
+                );
+
+                createSampleCamping(
+                    "Biển Vàng Camping",
+                    "Phan Thiết, Bình Thuận",
+                    "Khu cắm trại ven biển, nơi bạn có thể vừa cắm trại vừa tận hưởng không khí biển. Địa điểm lý tưởng cho các hoạt động như câu cá, lặn biển, tổ chức tiệc BBQ bên bờ biển.",
+                    350000.0,
+                    60,
+                    40,
+                    List.of("Điện", "Nước sạch", "Nhà vệ sinh", "Bãi đỗ xe", "Khu BBQ", "Vòi sen nước ngọt", "Lều che nắng"),
+                    List.of("Lều 3 người", "Túi ngủ", "Võng", "Dụng cụ câu cá", "Ống thở", "Kính lặn"),
+                    List.of("Không xả rác ra biển", "Không bắt các loài sinh vật biển quý hiếm", "Cẩn thận khi tắm biển"),
+                    List.of(
+                        "https://storage.googleapis.com/vin-e-photos/beach-camping.jpg",
+                        "https://storage.googleapis.com/vin-e-photos/beach-camping-2.jpg"
+                    ),
+                    admin
+                );
+
+                createSampleCamping(
+                    "Rừng Nam Cát Tiên Camping",
+                    "Đồng Nai",
+                    "Khu cắm trại trong khu bảo tồn Nam Cát Tiên, nơi bạn có thể khám phá hệ sinh thái rừng nhiệt đới đa dạng. Có các tour tham quan rừng, quan sát động vật hoang dã.",
+                    250000.0,
+                    30,
+                    15,
+                    List.of("Điện", "Nước sạch", "Nhà vệ sinh", "Bãi đỗ xe", "Khu BBQ", "Tour tham quan", "Hướng dẫn viên"),
+                    List.of("Lều 2 người", "Túi ngủ", "Đèn cắm trại", "Ủng đi rừng", "Quần áo bảo hộ"),
+                    List.of("Không săn bắt động vật", "Không hái cây rừng", "Tuân thủ hướng dẫn của nhân viên", "Không đi ra khỏi các tuyến đường cho phép"),
+                    List.of(
+                        "https://storage.googleapis.com/vin-e-photos/forest-camping.jpg",
+                        "https://storage.googleapis.com/vin-e-photos/forest-camping-2.jpg"
+                    ),
+                    admin
+                );
+
+                createSampleCamping(
+                    "Hồ Tuyền Lâm Camping",
+                    "Đà Lạt, Lâm Đồng",
+                    "Khu cắm trại bên hồ Tuyền Lâm, khung cảnh hùng vĩ với hồ nước trong xanh và rừng thông bao quanh. Nơi đây có các hoạt động chèo thuyền, câu cá, đạp xe đạp quanh hồ.",
+                    450000.0,
+                    80,
+                    50,
+                    List.of("Điện", "Nước sạch", "Nhà vệ sinh", "Bãi đỗ xe", "Khu BBQ", "Cho thuê thuyền", "Cho thuê xe đạp", "Câu cá"),
+                    List.of("Lều 4 người", "Túi ngủ", "Đèn cắm trại", "Bếp gas mini", "Cần câu", "Thuyền kayak"),
+                    List.of("Không xả rác xuống hồ", "Mặc áo phao khi chèo thuyền", "Không đánh bắt cá quá mức"),
+                    List.of(
+                        "https://storage.googleapis.com/vin-e-photos/lake-camping.jpg",
+                        "https://storage.googleapis.com/vin-e-photos/lake-camping-2.jpg"
+                    ),
+                    admin
+                );
+
+                log.info("Sample camping data initialized successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error initializing sample camping data: {}", e.getMessage(), e);
+        }
+    }
+
+    private Camping createSampleCamping(
+            String name,
+            String location,
+            String description,
+            Double price,
+            Integer capacity,
+            Integer availableSlots,
+            List<String> facilities,
+            List<String> equipment,
+            List<String> rules,
+            List<String> imageUrls,
+            User owner) {
+        
+        try {
+            Camping camping = new Camping();
+            camping.setName(name);
+            camping.setLocation(location);
+            camping.setDescription(description);
+            camping.setPrice(price);
+            camping.setCapacity(capacity);
+            camping.setAvailableSlots(availableSlots);
+            camping.setIsAvailable(true);
+            camping.setFacilities(facilities);
+            camping.setEquipment(equipment);
+            camping.setRules(rules);
+            camping.setOwner(owner);
+            camping.setRating(0.0);
+            camping.setBookingCount(0);
+            camping.setImageUrls(imageUrls);
+            
+            // Tên ảnh từ URLs (giả lập)
+            List<String> imageNames = new ArrayList<>();
+            for (String url : imageUrls) {
+                String imageName = url.substring(url.lastIndexOf("/") + 1);
+                imageNames.add(imageName);
+            }
+            camping.setImages(imageNames);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error creating sample camping '{}': {}", name, e.getMessage(), e);
+            throw new RuntimeException("Failed to create sample camping: " + e.getMessage());
+        }
+    }
+
     // Tạo khu cắm trại mới
     @Transactional
     public Camping createCamping(Camping camping, String username) {
