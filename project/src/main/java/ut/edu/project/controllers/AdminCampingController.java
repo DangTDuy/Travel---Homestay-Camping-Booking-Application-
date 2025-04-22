@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ut.edu.project.services.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -53,9 +54,7 @@ public class AdminCampingController {
     @PostMapping("/api/campings")
     @ResponseBody
     public Camping addCamping(@RequestBody Camping camping) {
-        String username = userService.getCurrentUser()
-            .orElseThrow(() -> new RuntimeException("User not found"))
-            .getUsername();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return campingService.createCamping(camping, username);
     }
 

@@ -394,15 +394,16 @@ public class CampingService {
                 booking.setCheckOut(endDate.atStartOfDay()); // Ngày trả chỗ
                 booking.setGuests(numberOfPeople); // Số lượng khách
                 booking.setStatus(Booking.BookingStatus.PENDING); // Trạng thái chờ xử lý
-                booking.setServiceType(ServiceType.CAMPING); // Thiết lập loại dịch vụ
+                booking.setServiceType(Booking.ServiceType.CAMPING); // Thiết lập loại dịch vụ
                 
                 // Lấy user hiện tại từ context
-                User currentUser = userService.getCurrentUser()
+                String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+                User currentUser = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người dùng đang đăng nhập"));
                 booking.setUser(currentUser); // Gán user cho booking
                 
                 // Thiết lập thông tin khách hàng nếu cần
-                booking.setCustomerName(customerName);
+                booking.setSpecialRequests("Customer Name: " + customerName);
                 
                 camping.addBooking(booking); // Thêm đặt chỗ vào khu cắm trại
                 campingRepository.save(camping); // Lưu thay đổi
