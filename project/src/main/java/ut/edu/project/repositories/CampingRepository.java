@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ut.edu.project.models.Camping;
+import ut.edu.project.models.Camping.CampingStatus;
 import ut.edu.project.models.User;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,12 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
     // Tìm khu cắm trại theo khoảng giá
     List<Camping> findByPriceBetween(Double minPrice, Double maxPrice);
 
+    // Tìm khu cắm trại theo giá mùa cao điểm
+    List<Camping> findByPeakSeasonPriceBetween(Double minPrice, Double maxPrice);
+
+    // Tìm khu cắm trại theo giá cuối tuần
+    List<Camping> findByWeekendPriceBetween(Double minPrice, Double maxPrice);
+
     // Tìm khu cắm trại có sức chứa lớn hơn hoặc bằng
     List<Camping> findByCapacityGreaterThanEqual(Integer places);
 
@@ -29,6 +36,12 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
     // Tìm các khu cắm trại đang sẵn sàng
     List<Camping> findByIsAvailableTrue();
 
+    // Tìm khu cắm trại theo trạng thái
+    List<Camping> findByStatus(CampingStatus status);
+
+    // Tìm khu cắm trại có sẵn chỗ
+    List<Camping> findByAvailableSlotsGreaterThan(Integer slots);
+
     // Tìm khu cắm trại theo điểm đánh giá tối thiểu
     List<Camping> findByRatingGreaterThanEqual(Double rating);
 
@@ -36,38 +49,71 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
     @Query("SELECT DISTINCT c FROM Camping c JOIN c.facilities f WHERE f IN :facilities")
     List<Camping> findByFacilitiesIn(@Param("facilities") List<String> facilities);
 
+    // Tìm khu cắm trại theo danh sách hoạt động
+    @Query("SELECT DISTINCT c FROM Camping c JOIN c.activities a WHERE a IN :activities")
+    List<Camping> findByActivitiesIn(@Param("activities") List<String> activities);
+
+    // Tìm khu cắm trại trong bán kính địa lý (km)
+    @Query(value = "SELECT *, " +
+           "(6371 * acos(cos(radians(:latitude)) * cos(radians(c.latitude)) * cos(radians(c.longitude) - radians(:longitude)) + sin(radians(:latitude)) * sin(radians(c.latitude)))) AS distance " +
+           "FROM campings c " +
+           "WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL " +
+           "HAVING distance < :radius " +
+           "ORDER BY distance", 
+           nativeQuery = true)
+    List<Camping> findByGeoLocation(@Param("latitude") Double latitude, 
+                                    @Param("longitude") Double longitude, 
+                                    @Param("radius") Double radiusInKm);
+
     // Tìm kiếm tổng hợp với nhiều tiêu chí
     @Query("SELECT c FROM Camping c WHERE " +
-            "(:location IS NULL OR LOWER(c.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
-            "(:minPrice IS NULL OR c.price >= :minPrice) AND " +
-            "(:maxPrice IS NULL OR c.price <= :maxPrice) AND " +
-            "(:minPlaces IS NULL OR c.capacity >= :minPlaces) AND " +
-            "(:isAvailable IS NULL OR c.isAvailable = :isAvailable)")
-    List<Camping> searchCampings(
-            @Param("location") String location,
-            @Param("minPrice") Double minPrice,
-            @Param("maxPrice") Double maxPrice,
-            @Param("minPlaces") Integer minPlaces,
-            @Param("isAvailable") Boolean isAvailable);
-            
-    // Tìm kiếm đơn giản với địa điểm và giá (cho trang admin)
+           "(:location IS NULL OR c.location LIKE %:location%) AND " +
+           "(:minPrice IS NULL OR c.price >= :minPrice) AND " +
+           "(:maxPrice IS NULL OR c.price <= :maxPrice) AND " +
+           "(:status IS NULL OR c.status = :status) AND " +
+           "(:minRating IS NULL OR c.rating >= :minRating)")
+    List<Camping> searchCampings(@Param("location") String location,
+                               @Param("minPrice") Double minPrice,
+                               @Param("maxPrice") Double maxPrice,
+                               @Param("status") CampingStatus status,
+                               @Param("minRating") Double minRating);
+    
+    // Tìm kiếm theo từ khóa trong mô tả hoặc tên
     @Query("SELECT c FROM Camping c WHERE " +
-            "(:location IS NULL OR LOWER(c.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
-            "(:minPrice IS NULL OR c.price >= :minPrice) AND " +
-            "(:maxPrice IS NULL OR c.price <= :maxPrice)")
-    List<Camping> searchCampings(
-            @Param("location") String location,
-            @Param("minPrice") Double minPrice,
-            @Param("maxPrice") Double maxPrice);
-
-    // Lấy top 10 khu cắm trại theo điểm đánh giá
-    List<Camping> findTop10ByOrderByRatingDesc();
-
-    // Lấy top 10 khu cắm trại theo số lượng đặt chỗ
-    List<Camping> findTop10ByOrderByBookingCountDesc();
-
-    // Lấy top 10 khu cắm trại mới nhất
-    List<Camping> findTop10ByOrderByCreatedAtDesc();
+           "LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Camping> searchByKeyword(@Param("keyword") String keyword);
+    
+    // Tìm theo mùa tốt nhất
+    @Query("SELECT c FROM Camping c WHERE " +
+           "LOWER(c.bestSeasons) LIKE LOWER(CONCAT('%', :season, '%'))")
+    List<Camping> findByBestSeason(@Param("season") String season);
+    
+    // Tìm theo mức độ khó tiếp cận
+    List<Camping> findByAccessibilityLevelLessThanEqual(Integer level);
+    
+    // Tìm khu cắm trại có video
+    List<Camping> findByVideoUrlIsNotNull();
+    
+    // Tìm khu cắm trại sửa đổi gần đây
+    List<Camping> findByUpdatedAtAfter(LocalDateTime date);
+    
+    // Tìm tất cả khu cắm trại đang mở và sắp xếp theo đánh giá giảm dần
+    @Query("SELECT c FROM Camping c WHERE c.status = 'OPEN' AND c.isAvailable = true ORDER BY c.rating DESC")
+    List<Camping> findAllOpenCampingOrderByRatingDesc();
+    
+    // Tìm kiếm tổng hợp cho trang chủ
+    @Query("SELECT c FROM Camping c WHERE " +
+           "(:location IS NULL OR c.location LIKE %:location%) AND " +
+           "(:minPrice IS NULL OR c.price >= :minPrice) AND " +
+           "(:maxPrice IS NULL OR c.price <= :maxPrice)")
+    List<Camping> searchCampings(@Param("location") String location,
+                               @Param("minPrice") Double minPrice,
+                               @Param("maxPrice") Double maxPrice);
+    
+    // Tìm theo từ khóa tìm kiếm
+    @Query("SELECT c FROM Camping c JOIN c.searchHistory s WHERE s = :term")
+    List<Camping> findBySearchTerm(@Param("term") String term);
 
     // Tìm khu cắm trại theo tên với phân trang
     Page<Camping> findByNameContainingIgnoreCase(String name, Pageable pageable);
@@ -101,10 +147,6 @@ public interface CampingRepository extends JpaRepository<Camping, Long> {
     // Các truy vấn mới cho gợi ý
     // Tìm khu cắm trại theo từ khóa tìm kiếm
     @Query("SELECT c FROM Camping c WHERE :term MEMBER OF c.searchHistory")
-    List<Camping> findBySearchTerm(@Param("term") String term);
-
-    // Tìm khu cắm trại có số lượng tìm kiếm tối thiểu
-    @Query("SELECT c FROM Camping c WHERE SIZE(c.searchHistory) > :minSearches")
     List<Camping> findBySearchActivity(@Param("minSearches") int minSearches);
 
     // Các truy vấn mới cho thanh toán

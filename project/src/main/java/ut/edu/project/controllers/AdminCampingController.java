@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ut.edu.project.services.UserService;
 
 import java.util.List;
 import java.util.Map;
@@ -25,14 +26,50 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @Controller
-@RequestMapping("/admin/camping")
-@PreAuthorize("hasAuthority('ADMIN')")
+@RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminCampingController {
 
     @Autowired
     private CampingService campingService;
 
+    @Autowired
+    private UserService userService;
+
     private static final Logger log = LoggerFactory.getLogger(AdminCampingController.class);
+
+    @GetMapping("/camping")
+    public String showAdminCampingPage(Model model) {
+        model.addAttribute("currentPage", "admin/camping");
+        return "admin/admin-camping";
+    }
+
+    @GetMapping("/api/campings")
+    @ResponseBody
+    public List<Camping> getAllCampings() {
+        return campingService.getAllCampings();
+    }
+
+    @PostMapping("/api/campings")
+    @ResponseBody
+    public Camping addCamping(@RequestBody Camping camping) {
+        String username = userService.getCurrentUser()
+            .orElseThrow(() -> new RuntimeException("User not found"))
+            .getUsername();
+        return campingService.createCamping(camping, username);
+    }
+
+    @PutMapping("/api/campings/{id}")
+    @ResponseBody
+    public Camping updateCamping(@PathVariable Long id, @RequestBody Camping camping) {
+        return campingService.updateCamping(id, camping);
+    }
+
+    @DeleteMapping("/api/campings/{id}")
+    @ResponseBody
+    public void deleteCamping(@PathVariable Long id) {
+        campingService.deleteCamping(id);
+    }
 
     @GetMapping
     public String adminCampingPage(Model model,
