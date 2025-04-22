@@ -27,13 +27,26 @@ public class Camping {
     @NotBlank(message = "Địa điểm không được để trống")
     private String location; // Địa điểm khu cắm trại
 
+    // Tọa độ GPS cho hiển thị bản đồ
+    private Double latitude;
+    private Double longitude;
+
     @Column(columnDefinition = "TEXT")
     private String description; // Mô tả khu cắm trại
 
     @NotNull(message = "Giá không được để trống")
     @Positive(message = "Giá phải lớn hơn 0")
     private Double price; // Giá thuê khu cắm trại
-
+    
+    // Giá theo mùa
+    private Double peakSeasonPrice; // Giá mùa cao điểm
+    private Double lowSeasonPrice; // Giá mùa thấp điểm
+    private Double weekendPrice; // Giá cuối tuần
+    
+    // Mùa cao điểm
+    @Column(columnDefinition = "TEXT")
+    private String peakSeasonInfo; // Thông tin về mùa cao điểm
+    
     @NotNull(message = "Sức chứa không được để trống")
     @Min(value = 1, message = "Sức chứa phải ít nhất là 1")
     private Integer capacity; // Sức chứa tối đa (thay thế cho maxPlaces)
@@ -41,6 +54,29 @@ public class Camping {
     @NotNull(message = "Số chỗ có sẵn không được để trống")
     @Min(value = 0, message = "Số chỗ có sẵn không được âm")
     private Integer availableSlots; // Số chỗ có sẵn hiện tại
+
+    // Trạng thái của khu cắm trại
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private CampingStatus status = CampingStatus.OPEN; // Trạng thái mặc định là mở cửa
+    
+    public enum CampingStatus {
+        OPEN("Đang mở cửa"), 
+        CLOSED("Đóng cửa"), 
+        MAINTENANCE("Đang bảo trì"), 
+        SEASONAL_CLOSE("Đóng cửa theo mùa"),
+        FULLY_BOOKED("Đã đặt hết");
+        
+        private final String displayName;
+        
+        CampingStatus(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
 
     @Column(nullable = false)
     private boolean isAvailable = true; // Trạng thái sẵn sàng của khu cắm trại
@@ -55,6 +91,9 @@ public class Camping {
     @Column(name = "image_url")
     @Size(max = 5, message = "Tối đa 5 URL ảnh")
     private List<String> imageUrls = new ArrayList<>(); // Danh sách URL ảnh
+    
+    // URL video giới thiệu
+    private String videoUrl;
 
     @ElementCollection
     @CollectionTable(name = "camping_facilities", joinColumns = @JoinColumn(name = "camping_id"))
@@ -66,10 +105,26 @@ public class Camping {
     @Column(name = "equipment")
     private List<String> equipment = new ArrayList<>(); // Danh sách thiết bị có sẵn
     
+    // Danh sách hoạt động giải trí
+    @ElementCollection
+    @CollectionTable(name = "camping_activities", joinColumns = @JoinColumn(name = "camping_id"))
+    @Column(name = "activity")
+    private List<String> activities = new ArrayList<>();
+    
+    // Danh sách điểm tham quan lân cận
+    @ElementCollection
+    @CollectionTable(name = "camping_attractions", joinColumns = @JoinColumn(name = "camping_id"))
+    @Column(name = "attraction")
+    private List<String> nearbyAttractions = new ArrayList<>();
+    
     @ElementCollection
     @CollectionTable(name = "camping_rules", joinColumns = @JoinColumn(name = "camping_id"))
     @Column(name = "rule")
     private List<String> rules = new ArrayList<>(); // Danh sách quy tắc
+
+    // Thông tin y tế và an toàn
+    @Column(columnDefinition = "TEXT")
+    private String safetyInfo;
 
     @OneToMany(mappedBy = "camping", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>(); // Danh sách đặt chỗ
@@ -91,12 +146,22 @@ public class Camping {
 
     @Column(columnDefinition = "TEXT")
     private String weather; // Thông tin thời tiết
+    
+    // Mức độ khó tiếp cận (1-5)
+    private Integer accessibilityLevel;
+    // Mô tả tiếp cận
+    @Column(columnDefinition = "TEXT")
+    private String accessibilityDescription;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt; // Thời gian tạo
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // Thời gian cập nhật
+    
+    // Mùa tốt nhất để đến
+    @Column(columnDefinition = "TEXT")
+    private String bestSeasons;
 
     // Các trường mới cho đánh giá
     @ElementCollection
@@ -159,6 +224,10 @@ public class Camping {
         if (availableSlots > 0) {
             availableSlots--;
         }
+        // Kiểm tra nếu hết chỗ thì đổi trạng thái
+        if (availableSlots == 0) {
+            status = CampingStatus.FULLY_BOOKED;
+        }
         addNotification("Đặt chỗ mới được thêm cho " + name);
     }
 
@@ -170,6 +239,10 @@ public class Camping {
         // Tăng số chỗ có sẵn
         if (availableSlots < capacity) {
             availableSlots++;
+        }
+        // Nếu có chỗ trống và trạng thái là FULLY_BOOKED thì đổi lại OPEN
+        if (availableSlots > 0 && status == CampingStatus.FULLY_BOOKED) {
+            status = CampingStatus.OPEN;
         }
         addNotification("Đặt chỗ đã bị xóa cho " + name);
     }
@@ -185,6 +258,18 @@ public class Camping {
         // Xóa dịch vụ bổ sung
         additionalServices.remove(service);
         service.setCamping(null);
+    }
+    
+    // Thêm hoạt động giải trí
+    public void addActivity(String activity) {
+        if (activities == null) activities = new ArrayList<>();
+        activities.add(activity);
+    }
+    
+    // Thêm điểm tham quan lân cận
+    public void addNearbyAttraction(String attraction) {
+        if (nearbyAttractions == null) nearbyAttractions = new ArrayList<>();
+        nearbyAttractions.add(attraction);
     }
 
     // Phương thức hỗ trợ cho đánh giá
@@ -248,28 +333,40 @@ public class Camping {
         this.lastPaymentStatus = status;
         addNotification("Trạng thái thanh toán được cập nhật: " + status);
     }
-
-    // Các phương thức tiện ích khác
+    
+    // Phương thức tiện ích để kiểm tra xem có thể đánh giá hay không
     public boolean isReviewable() {
-        // Kiểm tra xem khu cắm trại có thể được đánh giá không
-        return !bookings.isEmpty();
+        return isAvailable && status == CampingStatus.OPEN;
     }
-
+    
+    // Phương thức tiện ích để lấy số lượng đánh giá
     public int getReviewCount() {
-        // Lấy số lượng đánh giá
-        return reviews.size();
+        return reviews != null ? reviews.size() : 0;
+    }
+    
+    // Phương thức tiện ích để lấy giá theo loại thời gian
+    public Double getPriceBySeasonAndDay(boolean isPeakSeason, boolean isWeekend) {
+        if (isPeakSeason) {
+            return peakSeasonPrice != null ? peakSeasonPrice : price;
+        } else if (isWeekend) {
+            return weekendPrice != null ? weekendPrice : price;
+        } else {
+            return lowSeasonPrice != null ? lowSeasonPrice : price;
+        }
     }
 
     public void setIsAvailable(boolean available) {
         this.isAvailable = available;
+        if (!available && status == CampingStatus.OPEN) {
+            status = CampingStatus.CLOSED;
+        }
     }
-    
-    // Cho tương thích với code cũ sử dụng maxPlaces
+
     @Deprecated
     public Integer getMaxPlaces() {
         return capacity;
     }
-    
+
     @Deprecated
     public void setMaxPlaces(Integer maxPlaces) {
         this.capacity = maxPlaces;

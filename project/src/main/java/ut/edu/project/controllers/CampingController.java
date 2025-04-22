@@ -285,4 +285,309 @@ public class CampingController {
         String paymentStatus = campingService.processPayment(id, amount);
         return ResponseEntity.ok(paymentStatus);
     }
+
+    // API tìm kiếm khu cắm trại gần vị trí hiện tại
+    @GetMapping("/api/nearby")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> findCampingsNearby(
+            @RequestParam("lat") Double latitude,
+            @RequestParam("lng") Double longitude,
+            @RequestParam(value = "radius", defaultValue = "10.0") Double radiusInKm) {
+        try {
+            List<Camping> campings = campingService.findCampingsNearby(latitude, longitude, radiusInKm);
+            return ResponseEntity.ok(campings);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API tìm kiếm nâng cao
+    @GetMapping("/api/search/advanced")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> searchAdvanced(
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(value = "status", required = false) String statusStr,
+            @RequestParam(value = "minRating", required = false) Double minRating) {
+        try {
+            Camping.CampingStatus status = null;
+            if (statusStr != null && !statusStr.isEmpty()) {
+                try {
+                    status = Camping.CampingStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    // Bỏ qua giá trị không hợp lệ và tiếp tục tìm kiếm
+                }
+            }
+            
+            List<Camping> campings = campingService.searchCampingsAdvanced(
+                location, minPrice, maxPrice, status, minRating);
+            return ResponseEntity.ok(campings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API tìm kiếm theo từ khóa
+    @GetMapping("/api/search/keyword")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> searchByKeyword(
+            @RequestParam("keyword") String keyword) {
+        try {
+            List<Camping> campings = campingService.searchByKeyword(keyword);
+            return ResponseEntity.ok(campings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API tìm kiếm theo mùa
+    @GetMapping("/api/search/season")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> findByBestSeason(
+            @RequestParam("season") String season) {
+        try {
+            List<Camping> campings = campingService.findByBestSeason(season);
+            return ResponseEntity.ok(campings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API tìm kiếm theo mức độ tiếp cận
+    @GetMapping("/api/search/accessibility")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> findByAccessibilityLevel(
+            @RequestParam("maxLevel") Integer maxLevel) {
+        try {
+            List<Camping> campings = campingService.findByAccessibilityLevel(maxLevel);
+            return ResponseEntity.ok(campings);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API lấy danh sách khu cắm trại đang mở theo đánh giá
+    @GetMapping("/api/open")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> getAllOpenCampings() {
+        try {
+            List<Camping> campings = campingService.getAllOpenCampingsOrderByRating();
+            return ResponseEntity.ok(campings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API lấy danh sách khu cắm trại cập nhật gần đây
+    @GetMapping("/api/recent")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> getRecentlyUpdatedCampings(
+            @RequestParam(value = "days", defaultValue = "7") Integer days) {
+        try {
+            List<Camping> campings = campingService.getRecentlyUpdatedCampings(days);
+            return ResponseEntity.ok(campings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API lấy danh sách khu cắm trại có video
+    @GetMapping("/api/with-video")
+    @ResponseBody
+    public ResponseEntity<List<Camping>> getCampingsWithVideo() {
+        try {
+            List<Camping> campings = campingService.getCampingsWithVideo();
+            return ResponseEntity.ok(campings);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật tọa độ GPS
+    @PutMapping("/api/{id}/coordinates")
+    @ResponseBody
+    public ResponseEntity<Camping> updateGpsCoordinates(
+            @PathVariable("id") Long id,
+            @RequestParam("lat") Double latitude,
+            @RequestParam("lng") Double longitude,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.updateGpsCoordinates(id, latitude, longitude);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật giá theo mùa
+    @PutMapping("/api/{id}/seasonal-prices")
+    @ResponseBody
+    public ResponseEntity<Camping> updateSeasonalPrices(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "standardPrice", required = false) Double standardPrice,
+            @RequestParam(value = "peakSeasonPrice", required = false) Double peakSeasonPrice,
+            @RequestParam(value = "lowSeasonPrice", required = false) Double lowSeasonPrice,
+            @RequestParam(value = "weekendPrice", required = false) Double weekendPrice,
+            @RequestParam(value = "peakSeasonInfo", required = false) String peakSeasonInfo,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.updateSeasonalPrices(
+                id, standardPrice, peakSeasonPrice, lowSeasonPrice, weekendPrice, peakSeasonInfo);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật trạng thái
+    @PutMapping("/api/{id}/status")
+    @ResponseBody
+    public ResponseEntity<Camping> updateCampingStatus(
+            @PathVariable("id") Long id,
+            @RequestParam("status") String statusStr,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping.CampingStatus status = Camping.CampingStatus.valueOf(statusStr);
+            Camping camping = campingService.updateCampingStatus(id, status);
+            return ResponseEntity.ok(camping);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API thêm hoạt động giải trí
+    @PostMapping("/api/{id}/activity")
+    @ResponseBody
+    public ResponseEntity<Camping> addActivity(
+            @PathVariable("id") Long id,
+            @RequestParam("activity") String activity,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.addActivity(id, activity);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API thêm điểm tham quan lân cận
+    @PostMapping("/api/{id}/attraction")
+    @ResponseBody
+    public ResponseEntity<Camping> addNearbyAttraction(
+            @PathVariable("id") Long id,
+            @RequestParam("attraction") String attraction,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.addNearbyAttraction(id, attraction);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật URL video
+    @PutMapping("/api/{id}/video")
+    @ResponseBody
+    public ResponseEntity<Camping> updateVideoUrl(
+            @PathVariable("id") Long id,
+            @RequestParam("videoUrl") String videoUrl,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.updateVideoUrl(id, videoUrl);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật thông tin tiếp cận
+    @PutMapping("/api/{id}/accessibility")
+    @ResponseBody
+    public ResponseEntity<Camping> updateAccessibilityInfo(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "level", required = false) Integer level,
+            @RequestParam(value = "description", required = false) String description,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.updateAccessibilityInfo(id, level, description);
+            return ResponseEntity.ok(camping);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật thông tin an toàn
+    @PutMapping("/api/{id}/safety")
+    @ResponseBody
+    public ResponseEntity<Camping> updateSafetyInfo(
+            @PathVariable("id") Long id,
+            @RequestParam("safetyInfo") String safetyInfo,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.updateSafetyInfo(id, safetyInfo);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    // API cập nhật thông tin mùa tốt nhất
+    @PutMapping("/api/{id}/best-seasons")
+    @ResponseBody
+    public ResponseEntity<Camping> updateBestSeasons(
+            @PathVariable("id") Long id,
+            @RequestParam("bestSeasons") String bestSeasons,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).build(); // Forbidden
+        }
+        
+        try {
+            Camping camping = campingService.updateBestSeasons(id, bestSeasons);
+            return ResponseEntity.ok(camping);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
 }

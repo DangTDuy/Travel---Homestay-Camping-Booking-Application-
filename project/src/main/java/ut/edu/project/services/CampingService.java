@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -126,8 +127,8 @@ public class CampingService {
                     List.of("Lều 4 người", "Túi ngủ", "Đèn cắm trại", "Bếp gas mini", "Bàn ghế ngoài trời"),
                     List.of("Không xả rác bừa bãi", "Không hái hoa cỏ", "Không gây ồn sau 11 giờ tối"),
                     List.of(
-                        "https://storage.googleapis.com/vin-e-photos/grass-hill-camping.jpg",
-                        "https://storage.googleapis.com/vin-e-photos/grass-hill-camping-2.jpg"
+                        "https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop",
+                        "https://images.unsplash.com/photo-1547055238-a321e45a90a4?q=80&w=1000&auto=format&fit=crop"
                     ),
                     admin
                 );
@@ -143,8 +144,8 @@ public class CampingService {
                     List.of("Lều 3 người", "Túi ngủ", "Võng", "Dụng cụ câu cá", "Ống thở", "Kính lặn"),
                     List.of("Không xả rác ra biển", "Không bắt các loài sinh vật biển quý hiếm", "Cẩn thận khi tắm biển"),
                     List.of(
-                        "https://storage.googleapis.com/vin-e-photos/beach-camping.jpg",
-                        "https://storage.googleapis.com/vin-e-photos/beach-camping-2.jpg"
+                        "https://images.unsplash.com/photo-1519095614420-850b5671ac7f?q=80&w=1000&auto=format&fit=crop",
+                        "https://images.unsplash.com/photo-1537905569824-f89f14cceb68?q=80&w=1000&auto=format&fit=crop"
                     ),
                     admin
                 );
@@ -160,8 +161,8 @@ public class CampingService {
                     List.of("Lều 2 người", "Túi ngủ", "Đèn cắm trại", "Ủng đi rừng", "Quần áo bảo hộ"),
                     List.of("Không săn bắt động vật", "Không hái cây rừng", "Tuân thủ hướng dẫn của nhân viên", "Không đi ra khỏi các tuyến đường cho phép"),
                     List.of(
-                        "https://storage.googleapis.com/vin-e-photos/forest-camping.jpg",
-                        "https://storage.googleapis.com/vin-e-photos/forest-camping-2.jpg"
+                        "https://images.unsplash.com/photo-1576176539998-0237d1ac6a85?q=80&w=1000&auto=format&fit=crop",
+                        "https://images.unsplash.com/photo-1483381719261-6620dfa2d28a?q=80&w=1000&auto=format&fit=crop"
                     ),
                     admin
                 );
@@ -177,8 +178,8 @@ public class CampingService {
                     List.of("Lều 4 người", "Túi ngủ", "Đèn cắm trại", "Bếp gas mini", "Cần câu", "Thuyền kayak"),
                     List.of("Không xả rác xuống hồ", "Mặc áo phao khi chèo thuyền", "Không đánh bắt cá quá mức"),
                     List.of(
-                        "https://storage.googleapis.com/vin-e-photos/lake-camping.jpg",
-                        "https://storage.googleapis.com/vin-e-photos/lake-camping-2.jpg"
+                        "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=1000&auto=format&fit=crop",
+                        "https://images.unsplash.com/photo-1525811902044-2f424a31e992?q=80&w=1000&auto=format&fit=crop"
                     ),
                     admin
                 );
@@ -393,6 +394,16 @@ public class CampingService {
                 booking.setCheckOut(endDate.atStartOfDay()); // Ngày trả chỗ
                 booking.setGuests(numberOfPeople); // Số lượng khách
                 booking.setStatus(Booking.BookingStatus.PENDING); // Trạng thái chờ xử lý
+                booking.setServiceType(ServiceType.CAMPING); // Thiết lập loại dịch vụ
+                
+                // Lấy user hiện tại từ context
+                User currentUser = userService.getCurrentUser()
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người dùng đang đăng nhập"));
+                booking.setUser(currentUser); // Gán user cho booking
+                
+                // Thiết lập thông tin khách hàng nếu cần
+                booking.setCustomerName(customerName);
+                
                 camping.addBooking(booking); // Thêm đặt chỗ vào khu cắm trại
                 campingRepository.save(camping); // Lưu thay đổi
                 return true;
@@ -720,5 +731,288 @@ public class CampingService {
         User owner = userService.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return campingRepository.findByOwner(owner);
+    }
+
+    // Tìm kiếm khu cắm trại theo vị trí địa lý
+    public List<Camping> findCampingsNearby(Double latitude, Double longitude, Double radiusInKm) {
+        try {
+            if (latitude == null || longitude == null || radiusInKm == null) {
+                throw new IllegalArgumentException("Vị trí và bán kính tìm kiếm không được để trống");
+            }
+            
+            return campingRepository.findByGeoLocation(latitude, longitude, radiusInKm);
+        } catch (Exception e) {
+            log.error("Error finding nearby campings: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tìm khu cắm trại gần đây: " + e.getMessage());
+        }
+    }
+    
+    // Tìm kiếm khu cắm trại với bộ lọc nâng cao
+    public List<Camping> searchCampingsAdvanced(String location, Double minPrice, Double maxPrice, 
+                                             Camping.CampingStatus status, Double minRating) {
+        try {
+            log.info("Advanced search with location: {}, price range: {}-{}, status: {}, minRating: {}", 
+                     location, minPrice, maxPrice, status, minRating);
+                     
+            return campingRepository.searchCampings(
+                location,
+                minPrice,
+                maxPrice,
+                status,
+                minRating
+            );
+        } catch (Exception e) {
+            log.error("Error searching campings with advanced filters: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tìm kiếm nâng cao: " + e.getMessage());
+        }
+    }
+    
+    // Tìm kiếm theo từ khóa
+    public List<Camping> searchByKeyword(String keyword) {
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return getAllCampings();
+            }
+            
+            return campingRepository.searchByKeyword(keyword);
+        } catch (Exception e) {
+            log.error("Error searching campings by keyword: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tìm kiếm theo từ khóa: " + e.getMessage());
+        }
+    }
+    
+    // Tìm theo mùa phù hợp
+    public List<Camping> findByBestSeason(String season) {
+        try {
+            if (season == null || season.trim().isEmpty()) {
+                return getAllCampings();
+            }
+            
+            return campingRepository.findByBestSeason(season);
+        } catch (Exception e) {
+            log.error("Error finding campings by season: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tìm khu cắm trại theo mùa: " + e.getMessage());
+        }
+    }
+    
+    // Tìm theo mức độ khó tiếp cận
+    public List<Camping> findByAccessibilityLevel(Integer maxLevel) {
+        try {
+            if (maxLevel == null || maxLevel < 1 || maxLevel > 5) {
+                throw new IllegalArgumentException("Mức độ tiếp cận không hợp lệ (1-5)");
+            }
+            
+            return campingRepository.findByAccessibilityLevelLessThanEqual(maxLevel);
+        } catch (Exception e) {
+            log.error("Error finding campings by accessibility level: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi tìm khu cắm trại theo mức độ tiếp cận: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật tọa độ GPS cho khu cắm trại
+    @Transactional
+    public Camping updateGpsCoordinates(Long id, Double latitude, Double longitude) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.setLatitude(latitude);
+            camping.setLongitude(longitude);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating GPS coordinates: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật tọa độ GPS: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật giá theo mùa
+    @Transactional
+    public Camping updateSeasonalPrices(Long id, Double standardPrice, Double peakSeasonPrice, 
+                                      Double lowSeasonPrice, Double weekendPrice, String peakSeasonInfo) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            if (standardPrice != null && standardPrice > 0) {
+                camping.setPrice(standardPrice);
+            }
+            
+            camping.setPeakSeasonPrice(peakSeasonPrice);
+            camping.setLowSeasonPrice(lowSeasonPrice);
+            camping.setWeekendPrice(weekendPrice);
+            camping.setPeakSeasonInfo(peakSeasonInfo);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating seasonal prices: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật giá theo mùa: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật trạng thái khu cắm trại
+    @Transactional
+    public Camping updateCampingStatus(Long id, Camping.CampingStatus status) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.setStatus(status);
+            
+            // Cập nhật isAvailable dựa trên trạng thái
+            switch (status) {
+                case OPEN:
+                    camping.setIsAvailable(true);
+                    break;
+                case CLOSED:
+                case MAINTENANCE:
+                case SEASONAL_CLOSE:
+                    camping.setIsAvailable(false);
+                    break;
+                case FULLY_BOOKED:
+                    camping.setIsAvailable(true);
+                    camping.setAvailableSlots(0);
+                    break;
+            }
+            
+            camping.addNotification("Trạng thái khu cắm trại được cập nhật thành: " + status.getDisplayName());
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating camping status: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật trạng thái khu cắm trại: " + e.getMessage());
+        }
+    }
+    
+    // Thêm hoạt động giải trí
+    @Transactional
+    public Camping addActivity(Long id, String activity) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.addActivity(activity);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error adding activity: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi thêm hoạt động giải trí: " + e.getMessage());
+        }
+    }
+    
+    // Thêm điểm tham quan lân cận
+    @Transactional
+    public Camping addNearbyAttraction(Long id, String attraction) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.addNearbyAttraction(attraction);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error adding nearby attraction: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi thêm điểm tham quan lân cận: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật video giới thiệu
+    @Transactional
+    public Camping updateVideoUrl(Long id, String videoUrl) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.setVideoUrl(videoUrl);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating video URL: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật URL video: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật thông tin tiếp cận
+    @Transactional
+    public Camping updateAccessibilityInfo(Long id, Integer level, String description) {
+        try {
+            if (level != null && (level < 1 || level > 5)) {
+                throw new IllegalArgumentException("Mức độ tiếp cận không hợp lệ (1-5)");
+            }
+            
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.setAccessibilityLevel(level);
+            camping.setAccessibilityDescription(description);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating accessibility info: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật thông tin tiếp cận: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật thông tin an toàn
+    @Transactional
+    public Camping updateSafetyInfo(Long id, String safetyInfo) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.setSafetyInfo(safetyInfo);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating safety info: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật thông tin an toàn: " + e.getMessage());
+        }
+    }
+    
+    // Cập nhật thông tin mùa tốt nhất
+    @Transactional
+    public Camping updateBestSeasons(Long id, String bestSeasons) {
+        try {
+            Camping camping = campingRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khu cắm trại"));
+                    
+            camping.setBestSeasons(bestSeasons);
+            
+            return campingRepository.save(camping);
+        } catch (Exception e) {
+            log.error("Error updating best seasons info: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi cập nhật thông tin mùa tốt nhất: " + e.getMessage());
+        }
+    }
+    
+    // Lấy tất cả khu cắm trại đang mở và sắp xếp theo đánh giá
+    public List<Camping> getAllOpenCampingsOrderByRating() {
+        try {
+            return campingRepository.findAllOpenCampingOrderByRatingDesc();
+        } catch (Exception e) {
+            log.error("Error getting open campings by rating: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi lấy danh sách khu cắm trại đang mở: " + e.getMessage());
+        }
+    }
+    
+    // Lấy danh sách khu cắm trại được cập nhật gần đây
+    public List<Camping> getRecentlyUpdatedCampings(int days) {
+        try {
+            LocalDateTime fromDate = LocalDateTime.now().minusDays(days);
+            return campingRepository.findByUpdatedAtAfter(fromDate);
+        } catch (Exception e) {
+            log.error("Error getting recently updated campings: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi lấy danh sách khu cắm trại cập nhật gần đây: " + e.getMessage());
+        }
+    }
+    
+    // Lấy danh sách khu cắm trại có video
+    public List<Camping> getCampingsWithVideo() {
+        try {
+            return campingRepository.findByVideoUrlIsNotNull();
+        } catch (Exception e) {
+            log.error("Error getting campings with video: {}", e.getMessage(), e);
+            throw new RuntimeException("Lỗi khi lấy danh sách khu cắm trại có video: " + e.getMessage());
+        }
     }
 }
