@@ -82,7 +82,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("username") String username,
             @Param("offset") int offset,
             @Param("size") int size);
-            
+
     // Tìm kiếm và lọc đặt phòng cho admin với phân trang
     @Query("SELECT b FROM Booking b WHERE " +
             "(:status IS NULL OR b.status = :status) AND " +
@@ -96,7 +96,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo,
             Pageable pageable);
-            
+
     /**
      * Tìm booking đã hoàn thành và chưa được đánh giá cho một homestay
      */
@@ -105,9 +105,24 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("userId") Long userId,
             @Param("homestayId") Long homestayId,
             @Param("status") BookingStatus status);
-            
+
     /**
      * Tìm booking gần nhất của user cho một homestay cụ thể
      */
     Optional<Booking> findFirstByUserAndHomestayOrderByCheckOutDesc(User user, Homestay homestay);
+
+    /**
+     * Lấy danh sách booking theo homestay ID
+     */
+    @Query("SELECT b FROM Booking b WHERE b.homestay.id = :homestayId AND b.status != ut.edu.project.models.Booking.BookingStatus.CANCELLED")
+    List<Booking> findByHomestayId(@Param("homestayId") Long homestayId);
+
+    /**
+     * Đếm số lượng booking đã hoàn thành của user đối với một travel cụ thể
+     */
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.user.id = :userId AND b.travel.id = :travelId AND b.status = :status")
+    Long countByUserIdAndTravelIdAndStatus(
+            @Param("userId") Long userId,
+            @Param("travelId") Long travelId,
+            @Param("status") String status);
 }

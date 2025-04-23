@@ -84,6 +84,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/js/**",
                                 "/images/**",
                                 "/homestay_images/**",
+                                "/travel_images/**",
                                 "/assets/**",
                                 "/login",
                                 "/login-processing",
@@ -130,8 +131,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Cấu hình để phục vụ ảnh homestay từ thư mục static
         registry.addResourceHandler("/homestay_images/**")
-                .addResourceLocations("file:src/main/resources/static/homestay_images/")
                 .addResourceLocations("classpath:/static/homestay_images/");
+
+        // Cấu hình để phục vụ ảnh travel từ thư mục static
+        registry.addResourceHandler("/travel_images/**")
+                .addResourceLocations("classpath:/static/travel_images/");
 
         // Cấu hình cho các static resources khác
         registry.addResourceHandler("/static/**")

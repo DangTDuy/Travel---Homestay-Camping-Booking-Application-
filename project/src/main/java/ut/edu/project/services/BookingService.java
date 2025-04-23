@@ -6,12 +6,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.hibernate.Hibernate;
 import ut.edu.project.models.*;
 import ut.edu.project.repositories.BookingRepository;
 import ut.edu.project.repositories.PaymentRepository;
 import ut.edu.project.repositories.UserRepository;
 import ut.edu.project.repositories.HomestayRepository;
 import ut.edu.project.repositories.AdditionalRepository;
+import ut.edu.project.repositories.BookingAdditionalRepository;
 import ut.edu.project.dtos.BookingRequestDTO;
 import ut.edu.project.dtos.AdditionalDTO;
 
@@ -24,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
+import java.math.BigDecimal;
 
 @Service
 public class BookingService {
@@ -54,7 +57,14 @@ public class BookingService {
         // Set initial status
         booking.setStatus(Booking.BookingStatus.PENDING);
 
-        return bookingRepository.save(booking);
+        // Lưu booking
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Lưu các BookingAdditional nếu có
+        // Lưu ý: đây chỉ là danh sách hiển thị, không phải danh sách để lưu vào database
+        // Vì vậy, chúng ta không cần lưu các BookingAdditional ở đây
+
+        return savedBooking;
     }
 
     @Transactional
@@ -72,8 +82,50 @@ public class BookingService {
         return savedBooking;
     }
 
+    @Transactional
     public Optional<Booking> getBookingById(Long id) {
-        return bookingRepository.findById(id);
+        Optional<Booking> bookingOpt = bookingRepository.findById(id);
+
+        if (bookingOpt.isPresent()) {
+            Booking booking = bookingOpt.get();
+
+            // Log thông tin về booking
+            System.out.println("Booking ID: " + booking.getId());
+
+            // Lấy thông tin dịch vụ bổ sung từ bảng BookingAdditional
+            List<BookingAdditional> bookingAdditionals = bookingAdditionalRepository.findByBookingId(booking.getId());
+            System.out.println("BookingAdditional links from DB: " + bookingAdditionals.size());
+
+            // Tạo danh sách dịch vụ bổ sung từ các liên kết
+            List<Additional> additionalServices = new ArrayList<>();
+            for (BookingAdditional link : bookingAdditionals) {
+                Additional service = link.getAdditional();
+                if (service != null) {
+                    // Khởi tạo các đối tượng liên quan
+                    if (service.getCategory() != null) {
+                        Hibernate.initialize(service.getCategory());
+                    }
+                    if (service.getTimeSlot() != null) {
+                        Hibernate.initialize(service.getTimeSlot());
+                    }
+
+                    // Thiết lập số lượng từ BookingAdditional
+                    service.setQuantity(link.getQuantity());
+                    // Thiết lập giá từ BookingAdditional
+                    service.setPrice(link.getPrice());
+
+                    additionalServices.add(service);
+                    System.out.println("Added service: " + service.getName() + ", Quantity: " + link.getQuantity());
+                }
+            }
+
+            // Cập nhật danh sách dịch vụ bổ sung cho booking
+            booking.setAdditionalServices(additionalServices);
+
+            return Optional.of(booking);
+        }
+
+        return bookingOpt;
     }
 
     public List<Booking> getAllBookings() {
@@ -188,6 +240,9 @@ public class BookingService {
         return overlappingBookings.isEmpty();
     }
 
+    @Autowired
+    private BookingAdditionalRepository bookingAdditionalRepository;
+
     @Transactional
     public Booking createBookingFromApi(BookingRequestDTO request, String username) {
         // 1. Fetch User and Homestay
@@ -231,19 +286,16 @@ public class BookingService {
         List<Booking> overlappingBookings = bookingRepository
                 .findOverlappingBookings(homestay.getId(), checkInDateTime, checkOutDateTime);
         if (!overlappingBookings.isEmpty()) {
-            throw new RuntimeException("Homestay không có sẵn trong khoảng thời gian đã chọn."); // Or HttpStatus.CONFLICT in Controller
+            throw new RuntimeException("Homestay đã được đặt trong khoảng thời gian này. Vui lòng chọn ngày khác."); // Or HttpStatus.CONFLICT in Controller
         }
 
         // 5. Calculate Total Price
         long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         if (nights <= 0) nights = 1; // Minimum 1 night stay
-        double subtotal = homestay.getPrice() * nights;
+        double homestaySubtotal = homestay.getPrice() * nights;
 
-        // Calculate service fee (20% of subtotal)
-        double serviceFee = subtotal * 0.2;
-
-        // Initialize total price with subtotal + service fee
-        double totalPrice = subtotal + serviceFee;
+        // Khởi tạo tổng giá ban đầu với giá homestay
+        double serviceSubtotal = homestaySubtotal;
 
         // 6. Create and Save Booking
         Booking newBooking = new Booking();
@@ -254,38 +306,101 @@ public class BookingService {
         newBooking.setGuests(request.getGuests());
         newBooking.setSpecialRequests(request.getSpecialRequests());
 
-        // 7. Process Additional Services if available
-        if (request.getAdditionalServices() != null && !request.getAdditionalServices().isEmpty()) {
-            List<Additional> additionalServices = new ArrayList<>();
+        // Thiết lập các trường bắt buộc ngay từ đầu
+        newBooking.setServiceType(Booking.ServiceType.HOMESTAY); // Thiết lập loại dịch vụ ngay từ đầu
+        newBooking.setStatus(Booking.BookingStatus.PENDING); // Trạng thái ban đầu
+        newBooking.setCreatedAt(LocalDateTime.now());
+        newBooking.setIsReviewed(false); // Ban đầu chưa được đánh giá
+        newBooking.setTotalPrice(homestaySubtotal); // Thiết lập giá trị ban đầu cho totalPrice
 
+        // 7. Process Additional Services if available
+        double foodServicesTotal = 0.0;  // Tổng giá dịch vụ đồ ăn
+        double otherServicesTotal = 0.0;  // Tổng giá các dịch vụ khác
+        List<AdditionalDTO> selectedAdditionals = new ArrayList<>();
+
+        if (request.getAdditionalServices() != null && !request.getAdditionalServices().isEmpty()) {
             for (AdditionalDTO additionalDTO : request.getAdditionalServices()) {
-                Additional additional = additionalRepository.findById(additionalDTO.getId())
+                Additional originalAdditional = additionalRepository.findById(additionalDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Dịch vụ bổ sung không tồn tại với ID: " + additionalDTO.getId()));
 
-                // Set quantity from request
-                additional.setQuantity(additionalDTO.getQuantity());
-
-                // Validate that additional service belongs to the selected homestay
-                if (!additional.getHomestay().getId().equals(homestay.getId())) {
+                // Validate that additional service is available for this homestay
+                // Chấp nhận cả dịch vụ chung (homestay = null) và dịch vụ riêng của homestay này
+                if (originalAdditional.getHomestay() != null && !originalAdditional.getHomestay().getId().equals(homestay.getId())) {
                     throw new IllegalArgumentException("Dịch vụ bổ sung không thuộc về homestay đã chọn");
                 }
 
-                // Add the price of this service to the total
-                totalPrice += additional.getPrice().doubleValue() * additional.getQuantity();
+                // Tính giá dựa trên loại dịch vụ
+                double servicePrice = originalAdditional.getPrice().doubleValue();
+                int quantity = additionalDTO.getQuantity();
 
-                additionalServices.add(additional);
+                // Nếu là bữa ăn, tính theo số người
+                boolean isFood = originalAdditional.getCategory() != null && "food".equals(originalAdditional.getCategory().getName());
+                if (isFood) {
+                    servicePrice = servicePrice * request.getGuests();
+                }
+
+                // Nếu là gói dịch vụ, tính theo số ngày
+                if (originalAdditional.getCategory() != null && "service".equals(originalAdditional.getCategory().getName())) {
+                    servicePrice = servicePrice * nights;
+                }
+
+                // Tính tổng giá dịch vụ theo loại
+                double serviceTotalPrice = servicePrice * quantity;
+                if (isFood) {
+                    foodServicesTotal += serviceTotalPrice;
+                } else {
+                    otherServicesTotal += serviceTotalPrice;
+                }
+
+                // Lưu thông tin dịch vụ để xử lý sau khi lưu booking
+                additionalDTO.setPrice(new BigDecimal(servicePrice));
+                selectedAdditionals.add(additionalDTO);
+
+                // Thêm dịch vụ vào danh sách hiển thị
+                newBooking.addAdditionalService(originalAdditional);
             }
-
-            newBooking.setAdditionalServices(additionalServices);
         }
 
-        newBooking.setTotalPrice(totalPrice);
-        newBooking.setStatus(Booking.BookingStatus.PENDING); // Initial status
-        newBooking.setServiceType(Booking.ServiceType.HOMESTAY);
-        newBooking.setCreatedAt(LocalDateTime.now());
-        newBooking.setIsReviewed(false); // Initially not reviewed
+        // Cộng thêm giá dịch vụ đồ ăn và dịch vụ khác vào tổng giá trị dịch vụ
+        serviceSubtotal += foodServicesTotal + otherServicesTotal;
 
-        return bookingRepository.save(newBooking);
+        // Tính phí dịch vụ 20% cho tất cả dịch vụ
+        double serviceFee = serviceSubtotal * 0.2;
+
+        // Tổng giá = tổng giá trị dịch vụ + phí dịch vụ 20%
+        double totalPrice = serviceSubtotal + serviceFee;
+
+        // Cập nhật tổng giá cuối cùng
+        newBooking.setTotalPrice(totalPrice);
+
+        // Lưu booking trước để có ID
+        newBooking = bookingRepository.save(newBooking);
+
+        // Bây giờ mới tạo và lưu các BookingAdditional
+        if (!selectedAdditionals.isEmpty()) {
+            for (AdditionalDTO additionalDTO : selectedAdditionals) {
+                // Tạo và lưu BookingAdditional
+                BookingAdditional bookingAdditional = new BookingAdditional();
+                Additional additional = additionalRepository.findById(additionalDTO.getId()).orElseThrow();
+                bookingAdditional.setBooking(newBooking);
+                bookingAdditional.setAdditional(additional);
+                bookingAdditional.setQuantity(additionalDTO.getQuantity());
+                bookingAdditional.setPrice(additionalDTO.getPrice());
+                bookingAdditional.setServiceDate(newBooking.getCheckIn()); // Sử dụng ngày nhận phòng làm ngày dịch vụ
+                bookingAdditional.setTimeSlot(additional.getTimeSlot()); // Thiết lập timeSlot từ additional
+
+                // Tính tổng giá = giá * số lượng
+                BigDecimal itemTotalPrice = additionalDTO.getPrice().multiply(new BigDecimal(additionalDTO.getQuantity()));
+                bookingAdditional.setTotalPrice(itemTotalPrice);
+                bookingAdditionalRepository.save(bookingAdditional);
+
+                System.out.println("Created booking-additional link: Booking ID=" + newBooking.getId() +
+                        ", Additional ID=" + additionalDTO.getId() +
+                        ", Quantity=" + additionalDTO.getQuantity());
+            }
+        }
+
+        return newBooking;
     }
 
     private void validateBooking(Booking booking) {
@@ -310,19 +425,23 @@ public class BookingService {
         );
         double subtotal = basePrice * nights;
 
-        // Calculate service fee (20% of subtotal)
-        double serviceFee = subtotal * 0.2;
-
-        // Calculate total for additional services
+        // Calculate total for additional services using BookingAdditional
         double additionalServicesTotal = 0;
-        if (booking.getAdditionalServices() != null) {
-            for (Additional service : booking.getAdditionalServices()) {
-                additionalServicesTotal += service.getPrice().doubleValue() * service.getQuantity();
+        List<BookingAdditional> bookingAdditionals = bookingAdditionalRepository.findByBookingId(booking.getId());
+        if (bookingAdditionals != null && !bookingAdditionals.isEmpty()) {
+            for (BookingAdditional link : bookingAdditionals) {
+                additionalServicesTotal += link.getPrice().doubleValue() * link.getQuantity();
             }
         }
 
-        // Total price = subtotal + service fee + additional services
-        double totalPrice = subtotal + serviceFee + additionalServicesTotal;
+        // Tính tổng giá trị dịch vụ (homestay + dịch vụ bổ sung)
+        double serviceSubtotal = subtotal + additionalServicesTotal;
+
+        // Tính phí dịch vụ 20% cho tất cả dịch vụ
+        double serviceFee = serviceSubtotal * 0.2;
+
+        // Total price = tổng giá trị dịch vụ + phí dịch vụ 20%
+        double totalPrice = serviceSubtotal + serviceFee;
 
         booking.setTotalPrice(totalPrice);
     }
@@ -342,5 +461,31 @@ public class BookingService {
         }
 
         return null;
+    }
+
+    /**
+     * Kiểm tra xem người dùng đã đặt tour này chưa
+     * @param username Tên người dùng
+     * @param travelId ID của tour
+     * @return true nếu người dùng đã đặt tour này, false nếu chưa
+     */
+    public boolean hasUserBookedTravel(String username, Long travelId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        // Đếm số lượng booking đã hoàn thành của user đối với travel này
+        Long count = bookingRepository.countByUserIdAndTravelIdAndStatus(
+                user.getId(), travelId, Booking.BookingStatus.COMPLETED.toString());
+
+        return count != null && count > 0;
+    }
+
+    /**
+     * Lấy danh sách booking theo homestay ID
+     * @param homestayId ID của homestay
+     * @return Danh sách booking của homestay
+     */
+    public List<Booking> getBookingsByHomestayId(Long homestayId) {
+        return bookingRepository.findByHomestayId(homestayId);
     }
 }

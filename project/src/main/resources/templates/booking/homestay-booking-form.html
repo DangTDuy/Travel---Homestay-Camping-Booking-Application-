@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt phòng Homestay</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-5" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a th:href="@{/}" class="text-gray-700 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>Trang chủ
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a th:href="@{/homestay}" class="text-gray-700 hover:text-primary">Homestay</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a th:href="@{/homestay/{id}(id=${homestay.id})}" class="text-gray-700 hover:text-primary" th:text="${homestay.name}">Tên Homestay</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-500">Đặt phòng</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Thông báo lỗi -->
+            <div th:if="${error}" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                <p th:text="${error}">Lỗi</p>
+            </div>
+
+            <!-- Thông tin homestay -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                <div class="p-6">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2" th:text="${'Đặt phòng: ' + homestay.name}">Đặt phòng: Tên Homestay</h1>
+                    <div class="flex items-center text-gray-600 mb-4">
+                        <i class="fas fa-map-marker-alt text-primary mr-2"></i>
+                        <span th:text="${homestay.location}">Địa điểm</span>
+                    </div>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-blue-500 mr-2"></i>
+                            <span th:text="${homestay.capacity + ' khách'}">Sức chứa</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            <span th:text="${homestay.rating + ' sao'}">Xếp hạng</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-tag text-green-500 mr-2"></i>
+                            <span th:text="${#numbers.formatCurrency(homestay.price) + '/đêm'}">Giá/đêm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form đặt phòng -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Thông tin đặt phòng</h2>
+                    
+                    <!-- Hiển thị thông tin booking đã có -->
+                    <div id="booking-info" class="mb-4">
+                        <!-- Sẽ được điền bởi JavaScript -->
+                    </div>
+                    
+                    <form th:action="@{/bookings/homestay/{homestayId}/book(homestayId=${homestay.id})}" method="post" th:object="${booking}" class="space-y-6">
+                        <input type="hidden" id="homestayId" name="homestayId" th:value="${homestay.id}">
+                        
+                        <!-- Ngày nhận/trả phòng -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="checkInDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày nhận phòng <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-alt text-gray-400"></i>
+                                    </div>
+                                    <input type="date" id="checkInDate" name="checkIn" required
+                                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="checkOutDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày trả phòng <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-alt text-gray-400"></i>
+                                    </div>
+                                    <input type="date" id="checkOutDate" name="checkOut" required
+                                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Giờ nhận/trả phòng -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="checkInTime" class="block text-sm font-medium text-gray-700 mb-1">Giờ nhận phòng <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-clock text-gray-400"></i>
+                                    </div>
+                                    <select id="checkInTime" name="checkInTime" required
+                                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                        <option value="08:00">08:00</option>
+                                        <option value="09:00">09:00</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="11:00">11:00</option>
+                                        <option value="12:00">12:00</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="14:00" selected>14:00 (Mặc định)</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="18:00">18:00</option>
+                                        <option value="19:00">19:00</option>
+                                        <option value="20:00">20:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="checkOutTime" class="block text-sm font-medium text-gray-700 mb-1">Giờ trả phòng <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-clock text-gray-400"></i>
+                                    </div>
+                                    <select id="checkOutTime" name="checkOutTime" required
+                                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                        <option value="08:00">08:00</option>
+                                        <option value="09:00">09:00</option>
+                                        <option value="10:00">10:00</option>
+                                        <option value="11:00">11:00</option>
+                                        <option value="12:00" selected>12:00 (Mặc định)</option>
+                                        <option value="13:00">13:00</option>
+                                        <option value="14:00">14:00</option>
+                                        <option value="15:00">15:00</option>
+                                        <option value="16:00">16:00</option>
+                                        <option value="17:00">17:00</option>
+                                        <option value="18:00">18:00</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Thông báo về tính khả dụng -->
+                        <div id="availability-message" class="my-4">
+                            <!-- Sẽ được điền bởi JavaScript -->
+                        </div>
+                        
+                        <!-- Số lượng khách -->
+                        <div>
+                            <label for="guests" class="block text-sm font-medium text-gray-700 mb-1">Số lượng khách <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-users text-gray-400"></i>
+                                </div>
+                                <input type="number" id="guests" name="guests" required min="1" th:max="${homestay.capacity}" value="1"
+                                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1" th:text="${'Tối đa ' + homestay.capacity + ' khách'}">Tối đa X khách</p>
+                        </div>
+                        
+                        <!-- Yêu cầu đặc biệt -->
+                        <div>
+                            <label for="specialRequests" class="block text-sm font-medium text-gray-700 mb-1">Yêu cầu đặc biệt</label>
+                            <textarea id="specialRequests" name="specialRequests" rows="3"
+                                      class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                                      placeholder="Nhập yêu cầu đặc biệt của bạn (nếu có)"></textarea>
+                        </div>
+                        
+                        <!-- Dịch vụ bổ sung -->
+                        <div th:if="${additionals != null && !additionals.isEmpty()}">
+                            <h3 class="text-lg font-medium text-gray-800 mb-3">Dịch vụ bổ sung</h3>
+                            <div class="space-y-4">
+                                <div th:each="additional : ${additionals}" class="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                    <div class="flex-1">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" th:id="${'additional-' + additional.id}" name="additionalIds" th:value="${additional.id}"
+                                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <label th:for="${'additional-' + additional.id}" class="ml-2 block text-sm font-medium text-gray-700" th:text="${additional.name}">Tên dịch vụ</label>
+                                            <span th:if="${additional.category != null}" class="ml-2 px-2 py-0.5 text-xs rounded-full"
+                                                  th:classappend="${additional.category.name == 'food' ? 'bg-blue-100 text-blue-800' :
+                                                                  (additional.category.name == 'drink' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800')}"
+                                                  th:text="${additional.category.displayName}">Loại</span>
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-500" th:text="${additional.description}">Mô tả dịch vụ</p>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <span class="text-sm font-medium text-gray-900" th:text="${#numbers.formatCurrency(additional.price)}">Giá</span>
+                                                <span th:if="${additional.timeSlot != null}" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800"
+                                                      th:text="${additional.timeSlot.displayName}">Khung giờ</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label th:for="${'quantity-' + additional.id}" class="mr-2 text-sm text-gray-700">Số lượng:</label>
+                                                <input type="number" th:id="${'quantity-' + additional.id}" th:name="${'quantity-' + additional.id}" min="1" value="1"
+                                                       class="w-16 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Nút đặt phòng -->
+                        <div class="flex justify-end">
+                            <button type="submit" id="submitButton" class="px-6 py-3 bg-primary hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm transition duration-150 ease-in-out">
+                                <i class="fas fa-check-circle mr-2"></i>Đặt phòng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/booking-calendar.js}"></script>
+</body>
+</html>

@@ -76,6 +76,16 @@
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
+                    <label for="serviceTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">Loại dịch vụ</label>
+                    <select id="serviceTypeFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">Tất cả loại dịch vụ</option>
+                        <option value="homestay" th:selected="${'homestay' == serviceType}">Homestay</option>
+                        <option value="camping" th:selected="${'camping' == serviceType}">Camping</option>
+                        <option value="travel" th:selected="${'travel' == serviceType}">Tour du lịch</option>
+                        <option value="all" th:selected="${'all' == serviceType}">Tất cả dịch vụ</option>
+                    </select>
+                </div>
+                <div>
                     <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
                     <select id="categoryFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                         <option value="">Tất cả danh mục</option>
@@ -89,7 +99,6 @@
                         <option th:each="timeSlot : ${timeSlots}" th:value="${timeSlot.id}" th:text="${timeSlot.displayName}" th:selected="${timeSlot.id == timeSlotId}"></option>
                     </select>
                 </div>
-                <!-- Bỏ lọc Homestay đã được xóa -->
                 <div>
                     <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
                     <div class="relative">
@@ -148,15 +157,15 @@
                                 <span th:if="${service.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     <i class="fas fa-check-circle mr-1"></i> Hoạt động
                                 </span>
-                                <span th:unless="${service.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                <span th:unless="${service.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                     <i class="fas fa-times-circle mr-1"></i> Không hoạt động
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button th:onclick="'editService(' + ${service.id} + ')'" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <button onclick="editService(this.getAttribute('data-id'))" th:data-id="${service.id}" class="text-blue-600 hover:text-blue-900 mr-3">
                                     <i class="fas fa-edit"></i> Sửa
                                 </button>
-                                <button th:onclick="'deleteService(' + ${service.id} + ')'" class="text-red-600 hover:text-red-900">
+                                <button onclick="deleteService(this.getAttribute('data-id'))" th:data-id="${service.id}" class="text-red-600 hover:text-red-900">
                                     <i class="fas fa-trash-alt"></i> Xóa
                                 </button>
                             </td>
@@ -229,7 +238,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label for="serviceCategory" class="block text-sm font-medium text-gray-700 mb-1">Danh mục <span class="text-red-500">*</span></label>
                     <div class="relative">
@@ -260,19 +269,60 @@
                         </div>
                     </div>
                 </div>
+                <div>
+                    <label for="serviceQuantity" class="block text-sm font-medium text-gray-700 mb-1">Số lượng mặc định <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-hashtag text-gray-400"></i>
+                        </span>
+                        <input type="number" id="serviceQuantity" name="quantity" required min="1" value="1" placeholder="Số lượng" class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Số lượng mặc định hiển thị cho người dùng (người dùng có thể thay đổi khi đặt)</p>
+                </div>
             </div>
 
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
                 <label for="serviceActive" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái dịch vụ</label>
                 <div class="flex items-center">
                     <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                        <input type="checkbox" id="serviceActive" name="isActive" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked>
+                        <input type="checkbox" id="serviceActive" name="isActive" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer">
                         <label for="serviceActive" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                     </div>
                     <span id="statusText" class="text-sm text-green-600 font-medium">Hoạt động</span>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">Dịch vụ hoạt động sẽ được hiển thị cho người dùng đặt</p>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Loại dịch vụ</label>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="serviceType" value="HOMESTAY" class="form-radio text-primary" checked>
+                                <span class="ml-2">Homestay</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="serviceType" value="CAMPING" class="form-radio text-primary">
+                                <span class="ml-2">Camping</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="serviceType" value="TRAVEL" class="form-radio text-primary">
+                                <span class="ml-2">Tour du lịch</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="serviceType" value="ALL" class="form-radio text-primary">
+                                <span class="ml-2">Tất cả</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <input type="hidden" id="serviceHomestay" name="homestayId" value="-1">
+                <input type="hidden" id="serviceCamping" name="campingId" value="-1">
+                <input type="hidden" id="serviceTravel" name="travelId" value="-1">
             </div>
 
             <style>
@@ -292,10 +342,20 @@
                         statusText.textContent = 'Hoạt động';
                         statusText.classList.remove('text-red-600');
                         statusText.classList.add('text-green-600');
+
+                        // Update CSS for custom toggle
+                        this.style.right = '0';
+                        this.style.borderColor = '#68D391';
+                        this.nextElementSibling.style.backgroundColor = '#68D391';
                     } else {
                         statusText.textContent = 'Không hoạt động';
                         statusText.classList.remove('text-green-600');
                         statusText.classList.add('text-red-600');
+
+                        // Update CSS for custom toggle
+                        this.style.right = '';
+                        this.style.borderColor = '';
+                        this.nextElementSibling.style.backgroundColor = '';
                     }
                 });
             </script>
@@ -365,7 +425,22 @@
         resetServiceForm();
         modalTitle.textContent = 'Thêm dịch vụ bổ sung mới';
         serviceModal.classList.remove('hidden');
-        document.getElementById('serviceActive').checked = true; // Default to active
+
+        // Set default to active with all necessary updates
+        const serviceActiveCheckbox = document.getElementById('serviceActive');
+        serviceActiveCheckbox.checked = true;
+        serviceActiveCheckbox.setAttribute('checked', 'checked');
+
+        // Update CSS for custom toggle
+        serviceActiveCheckbox.style.right = '0';
+        serviceActiveCheckbox.style.borderColor = '#68D391';
+        serviceActiveCheckbox.nextElementSibling.style.backgroundColor = '#68D391';
+
+        // Update status text
+        const statusText = document.getElementById('statusText');
+        statusText.textContent = 'Hoạt động';
+        statusText.classList.remove('text-red-600');
+        statusText.classList.add('text-green-600');
     });
 
     // Close service modal
@@ -382,6 +457,22 @@
     function resetServiceForm() {
         serviceForm.reset();
         document.getElementById('serviceId').value = '';
+
+        // Set default status to active
+        const serviceActiveCheckbox = document.getElementById('serviceActive');
+        serviceActiveCheckbox.checked = true;
+        serviceActiveCheckbox.setAttribute('checked', 'checked');
+
+        // Update CSS for custom toggle
+        serviceActiveCheckbox.style.right = '0';
+        serviceActiveCheckbox.style.borderColor = '#68D391';
+        serviceActiveCheckbox.nextElementSibling.style.backgroundColor = '#68D391';
+
+        // Update status text
+        const statusText = document.getElementById('statusText');
+        statusText.textContent = 'Hoạt động';
+        statusText.classList.remove('text-red-600');
+        statusText.classList.add('text-green-600');
     }
 
     // Lấy thời gian từ TimeSlot khi chọn khung giờ
@@ -415,6 +506,8 @@
                 return response.json();
             })
             .then(service => {
+                console.log('Received service data:', service); // Debug log
+
                 // Populate form
                 document.getElementById('serviceId').value = service.id;
                 document.getElementById('serviceName').value = service.name;
@@ -422,26 +515,84 @@
                 document.getElementById('serviceCategory').value = service.category ? service.category.id : '';
                 document.getElementById('serviceTimeSlot').value = service.timeSlot ? service.timeSlot.id : '';
                 document.getElementById('serviceHomestay').value = service.homestayId || '-1'; // Nếu homestayId là null, chọn tất cả homestay
+                document.getElementById('serviceCamping').value = service.campingId || '-1';
+                document.getElementById('serviceTravel').value = service.travelId || '-1';
                 document.getElementById('serviceDescription').value = service.description || '';
                 document.getElementById('serviceStartTime').value = service.startTime || '';
                 document.getElementById('serviceEndTime').value = service.endTime || '';
-                document.getElementById('serviceActive').checked = service.isActive;
+                document.getElementById('serviceQuantity').value = service.quantity || 1;
 
-                // Update status text based on isActive
+                // Set isActive status and update UI
+                const serviceActiveCheckbox = document.getElementById('serviceActive');
                 const statusText = document.getElementById('statusText');
-                if (service.isActive) {
+
+                // Convert to boolean if needed
+                const isActive = service.isActive === true || service.isActive === 'true' || service.active === true || service.active === 'true';
+                console.log('Service active state:', isActive, 'Original value:', service.isActive); // Debug log
+
+                // Force update checkbox state
+                if (isActive) {
+                    // Set checkbox to checked
+                    serviceActiveCheckbox.checked = true;
+                    serviceActiveCheckbox.setAttribute('checked', 'checked');
+
+                    // Update CSS for custom toggle
+                    serviceActiveCheckbox.style.right = '0';
+                    serviceActiveCheckbox.style.borderColor = '#68D391';
+                    if (serviceActiveCheckbox.nextElementSibling) {
+                        serviceActiveCheckbox.nextElementSibling.style.backgroundColor = '#68D391';
+                    }
+
+                    // Update status text
                     statusText.textContent = 'Hoạt động';
                     statusText.classList.remove('text-red-600');
                     statusText.classList.add('text-green-600');
                 } else {
+                    // Set checkbox to unchecked
+                    serviceActiveCheckbox.checked = false;
+                    serviceActiveCheckbox.removeAttribute('checked');
+
+                    // Update CSS for custom toggle
+                    serviceActiveCheckbox.style.right = '';
+                    serviceActiveCheckbox.style.borderColor = '';
+                    if (serviceActiveCheckbox.nextElementSibling) {
+                        serviceActiveCheckbox.nextElementSibling.style.backgroundColor = '';
+                    }
+
+                    // Update status text
                     statusText.textContent = 'Không hoạt động';
                     statusText.classList.remove('text-green-600');
                     statusText.classList.add('text-red-600');
                 }
 
+                // Log the final state for debugging
+                console.log('Final checkbox state:', serviceActiveCheckbox.checked);
+
+                // Chọn loại dịch vụ dựa trên serviceType hoặc dựa trên homestayId/campingId/travelId
+                if (service.serviceType) {
+                    const serviceTypeValue = service.serviceType;
+                    const serviceTypeRadios = document.querySelectorAll('input[name="serviceType"]');
+                    for (let radio of serviceTypeRadios) {
+                        if (radio.value === serviceTypeValue) {
+                            radio.checked = true;
+                            break;
+                        }
+                    }
+                } else if (service.homestayId) {
+                    document.querySelector('input[name="serviceType"][value="HOMESTAY"]').checked = true;
+                } else if (service.campingId) {
+                    document.querySelector('input[name="serviceType"][value="CAMPING"]').checked = true;
+                } else if (service.travelId) {
+                    document.querySelector('input[name="serviceType"][value="TRAVEL"]').checked = true;
+                }
+
                 // Update modal title and show
                 modalTitle.textContent = 'Chỉnh sửa dịch vụ bổ sung';
                 serviceModal.classList.remove('hidden');
+
+                // Trigger a change event to ensure all UI is updated
+                const event = new Event('change');
+                serviceActiveCheckbox.dispatchEvent(event);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -505,6 +656,24 @@
         const formData = new FormData(serviceForm);
         const serviceId = formData.get('id');
 
+        // Xử lý loại dịch vụ
+        const serviceType = document.querySelector('input[name="serviceType"]:checked').value;
+        let homestayId = null;
+        let campingId = null;
+        let travelId = null;
+
+        if (serviceType === 'HOMESTAY') {
+            homestayId = parseInt(formData.get('homestayId'));
+        } else if (serviceType === 'CAMPING') {
+            campingId = parseInt(formData.get('campingId'));
+        } else if (serviceType === 'TRAVEL') {
+            travelId = parseInt(formData.get('travelId'));
+        }
+
+        // Get checkbox state
+        const isActive = document.getElementById('serviceActive').checked;
+        console.log('Saving service with isActive:', isActive); // Debug log
+
         // Convert to JSON
         const jsonData = {
             id: serviceId ? parseInt(serviceId) : null,
@@ -512,12 +681,18 @@
             price: parseFloat(formData.get('price')),
             categoryId: parseInt(formData.get('categoryId')),
             timeSlotId: parseInt(formData.get('timeSlotId')),
-            homestayId: parseInt(formData.get('homestayId')),
+            homestayId: homestayId,
+            campingId: campingId,
+            travelId: travelId,
             description: formData.get('description'),
             startTime: formData.get('startTime'),
             endTime: formData.get('endTime'),
-            isActive: formData.get('isActive') ? true : false
+            isActive: isActive,
+            serviceType: serviceType,
+            quantity: parseInt(formData.get('quantity') || '1')
         };
+
+        console.log('Sending data:', JSON.stringify(jsonData)); // Debug log
 
         // Disable button and show loading state
         const saveBtn = document.getElementById('saveServiceBtn');
@@ -544,6 +719,8 @@
                 return response.json();
             })
             .then(data => {
+                console.log('Response from server:', data); // Debug log
+
                 // Close modal
                 closeServiceModal();
 
@@ -566,11 +743,13 @@
 
     // Filter functionality
     document.getElementById('applyFilters').addEventListener('click', function() {
+        const serviceType = document.getElementById('serviceTypeFilter').value;
         const categoryId = document.getElementById('categoryFilter').value;
         const timeSlotId = document.getElementById('timeSlotFilter').value;
         const searchTerm = document.getElementById('searchInput').value;
 
         let url = '/admin/services?';
+        if (serviceType) url += `serviceType=${serviceType}&`;
         if (categoryId) url += `categoryId=${categoryId}&`;
         if (timeSlotId) url += `timeSlotId=${timeSlotId}&`;
         if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;

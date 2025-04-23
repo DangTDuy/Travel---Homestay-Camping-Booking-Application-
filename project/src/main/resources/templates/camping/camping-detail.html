@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Travel-Homestay-Camping - Chi tiết khu cắm trại">
+    <meta name="keywords" content="Camping, Cắm trại, Chi tiết, Travel-Homestay-Camping">
+    <title th:text="${camping.name} + ' - Chi tiết Khu Cắm Trại'">Chi tiết Khu Cắm Trại</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans flex">
+
+<!-- Sidebar -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="relative">
+            <div class="h-96 overflow-hidden relative">
+                <img th:if="${camping.imageUrls != null and not #lists.isEmpty(camping.imageUrls)}"
+                     th:src="${camping.imageUrls[0]}"
+                     alt="Camping Image"
+                     class="w-full h-full object-cover"
+                     id="mainCampingImage">
+                <div th:unless="${camping.imageUrls != null and not #lists.isEmpty(camping.imageUrls)}"
+                     class="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-campground text-gray-400 text-8xl"></i>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
+            </div>
+            <div th:if="${camping.imageUrls != null and #lists.size(camping.imageUrls) > 1}"
+                 class="absolute bottom-4 left-0 right-0 flex justify-center space-x-3">
+                <div th:each="image, iter : ${camping.imageUrls}"
+                     th:if="${iter.index < 5}"
+                     class="w-16 h-16 border-2 border-white/70 rounded-lg overflow-hidden cursor-pointer shadow-md hover:border-white hover:scale-105 transition-all duration-200"
+                     th:attr="data-image=${image}"
+                     onclick="changeMainImage(this.getAttribute('data-image'))">
+                    <img th:src="${image}" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-start">
+                <div class="md:w-2/3 md:pr-8">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-dark mb-3" th:text="${camping.name}"></h1>
+                    <div class="flex items-center mb-6 text-gray-600">
+                        <i class="fas fa-map-marker-alt mr-2 text-sm"></i>
+                        <span th:text="${camping.location}"></span>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-dark mb-3">Mô tả</h3>
+                        <p class="text-gray-700 leading-relaxed" th:text="${camping.description} ?: 'Chưa có mô tả'"></p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-dark mb-3">Tiện ích</h3>
+                        <div th:if="${camping.facilities != null and not #lists.isEmpty(camping.facilities)}"
+                             class="flex flex-wrap gap-3">
+                            <span th:each="facility : ${camping.facilities}"
+                                  class="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center shadow-sm">
+                                <i class="fas fa-check-circle mr-1.5"></i>
+                                <span th:text="${facility}"></span>
+                            </span>
+                        </div>
+                        <p th:if="${camping.facilities == null or #lists.isEmpty(camping.facilities)}"
+                           class="text-gray-500 italic">Không có thông tin tiện ích.</p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-dark mb-3">Thông tin địa hình</h3>
+                        <p class="text-gray-700 leading-relaxed" th:text="${camping.terrain} ?: 'Chưa có thông tin địa hình'"></p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-dark mb-3">Thông tin thời tiết</h3>
+                        <p class="text-gray-700 leading-relaxed" th:text="${camping.weather} ?: 'Chưa có thông tin thời tiết'"></p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-dark mb-3">Trang thiết bị</h3>
+                        <p class="text-gray-700 leading-relaxed" th:text="${camping.equipment} ?: 'Chưa có thông tin trang thiết bị'"></p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-dark mb-3">Quy tắc</h3>
+                        <p class="text-gray-700 leading-relaxed" th:text="${camping.rules} ?: 'Chưa có quy tắc'"></p>
+                    </div>
+
+                    <!-- Reviews Section -->
+                    <div class="mt-10 pt-8 border-t border-gray-200">
+                        <h3 class="text-2xl font-semibold text-dark mb-6">Đánh giá & Nhận xét</h3>
+
+                        <!-- Average Rating & Count -->
+                        <div class="flex items-center mb-6 bg-green-50 p-4 rounded-lg border border-green-200">
+                            <span class="text-yellow-500 flex items-center mr-3 text-xl" th:if="${camping.rating != null and camping.rating > 0}">
+                                <i class="fas fa-star"></i>
+                                <span class="text-dark font-bold ml-2" th:text="${#numbers.formatDecimal(camping.rating, 1, 1)}"></span>
+                            </span>
+                            <span th:unless="${camping.rating != null and camping.rating > 0}" class="text-gray-500 italic text-lg mr-3">Chưa có đánh giá</span>
+                            <span class="text-gray-700 text-base" th:text="'· ' + (${camping.reviews != null ? #lists.size(camping.reviews) : 0}) + ' đánh giá'"></span>
+                        </div>
+
+                        <!-- Review Form (Visible only if logged in) -->
+                        <div class="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-md" sec:authorize="isAuthenticated()">
+                            <h5 class="text-lg font-medium text-gray-900 mb-4">Để lại đánh giá của bạn</h5>
+                            <form id="reviewForm" class="space-y-4">
+                                <input type="hidden" id="campingId" th:value="${camping.id}">
+                                <input type="hidden" th:if="${_csrf}" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                <!-- Rating Input -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Chất lượng <span class="text-red-500">*</span></label>
+                                    <div class="rating-input text-2xl flex space-x-1 text-gray-300 mb-2">
+                                        <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="1"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="2"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="3"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="4"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150" data-rating="5"></i>
+                                    </div>
+                                    <input type="hidden" id="ratingValue" value="0" required min="1" max="5">
+                                    <span id="ratingError" class="text-red-500 text-xs hidden">Vui lòng chọn số sao đánh giá.</span>
+                                </div>
+
+                                <!-- Comment Input -->
+                                <div>
+                                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Bình luận <span class="text-red-500">*</span></label>
+                                    <textarea id="comment" rows="4" required
+                                              class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                              placeholder="Chia sẻ cảm nhận của bạn về khu cắm trại này..."></textarea>
+                                    <span id="commentError" class="text-red-500 text-xs hidden">Vui lòng nhập nội dung đánh giá.</span>
+                                </div>
+
+                                <!-- Quick Comment Suggestions -->
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-600 mb-2">Gợi ý đánh giá nhanh:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Khu cắm trại rất sạch sẽ và thoải mái.')">Sạch sẽ</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Vị trí thuận tiện, phong cảnh đẹp.')">Vị trí đẹp</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Chủ khu cắm trại rất thân thiện và nhiệt tình.')">Chủ thân thiện</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Trang thiết bị đầy đủ và hiện đại.')">Đầy đủ thiết bị</button>
+                                        <button type="button" class="quick-comment-btn bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-colors"
+                                                onclick="addQuickComment('Giá cả hợp lý so với chất lượng.')">Giá hợp lý</button>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="text-right">
+                                    <button type="button" id="submitReviewBtn"
+                                            class="inline-flex justify-center py-2 px-5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ease-in-out opacity-70 cursor-not-allowed">
+                                        <i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Reviews List -->
+                        <h4 class="text-xl font-semibold text-dark mb-4">Tất cả đánh giá</h4>
+                        <div class="reviews-list space-y-5">
+                            <!-- Empty State for Reviews -->
+                            <div th:if="${camping.reviews == null or #lists.isEmpty(camping.reviews)}"
+                                 class="text-center py-10 px-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <i class="far fa-comment-dots text-5xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Chưa có đánh giá nào.</p>
+                                <p class="text-sm text-gray-500 mt-1">Hãy là người đầu tiên để lại nhận xét!</p>
+                            </div>
+
+                            <!-- Individual Review Cards -->
+                            <div th:each="review, i : ${camping.reviews}" th:if="${camping.reviews != null and not #lists.isEmpty(camping.reviews)}"
+                                 class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-4">
+                                <div class="flex space-x-4">
+                                    <!-- Avatar -->
+                                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-green-200 to-green-300 flex items-center justify-center">
+                                        <i class="fas fa-user text-xl text-green-600"></i>
+                                    </div>
+                                    <!-- Review Content -->
+                                    <div class="flex-grow">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h6 class="text-base font-semibold text-gray-800">Người dùng</h6>
+                                            <div class="flex items-center">
+                                                <small class="text-xs text-gray-500 flex-shrink-0">
+                                                    Đánh giá
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <!-- Display review rating stars -->
+                                        <div class="rating text-yellow-400 text-sm mb-2 flex items-center">
+                                            <i class="fas fa-star text-xs"></i>
+                                            <span class="text-gray-600 font-medium ml-1.5 text-xs" 
+                                                  th:if="${camping.reviewRatings != null and i.index < #lists.size(camping.reviewRatings)}"
+                                                  th:text="${camping.reviewRatings[i.index]} + '.0'">5.0</span>
+                                        </div>
+                                        <p class="text-sm text-gray-700 leading-relaxed" th:text="${review}">Bình luận</p>
+                                    </div>
+                                </div>
+
+                                <!-- Owner Reply if available -->
+                                <div th:if="${camping.reviewReplies != null and i.index < #lists.size(camping.reviewReplies) and camping.reviewReplies[i.index] != null and camping.reviewReplies[i.index] != ''}" 
+                                     class="mt-4 ml-auto mr-0 w-4/5 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-start space-x-3 justify-end">
+                                        <div class="text-right">
+                                            <h5 class="text-sm font-medium text-gray-900 flex items-center justify-end">
+                                                <span class="mr-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Chủ khu cắm trại</span>
+                                                <span th:text="${camping.owner?.username ?: 'Chủ khu cắm trại'}"></span>
+                                            </h5>
+                                            <p class="mt-1 text-sm text-gray-700 text-right" th:text="${camping.reviewReplies[i.index]}"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:w-1/3 mt-8 md:mt-0">
+                    <div class="sticky top-20 bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-dark mb-4">Thông tin đặt chỗ</h3>
+                        
+                        <!-- Price -->
+                        <div class="flex items-baseline justify-between mb-4">
+                            <span class="text-2xl font-bold text-dark" th:text="${#numbers.formatDecimal(camping.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/đêm'">850.000 VNĐ/đêm</span>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="mb-4 flex items-center text-gray-700">
+                            <i class="fas fa-users mr-2"></i>
+                            <span th:text="${camping.maxPlaces} + ' người tối đa'">4 người tối đa</span>
+                        </div>
+
+                        <!-- Book Now Button -->
+                        <a href="#" th:href="@{/booking/camping/{id}(id=${camping.id})}" class="w-full py-3 px-5 bg-primary hover:bg-blue-700 text-white text-center font-medium rounded-lg shadow-md transition duration-200 flex items-center justify-center">
+                            <i class="fas fa-calendar-check mr-2"></i>
+                            Đặt ngay
+                        </a>
+
+                        <!-- Owner Info -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h4 class="text-lg font-medium text-dark mb-3">Thông tin chủ khu cắm trại</h4>
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium" th:text="${camping.owner != null ? (camping.owner.hoTen ?: camping.owner.username) : 'Chủ khu cắm trại'}">Tên chủ khu cắm trại</p>
+                                    <p class="text-sm text-gray-500">Đã xác thực <i class="fas fa-check-circle text-green-500 ml-1"></i></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</div>
+
+<!-- JavaScript -->
+<script>
+// Change main image
+function changeMainImage(imageSrc) {
+    document.getElementById('mainCampingImage').src = imageSrc;
+}
+
+// Add quick comment
+function addQuickComment(commentText) {
+    const commentArea = document.getElementById('comment');
+    if (commentArea.value) {
+        commentArea.value += ' ' + commentText;
+    } else {
+        commentArea.value = commentText;
+    }
+}
+
+// Handle star rating
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating-input i');
+    const ratingValue = document.getElementById('ratingValue');
+    const commentInput = document.getElementById('comment');
+    const submitButton = document.getElementById('submitReviewBtn');
+    const ratingError = document.getElementById('ratingError');
+    const commentError = document.getElementById('commentError');
+
+    // Rating stars logic
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const rating = star.getAttribute('data-rating');
+            ratingValue.value = rating;
+            
+            // Reset all stars
+            stars.forEach(s => s.className = 'far fa-star cursor-pointer hover:text-yellow-400 transition-colors duration-150');
+            
+            // Fill stars up to selected rating
+            for (let i = 0; i < rating; i++) {
+                stars[i].className = 'fas fa-star cursor-pointer text-yellow-400 transition-colors duration-150';
+            }
+            
+            validateForm();
+        });
+    });
+
+    // Validate comment
+    commentInput.addEventListener('input', validateForm);
+
+    // Form validation
+    function validateForm() {
+        const rating = parseInt(ratingValue.value);
+        const comment = commentInput.value.trim();
+        
+        const isValid = rating > 0 && comment.length > 0;
+        
+        if (isValid) {
+            submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
+            submitButton.classList.add('opacity-100', 'cursor-pointer');
+        } else {
+            submitButton.classList.add('opacity-70', 'cursor-not-allowed');
+            submitButton.classList.remove('opacity-100', 'cursor-pointer');
+        }
+        
+        // Show/hide error messages
+        ratingError.classList.toggle('hidden', rating > 0);
+        commentError.classList.toggle('hidden', comment.length > 0);
+        
+        return isValid;
+    }
+
+    // Submit review
+    submitButton.addEventListener('click', function() {
+        if (!validateForm()) {
+            return;
+        }
+
+        const campingId = document.getElementById('campingId').value;
+        const rating = ratingValue.value;
+        const comment = commentInput.value;
+        const csrfToken = document.getElementById('csrfToken')?.value;
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        
+        // Submit the review via AJAX
+        fetch(`/camping/api/${campingId}/review`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Không thể gửi đánh giá');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Refresh the page to show the new review
+            window.location.reload();
+        })
+        .catch(error => {
+            alert('Lỗi: ' + error.message);
+        });
+    });
+});
+</script>
+
+</body>
+</html> 

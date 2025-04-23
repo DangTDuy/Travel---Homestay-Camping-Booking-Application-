@@ -44,8 +44,13 @@ public class Additional {
     private Camping camping;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id")
-    private Booking booking;
+    @JoinColumn(name = "travel_id")
+    private Travel travel;
+
+    // Không còn quan hệ trực tiếp với Booking nữa, thay vào đó sử dụng BookingAdditional
+    // @ManyToOne
+    // @JoinColumn(name = "booking_id")
+    // private Booking booking;
 
     @NotNull(message = "Giờ bắt đầu không được để trống")
     private LocalTime startTime;
@@ -64,9 +69,35 @@ public class Additional {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    /**
+     * Số lượng mặc định cho dịch vụ này khi hiển thị cho người dùng.
+     * Người dùng có thể thay đổi số lượng khi đặt dịch vụ.
+     * Được sử dụng để tính tổng giá trong getTotalPrice().
+     */
     @Column(name = "quantity")
     @Positive(message = "Số lượng phải lớn hơn 0")
     private Integer quantity = 1;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "service_type")
+    private ServiceType serviceType = ServiceType.ALL;
+
+    public enum ServiceType {
+        HOMESTAY("Homestay"),
+        CAMPING("Camping"),
+        TRAVEL("Tour du lịch"),
+        ALL("Tất cả");
+
+        private final String displayName;
+
+        ServiceType(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -87,4 +118,4 @@ public class Additional {
     public boolean isAvailable(LocalTime requestTime) {
         return isActive && requestTime.isAfter(startTime) && requestTime.isBefore(endTime);
     }
-} 
+}

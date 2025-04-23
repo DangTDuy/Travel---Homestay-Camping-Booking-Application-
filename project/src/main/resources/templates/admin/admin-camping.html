@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quản lý khu cắm trại - Trang dành cho Admin">
+    <meta name="keywords" content="Quản lý, Camping, Admin, Travel-Homestay-Camping">
+    <title>Quản lý Khu Cắm Trại</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        tertiary: '#8B5CF6', /* Purple */
+                        warning: '#F59E0B', /* Amber */
+                        danger: '#EF4444', /* Red */
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Toast Notification -->
+    <th:block th:replace="fragments/toast-notification :: toast-resources"></th:block>
+
+    <!-- Custom styles for admin pages -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+        }
+        .sidebar .active {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        .card-hover:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans flex">
+
+<!-- Sidebar fragment -->
+<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+    <!-- Header -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-primary">
+                    <i class="fas fa-campground mr-2"></i>
+                    Quản lý Khu Cắm Trại
+                </h1>
+                <p class="text-gray-600">Thêm, chỉnh sửa và quản lý khu cắm trại trong hệ thống</p>
+            </div>
+            <button onclick="openAddModal()" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition duration-150 ease-in-out shadow-sm">
+                <i class="fas fa-plus mr-2"></i>
+                Thêm Khu Cắm Trại
+            </button>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <form id="searchForm" onsubmit="handleSearchForm(event)" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="searchLocation" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                            </span>
+                            <input type="text" id="searchLocation" name="location"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                                   placeholder="Tìm kiếm theo địa điểm">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="priceRange" class="block text-sm font-medium text-gray-700 mb-1">Khoảng giá</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-dollar-sign text-gray-400"></i>
+                            </span>
+                            <select id="priceRange" name="priceRange"
+                                    class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white appearance-none">
+                                <option value="">Tất cả giá</option>
+                                <option value="0-500000">Dưới 500K</option>
+                                <option value="500000-1000000">500K - 1 triệu</option>
+                                <option value="1000000-2000000">1 - 2 triệu</option>
+                                <option value="2000000-">Trên 2 triệu</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center">
+                            <i class="fas fa-search mr-2"></i>Tìm kiếm
+                        </button>
+                        <button type="button" onclick="resetSearch()" class="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Camping List -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Loading Spinner -->
+            <div id="loadingTable" class="flex justify-center items-center py-10 hidden">
+                <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+                <span class="ml-3 text-gray-600">Đang tải dữ liệu...</span>
+            </div>
+
+            <div id="campingTableContainer" class="overflow-x-auto hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sức chứa</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đánh giá</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="campingTableBody">
+                    <!-- Dynamic rows will be added here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="noResults" class="text-center py-16 px-4 hidden">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-dark mb-2">Không tìm thấy khu cắm trại nào</h3>
+                <p class="text-gray-500 mb-6">Vui lòng thử lại với các tiêu chí tìm kiếm khác hoặc thêm khu cắm trại mới.</p>
+                <button onclick="openAddModal()" class="inline-block bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i> Thêm Khu Cắm Trại mới
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="campingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="border-b pb-4 mb-4 px-6 py-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-primary" id="modalTitle">
+                    <i class="fas fa-campground mr-2"></i>
+                    Thêm Khu Cắm Trại mới
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500 text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mt-1">Nhập thông tin khu cắm trại mới</p>
+        </div>
+
+        <form id="campingForm" class="px-6 py-4 space-y-4" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="campingId">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Tên khu cắm trại -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Tên khu cắm trại <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-tag text-gray-400"></i>
+                        </span>
+                        <input type="text" id="name" name="name" required placeholder="Nhập tên khu cắm trại"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+
+                <!-- Địa điểm -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-map-marker-alt text-gray-400"></i>
+                        </span>
+                        <input type="text" id="location" name="location" required placeholder="Nhập địa điểm"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mô tả -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                        <i class="fas fa-align-left text-gray-400"></i>
+                    </span>
+                    <textarea id="description" name="description" rows="3" required placeholder="Nhập mô tả về khu cắm trại"
+                              class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Mô tả chi tiết sẽ giúp khách hàng hiểu rõ hơn về khu cắm trại của bạn</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Giá mỗi đêm -->
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Giá mỗi đêm (VNĐ) <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-money-bill-wave text-gray-400"></i>
+                        </span>
+                        <input type="number" id="price" name="price" min="0" required placeholder="Nhập giá mỗi đêm"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+
+                <!-- Sức chứa -->
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Sức chứa <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-users text-gray-400"></i>
+                        </span>
+                        <input type="number" id="capacity" name="capacity" min="1" required placeholder="Nhập sức chứa"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+
+                <!-- Số chỗ trống -->
+                <div>
+                    <label for="availableSlots" class="block text-sm font-medium text-gray-700 mb-1">Số chỗ trống <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-door-open text-gray-400"></i>
+                        </span>
+                        <input type="number" id="availableSlots" name="availableSlots" min="0" required placeholder="Nhập số chỗ trống"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Tiện ích -->
+                <div>
+                    <label for="facilities" class="block text-sm font-medium text-gray-700 mb-1">Tiện ích</label>
+                    <div class="relative">
+                        <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                            <i class="fas fa-lightbulb text-gray-400"></i>
+                        </span>
+                        <textarea id="facilities" name="facilities" rows="2" placeholder="Nhập các tiện ích (mỗi tiện ích ngăn cách bởi dấu phẩy)"
+                                  class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                    </div>
+                </div>
+
+                <!-- Trang thiết bị -->
+                <div>
+                    <label for="equipment" class="block text-sm font-medium text-gray-700 mb-1">Trang thiết bị</label>
+                    <div class="relative">
+                        <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                            <i class="fas fa-tools text-gray-400"></i>
+                        </span>
+                        <textarea id="equipment" name="equipment" rows="2" placeholder="Nhập các trang thiết bị được cung cấp"
+                                  class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quy tắc cắm trại -->
+            <div>
+                <label for="rules" class="block text-sm font-medium text-gray-700 mb-1">Quy tắc cắm trại</label>
+                <div class="relative">
+                    <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                        <i class="fas fa-list-ul text-gray-400"></i>
+                    </span>
+                    <textarea id="rules" name="rules" rows="2" placeholder="Nhập các quy tắc khi cắm trại"
+                          class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
+            </div>
+
+            <!-- URL Hình ảnh -->
+            <div>
+                <label for="imageUrls" class="block text-sm font-medium text-gray-700 mb-1">URL Hình ảnh</label>
+                <div class="relative">
+                    <span class="absolute top-3 left-3 flex items-start pointer-events-none">
+                        <i class="fas fa-images text-gray-400"></i>
+                    </span>
+                    <textarea id="imageUrls" name="imageUrls" rows="2" placeholder="Nhập URL hình ảnh (mỗi URL ngăn cách bởi dấu xuống dòng)"
+                              class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Nhập URL hình ảnh, mỗi URL một dòng. Tối đa 5 hình ảnh.</p>
+            </div>
+
+            <!-- Nút lưu/hủy -->
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Hủy
+                </button>
+                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i class="fas fa-save mr-2"></i>Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div class="border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-red-600">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Xác nhận xóa
+                </h3>
+                <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="px-6 py-4">
+            <p class="text-gray-700">
+                Bạn có chắc chắn muốn xóa khu cắm trại "<span id="deleteCampingName" class="font-semibold"></span>"?
+            </p>
+            <p class="text-gray-600 text-sm mt-2">
+                Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan.
+            </p>
+        </div>
+        <div class="bg-gray-50 px-6 py-3 flex justify-end space-x-3 rounded-b-lg">
+            <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Hủy
+            </button>
+            <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <i class="fas fa-trash-alt mr-2"></i>Xóa
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Template -->
+<div id="toastNotification" class="fixed bottom-4 right-4 z-50 hidden">
+    <div class="max-w-md bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="flex p-4">
+            <div class="flex-shrink-0" id="toastIcon">
+                <!-- Icon will be added by JS -->
+            </div>
+            <div class="ml-3 w-0 flex-1">
+                <p class="text-sm font-medium text-gray-900" id="toastTitle"></p>
+                <p class="mt-1 text-sm text-gray-500" id="toastMessage"></p>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+                <button class="rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" onclick="closeToast()">
+                    <span class="sr-only">Đóng</span>
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Admin Camping -->
+<script th:src="@{/js/admin-camping.js}"></script>
+</body>
+</html> 

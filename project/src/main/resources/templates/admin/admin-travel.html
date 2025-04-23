@@ -157,7 +157,7 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độ khó</th>
+                            <!-- Đã loại bỏ cột Độ khó -->
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đánh giá</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
@@ -185,12 +185,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${travel.location}"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${travel.durationDays} + ' ngày'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                      th:text="${travel.difficultyLevel.displayName}"
-                                      th:classappend="${travel.difficultyLevel.name() == 'EASY' ? 'bg-green-100 text-green-800' : (travel.difficultyLevel.name() == 'NORMAL' ? 'bg-blue-100 text-blue-800' : (travel.difficultyLevel.name() == 'CHALLENGING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'))}">
-                                </span>
-                            </td>
+                            <!-- Đã loại bỏ cột Độ khó -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                                       th:classappend="${travel.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}"
@@ -200,18 +195,18 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="text-yellow-400 flex">
-                                        <i th:each="i : ${#numbers.sequence(1, travel.rating != null ? T(Math).floor(travel.rating) : 0)}" class="fas fa-star"></i>
+                                        <i th:each="i : ${#numbers.sequence(1, travel.rating != null ? T(java.lang.Math).floor(travel.rating) : 0)}" class="fas fa-star"></i>
                                         <i th:if="${travel.rating != null && travel.rating % 1 >= 0.5}" class="fas fa-star-half-alt"></i>
-                                        <i th:each="i : ${#numbers.sequence(1, 5 - (travel.rating != null ? T(Math).ceil(travel.rating) : 0))}" class="far fa-star"></i>
+                                        <i th:each="i : ${#numbers.sequence(1, 5 - (travel.rating != null ? T(java.lang.Math).ceil(travel.rating) : 0))}" class="far fa-star"></i>
                                     </div>
                                     <span class="ml-1 text-sm text-gray-600" th:text="${travel.rating != null ? #numbers.formatDecimal(travel.rating, 1, 1) : 'N/A'}"></span>
                                     <span class="ml-1 text-sm text-gray-500" th:text="'(' + ${travel.bookingCount} + ')'"></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a th:href="@{/admin/travel/{id}(id=${travel.id})}" class="text-primary hover:text-indigo-900 mr-3">
+                                <button th:onclick="'showEditTravelModal(' + ${travel.id} + ')'" class="text-primary hover:text-indigo-900 mr-3">
                                     <i class="fas fa-edit"></i>
-                                </a>
+                                </button>
                                 <button th:data-id="${travel.id}" onclick="confirmDelete(this.getAttribute('data-id'))" class="text-red-600 hover:text-red-900">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -234,50 +229,69 @@
             </button>
         </div>
 
-        <form id="travelForm" th:action="@{/admin/travel/create}" method="post" enctype="multipart/form-data" class="px-6 py-4 space-y-4">
+        <form id="travelForm" class="px-6 py-4 space-y-4">
+            <div id="formErrorMessage" class="text-red-500 text-sm hidden"></div>
             <input type="hidden" id="travelId" name="id">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Tên Tour -->
                 <div>
                     <label for="tourName" class="block text-sm font-medium text-gray-700 mb-1">Tên Tour <span class="text-red-500">*</span></label>
-                    <input type="text" id="tourName" name="tourName" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-tag text-gray-400"></i>
+                        </span>
+                        <input type="text" id="tourName" name="tourName" required placeholder="Nhập tên tour"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Địa điểm -->
                 <div>
-                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm <span class="text-red-500">*</span></label>
-                    <input type="text" id="locationInput" name="location" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <label for="locationInput" class="block text-sm font-medium text-gray-700 mb-1">Địa điểm <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-map-marker-alt text-gray-400"></i>
+                        </span>
+                        <input type="text" id="locationInput" name="location" required placeholder="Nhập địa điểm"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Giá -->
                 <div>
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Giá (VNĐ) <span class="text-red-500">*</span></label>
-                    <input type="number" id="price" name="price" min="0" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-money-bill-wave text-gray-400"></i>
+                        </span>
+                        <input type="number" id="price" name="price" min="0" required placeholder="Nhập giá"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Thời gian -->
                 <div>
                     <label for="durationDays" class="block text-sm font-medium text-gray-700 mb-1">Thời gian (ngày) <span class="text-red-500">*</span></label>
-                    <input type="number" id="durationDays" name="durationDays" min="1" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-calendar-alt text-gray-400"></i>
+                        </span>
+                        <input type="number" id="durationDays" name="durationDays" min="1" required placeholder="Số ngày"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Số người tối đa -->
                 <div>
                     <label for="maxParticipants" class="block text-sm font-medium text-gray-700 mb-1">Số người tối đa <span class="text-red-500">*</span></label>
-                    <input type="number" id="maxParticipants" name="maxParticipants" min="1" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                </div>
-
-                <!-- Số người tối thiểu -->
-                <div>
-                    <label for="minParticipants" class="block text-sm font-medium text-gray-700 mb-1">Số người tối thiểu <span class="text-red-500">*</span></label>
-                    <input type="number" id="minParticipants" name="minParticipants" min="1" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-users text-gray-400"></i>
+                        </span>
+                        <input type="number" id="maxParticipants" name="maxParticipants" min="1" required placeholder="Số người tối đa"
+                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
                 </div>
 
                 <!-- Trạng thái -->
@@ -285,63 +299,38 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái <span class="text-red-500">*</span></label>
                     <div class="mt-1">
                         <label class="inline-flex items-center mr-4">
-                            <input type="radio" name="isAvailable" value="true" checked class="text-primary focus:ring-primary h-4 w-4">
+                            <input type="radio" name="available" value="true" checked class="text-primary focus:ring-primary h-4 w-4">
                             <span class="ml-2">Hiển thị</span>
                         </label>
                         <label class="inline-flex items-center">
-                            <input type="radio" name="isAvailable" value="false" class="text-primary focus:ring-primary h-4 w-4">
+                            <input type="radio" name="available" value="false" class="text-primary focus:ring-primary h-4 w-4">
                             <span class="ml-2">Ẩn</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- Độ khó -->
-                <div>
-                    <label for="difficultyLevel" class="block text-sm font-medium text-gray-700 mb-1">Độ khó <span class="text-red-500">*</span></label>
-                    <select id="difficultyLevel" name="difficultyLevel" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                        <option th:each="level : ${difficultyLevels}" th:value="${level.name()}" th:text="${level.displayName}"></option>
-                    </select>
-                </div>
+                <!-- Đã loại bỏ trường Độ khó -->
+                <input type="hidden" id="difficultyLevel" name="difficultyLevel" value="NORMAL">
 
-                <!-- Hướng dẫn viên -->
-                <div>
-                    <label for="guide" class="block text-sm font-medium text-gray-700 mb-1">Hướng dẫn viên <span class="text-red-500">*</span></label>
-                    <select id="guide" name="guide.id" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                        <option value="">Chọn hướng dẫn viên</option>
-                        <option th:each="guide : ${guides}" th:value="${guide.id}" th:text="${guide.hoTen}"></option>
-                    </select>
-                </div>
+                <!-- Đã loại bỏ trường guide -->
+                <input type="hidden" id="minParticipants" name="minParticipants" value="1">
             </div>
 
             <!-- Mô tả -->
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                <textarea id="description" name="description" rows="3"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <textarea id="description" name="description" rows="5" required placeholder="Mô tả chi tiết về tour, bao gồm lịch trình"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
             </div>
 
-            <!-- Lịch trình -->
-            <div>
-                <label for="itinerary" class="block text-sm font-medium text-gray-700 mb-1">Lịch trình <span class="text-red-500">*</span></label>
-                <textarea id="itinerary" name="itinerary" rows="5" required
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
-            </div>
+            <!-- Lịch trình (sử dụng giá trị từ mô tả) -->
+            <input type="hidden" id="itinerary" name="itinerary" value="">
 
-            <!-- Điểm nhấn -->
-            <div>
-                <label for="highlights" class="block text-sm font-medium text-gray-700 mb-1">Điểm nhấn</label>
-                <textarea id="highlights" name="highlights" rows="3"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
-            </div>
-
-            <!-- Yêu cầu -->
-            <div>
-                <label for="requirements" class="block text-sm font-medium text-gray-700 mb-1">Yêu cầu</label>
-                <textarea id="requirements" name="requirements" rows="3"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>
-            </div>
+            <!-- Ẩn các trường không cần thiết -->
+            <input type="hidden" id="highlights" name="highlights" value="">
+            <input type="hidden" id="requirements" name="requirements" value="">
 
             <!-- Dịch vụ bao gồm -->
             <div>
@@ -362,7 +351,7 @@
             <!-- Ảnh -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh (tối đa 5 ảnh)</label>
-                <div class="flex flex-wrap gap-2 mb-2" id="existingImagesList">
+                <div class="flex flex-wrap mb-2" id="existingImagesList">
                     <!-- Existing images will be shown here when editing -->
                 </div>
                 <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
@@ -387,7 +376,7 @@
                 <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mr-2">
                     Hủy
                 </button>
-                <button type="submit" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+                <button type="button" onclick="submitTravelForm()" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
                     <i class="fas fa-save mr-1"></i>
                     <span id="submitButtonText">Lưu Tour</span>
                 </button>
@@ -426,17 +415,369 @@
         document.getElementById('modalTitle').textContent = 'Thêm Tour du lịch mới';
         document.getElementById('submitButtonText').textContent = 'Lưu Tour';
         document.getElementById('travelForm').reset();
-        document.getElementById('travelForm').action = '/admin/travel/create';
         document.getElementById('travelId').value = '';
         document.getElementById('includedServicesList').innerHTML = '';
         document.getElementById('existingImagesList').innerHTML = '';
         document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('formErrorMessage').classList.add('hidden');
         document.getElementById('travelModal').classList.remove('hidden');
+    }
+
+    // Function to show the modal for editing an existing travel
+    function showEditTravelModal(id) {
+        document.getElementById('modalTitle').textContent = 'Chỉnh sửa Tour du lịch';
+        document.getElementById('submitButtonText').textContent = 'Cập nhật';
+        document.getElementById('travelForm').reset();
+        document.getElementById('travelId').value = id;
+        document.getElementById('includedServicesList').innerHTML = '';
+        document.getElementById('existingImagesList').innerHTML = '';
+        document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('formErrorMessage').classList.add('hidden');
+
+        // Fetch travel details
+        fetch('/admin/travel/api/' + id)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin tour');
+                }
+                return response.json();
+            })
+            .then(travel => {
+                // Fill form with travel details
+                document.getElementById('tourName').value = travel.tourName || '';
+                document.getElementById('locationInput').value = travel.location || '';
+                document.getElementById('price').value = travel.price || 0;
+                document.getElementById('durationDays').value = travel.durationDays || 1;
+                document.getElementById('maxParticipants').value = travel.maxParticipants || 1;
+                // minParticipants is now a hidden field with default value 1
+                // Xử lý mô tả và lịch trình
+                if (travel.description && travel.description.trim() !== '') {
+                    document.getElementById('description').value = travel.description;
+                } else if (travel.itinerary && travel.itinerary.trim() !== '') {
+                    // Nếu không có mô tả nhưng có lịch trình, sử dụng lịch trình làm mô tả
+                    document.getElementById('description').value = travel.itinerary;
+                } else {
+                    document.getElementById('description').value = '';
+                }
+
+                // Đặt giá trị cho trường lịch trình ẩn (sẽ được cập nhật khi gửi form)
+                document.getElementById('itinerary').value = document.getElementById('description').value;
+                // highlights and requirements are now hidden fields
+
+                // Đã loại bỏ việc xử lý độ khó
+
+                // Set availability status
+                const availableRadios = document.getElementsByName('available');
+
+                // Kiểm tra cả hai trường có thể có (available hoặc isAvailable)
+                // Jackson có thể chuyển đổi isAvailable thành available trong JSON
+                let isAvailable = true; // Mặc định là true
+
+                if (travel.available !== undefined) {
+                    isAvailable = travel.available;
+                    console.log('Using travel.available:', travel.available);
+                } else if (travel.isAvailable !== undefined) {
+                    isAvailable = travel.isAvailable;
+                    console.log('Using travel.isAvailable:', travel.isAvailable);
+                }
+
+                // Đặt radio button dựa trên giá trị boolean
+                if (isAvailable) {
+                    document.querySelector('input[name="available"][value="true"]').checked = true;
+                    console.log('Setting radio button to: true');
+                } else {
+                    document.querySelector('input[name="available"][value="false"]').checked = true;
+                    console.log('Setting radio button to: false');
+                }
+
+                // Add included services
+                if (travel.includedServices && travel.includedServices.length > 0) {
+                    const servicesList = document.getElementById('includedServicesList');
+                    travel.includedServices.forEach(service => {
+                        const serviceTag = document.createElement('div');
+                        serviceTag.className = 'bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center';
+
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'includedServices';
+                        hiddenInput.value = service;
+
+                        serviceTag.innerHTML = `
+                            <span>${service}</span>
+                            <button type="button" class="ml-2 text-blue-500 hover:text-blue-700" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+
+                        serviceTag.appendChild(hiddenInput);
+                        servicesList.appendChild(serviceTag);
+                    });
+                }
+
+                // Add existing images
+                if (travel.imageUrls && travel.imageUrls.length > 0) {
+                    const existingImagesList = document.getElementById('existingImagesList');
+                    // Clear existing images list and any hidden inputs for removed images
+                    existingImagesList.innerHTML = '';
+                    document.querySelectorAll('input[name="removedImages"]').forEach(el => el.remove());
+
+                    // Loại bỏ các ảnh trùng lặp
+                    const uniqueImageUrls = [];
+                    travel.imageUrls.forEach(url => {
+                        if (!uniqueImageUrls.includes(url)) {
+                            uniqueImageUrls.push(url);
+                        }
+                    });
+
+                    console.log('Loading existing images:', uniqueImageUrls.length, '(after removing duplicates)');
+                    uniqueImageUrls.forEach((imageUrl, index) => {
+                        console.log(`Loading image ${index + 1}/${uniqueImageUrls.length}: ${imageUrl}`);
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'relative w-20 h-20 m-1';
+
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.className = 'w-20 h-20 object-cover rounded-md border border-gray-200';
+
+                        // Thêm nút xóa ảnh
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs z-10';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        removeBtn.onclick = function() {
+                            // Kiểm tra số lượng ảnh còn lại
+                            const remainingImages = document.querySelectorAll('#existingImagesList > div').length;
+                            const newImages = document.querySelectorAll('#imagePreview > div').length;
+
+                            // Chỉ kiểm tra nếu số lượng ảnh còn lại là 0 (sau khi xóa)
+                            if (remainingImages + newImages <= 1) {
+                                // Nếu còn ít nhất 1 ảnh, cho phép xóa
+                                if (remainingImages + newImages === 1) {
+                                    // Tiếp tục cho phép xóa
+                                } else {
+                                    alert('Phải có ít nhất 1 ảnh cho tour du lịch');
+                                    return;
+                                }
+                            }
+
+                            console.log('Xóa ảnh, còn lại:', remainingImages - 1, 'existing +', newImages, 'new images');
+
+                            // Xóa ảnh khỏi danh sách
+                            imageContainer.remove();
+
+                            // Hoàn toàn loại bỏ checkbox khỏi form
+                            const form = document.getElementById('travelForm');
+                            const checkboxId = 'existing-image-' + imageUrl.replace(/[^a-zA-Z0-9]/g, '-');
+                            const checkboxInForm = document.getElementById(checkboxId);
+
+                            if (checkboxInForm) {
+                                checkboxInForm.remove();
+                                console.log('Removed checkbox from form:', checkboxId);
+                            } else {
+                                // Nếu không tìm thấy checkbox trong form, thêm một input hidden với checked=false
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'removedImages';
+                                hiddenInput.value = imageUrl;
+                                form.appendChild(hiddenInput);
+                                console.log('Added hidden input for removed image:', imageUrl);
+                            }
+
+                            console.log('Removed image from display:', imageUrl);
+                        };
+
+                        // Thêm checkbox để giữ lại ảnh (mặc định là giữ lại)
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'existingImages';
+                        checkbox.value = imageUrl;
+                        checkbox.checked = true;
+                        checkbox.className = 'hidden';
+                        checkbox.id = 'existing-image-' + imageUrl.replace(/[^a-zA-Z0-9]/g, '-');
+
+                        // Thêm các phần tử vào container
+                        imageContainer.appendChild(img);
+                        imageContainer.appendChild(removeBtn);
+                        imageContainer.appendChild(checkbox);
+                        existingImagesList.appendChild(imageContainer);
+                    });
+                    console.log('Finished loading all images');
+                }
+
+                // Show the modal
+                document.getElementById('travelModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('formErrorMessage').textContent = error.message;
+                document.getElementById('formErrorMessage').classList.remove('hidden');
+            });
     }
 
     // Function to close the modal
     function closeModal() {
         document.getElementById('travelModal').classList.add('hidden');
+    }
+
+    // Function to submit the travel form via AJAX
+    function submitTravelForm() {
+        // Kiểm tra số lượng ảnh
+        const existingImages = document.querySelectorAll('input[name="existingImages"]:checked').length;
+        const newImages = document.getElementById('images').files.length;
+
+        if (existingImages === 0 && newImages === 0) {
+            alert('Phải có ít nhất 1 ảnh cho tour du lịch');
+            return;
+        }
+
+        // Sao chép giá trị từ trường mô tả vào trường lịch trình
+        const description = document.getElementById('description').value;
+        document.getElementById('itinerary').value = description;
+
+        const formData = new FormData(document.getElementById('travelForm'));
+        const travelId = document.getElementById('travelId').value;
+        const isUpdate = travelId !== '';
+
+        // Log form data for debugging
+        console.log('Form data before submission:');
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
+        // Set the URL based on whether this is a create or update operation
+        const url = isUpdate ? `/admin/travel/api/update/${travelId}` : '/admin/travel/api/create';
+
+        // Show loading state
+        const submitButton = document.querySelector('#travelForm button[type="button"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý...';
+
+        // Clear previous error messages
+        document.getElementById('formErrorMessage').classList.add('hidden');
+
+        // Process images
+        const fileInput = document.getElementById('images');
+        if (fileInput.files.length > 0) {
+            console.log(`Đang gửi ${fileInput.files.length} ảnh mới`);
+
+            // Sử dụng Set để theo dõi các file đã được thêm vào formData
+            const addedFiles = new Set();
+
+            // Add each file to formData
+            for (let i = 0; i < fileInput.files.length; i++) {
+                const file = fileInput.files[i];
+
+                // Tạo một key duy nhất cho file dựa trên tên và kích thước
+                const fileKey = `${file.name}_${file.size}`;
+
+                // Chỉ thêm file nếu nó chưa được thêm vào formData
+                if (!addedFiles.has(fileKey)) {
+                    console.log(`Thêm ảnh: ${file.name}, kích thước: ${file.size} bytes, loại: ${file.type}`);
+
+                    // Thêm file vào formData (chỉ thêm một lần)
+                    if (isUpdate) {
+                        formData.append('newImages', file);
+                    } else {
+                        // Chỉ thêm với một tên trường duy nhất để tránh trùng lặp
+                        formData.append('images', file);
+                    }
+
+                    // Đánh dấu file đã được thêm
+                    addedFiles.add(fileKey);
+                } else {
+                    console.log(`Bỏ qua ảnh trùng lặp: ${file.name}`);
+                }
+            }
+
+            console.log(`Đã thêm ${addedFiles.size} ảnh duy nhất vào formData`);
+        }
+
+        // Process existing images for updates
+        if (isUpdate) {
+            const existingImages = document.querySelectorAll('input[name="existingImages"]:checked');
+            if (existingImages.length > 0) {
+                console.log(`Giữ lại ${existingImages.length} ảnh hiện tại`);
+
+                // Xóa bỏ trùng lặp bằng cách sử dụng Set
+                const uniqueImages = new Set();
+
+                // Log tất cả các ảnh hiện tại trước khi lọc
+                console.log('All existing images before filtering:');
+                existingImages.forEach(img => {
+                    console.log(' - ' + img.value);
+                });
+
+                existingImages.forEach(img => {
+                    if (!uniqueImages.has(img.value)) {
+                        uniqueImages.add(img.value);
+                        formData.append('existingImages', img.value);
+                        console.log('Adding existing image to form:', img.value);
+                    } else {
+                        console.log('Skipping duplicate image:', img.value);
+                    }
+                });
+
+                console.log(`Sau khi loại bỏ trùng lặp: ${uniqueImages.size} ảnh`);
+            }
+
+            // Process removed images
+            const removedImages = document.querySelectorAll('input[name="removedImages"]');
+            if (removedImages.length > 0) {
+                console.log(`Đã xóa ${removedImages.length} ảnh`);
+
+                // Xóa bỏ trùng lặp
+                const uniqueRemovedImages = new Set();
+
+                removedImages.forEach(img => {
+                    if (!uniqueRemovedImages.has(img.value)) {
+                        uniqueRemovedImages.add(img.value);
+                        formData.append('removedImages', img.value);
+                        console.log('Adding removed image to form:', img.value);
+                    }
+                });
+
+                console.log(`Sau khi loại bỏ trùng lặp: ${uniqueRemovedImages.size} ảnh đã xóa`);
+            }
+        }
+
+        // Send the request
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                [header]: token
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Có lỗi xảy ra');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Show success message
+            showToast(data.message, 'success');
+
+            // Close the modal
+            closeModal();
+
+            // Reload the page to show the updated data
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('formErrorMessage').textContent = error.message;
+            document.getElementById('formErrorMessage').classList.remove('hidden');
+
+            // Restore button state
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        });
     }
 
     // Function to show delete confirmation modal
@@ -519,37 +860,71 @@
             return;
         }
 
+        // Sử dụng Set để theo dõi các file đã được thêm vào preview
+        const addedFiles = new Set();
+
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (!file.type.match('image.*')) {
                 continue;
             }
 
-            const reader = new FileReader();
+            // Tạo một key duy nhất cho file dựa trên tên và kích thước
+            const fileKey = `${file.name}_${file.size}`;
 
-            reader.onload = function(e) {
-                const imgContainer = document.createElement('div');
-                imgContainer.className = 'relative w-20 h-20';
+            // Chỉ thêm file nếu nó chưa được thêm vào preview
+            if (!addedFiles.has(fileKey)) {
+                // Đánh dấu file đã được thêm
+                addedFiles.add(fileKey);
+                console.log(`Thêm ảnh vào preview: ${file.name}, kích thước: ${file.size} bytes`);
 
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'w-20 h-20 object-cover rounded-md border border-gray-200';
+                const reader = new FileReader();
 
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs';
-                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                removeBtn.onclick = function() {
-                    imgContainer.remove();
+                reader.onload = function(e) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'relative w-20 h-20';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-20 h-20 object-cover rounded-md border border-gray-200';
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.onclick = function() {
+                        // Kiểm tra số lượng ảnh còn lại
+                        const remainingImages = document.querySelectorAll('#existingImagesList > div').length;
+                        const newImages = document.querySelectorAll('#imagePreview > div').length;
+
+                        // Chỉ kiểm tra nếu số lượng ảnh còn lại là 0 (sau khi xóa)
+                        if (remainingImages + newImages <= 1) {
+                            // Nếu còn ít nhất 1 ảnh, cho phép xóa
+                            if (remainingImages + newImages === 1) {
+                                // Tiếp tục cho phép xóa
+                            } else {
+                                alert('Phải có ít nhất 1 ảnh cho tour du lịch');
+                                return;
+                            }
+                        }
+
+                        console.log('Xóa ảnh mới, còn lại:', remainingImages, 'existing +', newImages - 1, 'new images');
+
+                        imgContainer.remove();
+                    };
+
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeBtn);
+                    preview.appendChild(imgContainer);
                 };
 
-                imgContainer.appendChild(img);
-                imgContainer.appendChild(removeBtn);
-                preview.appendChild(imgContainer);
-            };
-
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            } else {
+                console.log(`Bỏ qua ảnh trùng lặp trong preview: ${file.name}`);
+            }
         }
+
+        console.log(`Đã thêm ${addedFiles.size} ảnh duy nhất vào preview`);
     });
 
     // Set active navigation item

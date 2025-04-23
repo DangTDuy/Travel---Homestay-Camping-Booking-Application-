@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ut.edu.project.models.Travel;
-import ut.edu.project.models.User;
+
 import ut.edu.project.models.Travel.DifficultyLevel;
 
 import java.util.List;
@@ -18,8 +18,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
     // Tìm theo khoảng giá
     List<Travel> findByPriceBetween(Double minPrice, Double maxPrice);
 
-    // Tìm theo hướng dẫn viên
-    List<Travel> findByGuide(User guide);
+    // Đã loại bỏ phương thức findByGuide
 
     // Tìm theo số ngày
     List<Travel> findByDurationDaysBetween(Integer minDays, Integer maxDays);

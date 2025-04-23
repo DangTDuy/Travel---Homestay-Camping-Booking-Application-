@@ -187,6 +187,39 @@
                         </div>
                     </dl>
 
+                    <!-- Additional Services Information -->
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-4 border-b pb-2">Dịch vụ bổ sung</h3>
+
+
+
+                    <div th:if="${booking != null && booking.additionalServices != null && !booking.additionalServices.isEmpty()}" class="mb-6">
+                        <div class="overflow-hidden border border-gray-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên dịch vụ</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khung giờ</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr th:each="service : ${booking.additionalServices}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${service.name}">Tên dịch vụ</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${service.category != null ? service.category.displayName : 'Không xác định'}">Loại</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${service.timeSlot != null ? service.timeSlot.displayName : 'Cả ngày'}">Khung giờ</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${service.quantity}">1</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#numbers.formatCurrency(service.price)}">100.000 đ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div th:unless="${booking != null && booking.additionalServices != null && !booking.additionalServices.isEmpty()}" class="text-gray-500 italic mb-6">
+                        (Không có dịch vụ bổ sung nào được đặt)
+                    </div>
+
                     <!-- Payment Information -->
                     <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-4 border-b pb-2">Thông tin Thanh toán</h3>
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
