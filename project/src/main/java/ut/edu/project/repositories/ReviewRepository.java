@@ -33,7 +33,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByCampingId(Long campingId);
 
     // Tìm theo travel
-    List<Review> findByTravelId(Long travelId);
+    @Query("SELECT r FROM Review r WHERE r.travel.id = :travelId")
+    List<Review> findByTravelId(@Param("travelId") Long travelId);
 
     // Tìm theo booking
     List<Review> findByBookingId(Long bookingId);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách Tour Du Lịch</title>
+    <title>Danh sách tour - Travel-Homestay-Camping</title>
     <!-- Favicon -->
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png" type="image/x-icon">
     <!-- Google Fonts -->
@@ -32,89 +32,190 @@
     </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
-<body class="bg-gray-100 font-sans flex">
-
-<!-- Sidebar -->
-<th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
-
-<!-- Main Content Wrapper -->
-<div class="flex-1 md:ml-64 transition-all duration-300 ease-in-out">
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
     <!-- Header -->
-    <th:block th:replace="~{fragments/header :: header}"></th:block>
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="/" title="Về trang chủ">
+                    <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="h-10 w-10"/>
+                </a>
+                <span class="text-2xl font-serif font-bold text-primary">Travel<span class="text-secondary">Homestay</span>Camping</span>
+            </div>
+        </div>
+    </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <!-- Banner Image (Using Tailwind) -->
-        <img src="https://pistachiohotel.com/UploadFile/Gallery/Overview/a3.jpg" class="w-full h-64 md:h-80 object-cover rounded-lg shadow-md mb-6" alt="Tour Du Lịch Banner" />
-
-        <h2 class="text-3xl font-bold text-center text-primary mb-8">🌍 Danh Sách Tour Du Lịch</h2>
-
-        <!-- Tour List (Using Tailwind grid and looping through ${travels}) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Loop through travels -->
-            <div th:each="travel : ${travels}" class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
-                <div class="relative">
-                    <!-- Image -->
-                    <img th:if="${not #lists.isEmpty(travel.imageUrls)}"
-                         th:src="${travel.imageUrls[0]}"
-                         alt="Travel Image"
-                         class="w-full h-48 object-cover">
-                    <img th:unless="${not #lists.isEmpty(travel.imageUrls)}"
-                         src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                         alt="Default Travel Image"
-                         class="w-full h-48 object-cover">
-
-                    <!-- Price Tag -->
-                    <div th:if="${travel.price != null}"
-                         class="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full font-semibold"
-                         th:text="${#numbers.formatDecimal(travel.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <form id="searchForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                        <input type="text" name="search" th:value="${searchParams?.search}" 
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Tìm kiếm tour...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Địa điểm</label>
+                        <input type="text" name="location" th:value="${searchParams?.location}"
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Nhập địa điểm...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Thời gian</label>
+                        <input type="number" name="duration" th:value="${searchParams?.duration}"
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Số ngày">
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Giá từ</label>
+                        <input type="number" name="minPrice" th:value="${searchParams?.minPrice}"
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Giá tối thiểu">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
+                        <input type="number" name="maxPrice" th:value="${searchParams?.maxPrice}"
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Giá tối đa">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Đánh giá từ</label>
+                        <input type="number" name="minRating" th:value="${searchParams?.minRating}"
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Điểm đánh giá" min="0" max="5" step="0.1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp</label>
+                        <select name="sortBy" th:value="${searchParams?.sortBy}"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">Mặc định</option>
+                            <option value="price">Giá</option>
+                            <option value="rating">Đánh giá</option>
+                            <option value="duration">Thời gian</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="resetFilters()"
+                            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150">
+                        <i class="fas fa-redo mr-2"></i>Đặt lại
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition duration-150">
+                        <i class="fas fa-search mr-2"></i>Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Travel List -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="travel : ${travels}" class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="relative">
+                    <img th:src="${travel.imageUrls[0]}" alt="Travel image" class="w-full h-48 object-cover">
+                    <button class="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+                            th:onclick="'toggleWishlist(this, ' + ${travel.id} + ')'">
+                        <i class="far fa-heart text-gray-600"></i>
+                    </button>
+                </div>
                 <div class="p-4">
-                    <h3 class="text-xl font-semibold text-dark mb-2 truncate" th:text="${travel.tourName}">Tour Name</h3>
-                    <p class="text-gray-600 text-sm mb-2 flex items-center">
-                        <i class="fas fa-map-marker-alt mr-2 text-gray-500"></i>
-                        <span th:text="${travel.location}">Location</span>
-                    </p>
-                    <p class="text-gray-600 text-sm mb-3 flex items-center">
-                        <i class="far fa-clock mr-2 text-gray-500"></i>
-                        <span th:text="${travel.durationDays} + ' ngày'">Duration</span>
-                    </p>
-
-                    <!-- Rating Placeholder -->
-                    <div class="flex items-center text-yellow-500 mb-3">
-                        <i class="fas fa-star"></i>
-                        <span class="ml-1 font-medium" th:text="${travel.rating != null ? #numbers.formatDecimal(travel.rating, 1, 1) : 'N/A'}">4.5</span>
-                        <span class="text-gray-500 text-xs ml-2" th:text="'(' + ${travel.bookingCount} + ' lượt đặt)'">(100 lượt đặt)</span>
+                    <h3 class="text-xl font-bold text-dark mb-2" th:text="${travel.tourName}">Tour name</h3>
+                    <p class="text-gray-600 mb-2" th:text="${travel.location}">Location</p>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-star text-yellow-400 mr-1"></i>
+                        <span class="text-gray-700" th:text="${travel.rating} + ' (' + ${travel.bookingCount} + ' đánh giá)'">Rating</span>
                     </div>
-
-                    <!-- Difficulty -->
-                    <div class="mb-4">
-                     <span class="text-xs font-medium px-2 py-1 rounded-full"
-                           th:text="${travel.difficultyLevel.displayName}"
-                           th:classappend="${travel.difficultyLevel.name() == 'EASY' ? 'bg-green-100 text-green-800' : (travel.difficultyLevel.name() == 'NORMAL' ? 'bg-blue-100 text-blue-800' : (travel.difficultyLevel.name() == 'CHALLENGING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'))}">
-                           Trung bình
-                     </span>
-                    </div>
-
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold" th:text="${travel.price} + ' VNĐ'">Price</span>
                     <a th:href="@{/travels/{id}(id=${travel.id})}"
-                       class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                           class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition duration-150">
                         Xem chi tiết
                     </a>
                 </div>
             </div>
-
-            <!-- Empty State -->
-            <div th:if="${#lists.isEmpty(travels)}" class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-lg shadow text-center">
-                <i class="fas fa-route text-gray-400 text-5xl mb-4"></i>
-                <h3 class="text-xl font-semibold text-dark mb-2">Không tìm thấy tour nào</h3>
-                <p class="text-gray-600">Hiện không có tour du lịch nào.</p>
             </div>
         </div>
     </main>
-</div>
 
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Travel-Homestay-Camping</h3>
+                    <p class="text-gray-400">Khám phá những điểm đến tuyệt vời cùng chúng tôi.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Liên hệ</h3>
+                    <p class="text-gray-400">Email: info@travelhomestaycamping.com</p>
+                    <p class="text-gray-400">Điện thoại: +84 123 456 789</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Theo dõi chúng tôi</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Travel-Homestay-Camping. All rights reserved.</p>
+            </div>
+</div>
+    </footer>
+
+    <script>
+        function toggleWishlist(button, travelId) {
+            fetch(`/travels/${travelId}/wishlist`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    const icon = button.querySelector('i');
+                    if (data.isInWishlist) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.classList.add('text-red-500');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.classList.remove('text-red-500');
+                    }
+                }
+            });
+        }
+
+        function resetFilters() {
+            document.querySelectorAll('#searchForm input, #searchForm select').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('searchForm').submit();
+        }
+    </script>
 </body>
 </html>

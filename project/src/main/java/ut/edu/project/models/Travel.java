@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Getter
@@ -94,6 +95,9 @@ public class Travel {
     @Column(nullable = false, columnDefinition = "integer default 0")
     private Integer bookingCount = 0;
 
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private Integer shareCount = 0;
+
     private Double rating;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -101,6 +105,16 @@ public class Travel {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ElementCollection
+    @CollectionTable(name = "travel_wishlist_users", joinColumns = @JoinColumn(name = "travel_id"))
+    @Column(name = "username")
+    private Set<String> wishlistUsers = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "travel_shared_by", joinColumns = @JoinColumn(name = "travel_id"))
+    @Column(name = "email")
+    private Set<String> sharedBy = new HashSet<>();
 
     public enum DifficultyLevel {
         EASY("Dễ"),
@@ -155,5 +169,29 @@ public class Travel {
 
     public boolean hasMinimumParticipants() {
         return bookings.size() >= minParticipants;
+    }
+
+    public Integer getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(Integer shareCount) {
+        this.shareCount = shareCount;
+    }
+
+    public Set<String> getWishlistUsers() {
+        return wishlistUsers;
+    }
+
+    public void setWishlistUsers(Set<String> wishlistUsers) {
+        this.wishlistUsers = wishlistUsers;
+    }
+
+    public Set<String> getSharedBy() {
+        return sharedBy;
+    }
+
+    public void setSharedBy(Set<String> sharedBy) {
+        this.sharedBy = sharedBy;
     }
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 public class ReviewService {
@@ -34,10 +35,13 @@ public class ReviewService {
 
     @Transactional
     public Review createReview(Review review) {
-        validateReview(review);
-        Review savedReview = reviewRepository.save(review);
-        updateServiceRating(review);
-        return savedReview;
+        if (review.getUser() == null) {
+            throw new RuntimeException("Người dùng không được để trống");
+        }
+        if (review.getRating() == null || review.getRating() < 1 || review.getRating() > 5) {
+            throw new RuntimeException("Điểm đánh giá phải từ 1 đến 5");
+        }
+        return reviewRepository.save(review);
     }
 
     @Transactional
@@ -47,39 +51,20 @@ public class ReviewService {
             throw new RuntimeException("Không tìm thấy đánh giá");
         }
         Review existingReview = existingReviewOpt.get();
-
-        Integer oldRating = existingReview.getRating();
-
+        
         existingReview.setRating(review.getRating());
         existingReview.setComment(review.getComment());
         existingReview.setImages(review.getImages());
-
-        validateReview(existingReview);
-        Review updatedReview = reviewRepository.save(existingReview);
-
-        if (!oldRating.equals(review.getRating())) {
-            updateServiceRating(existingReview);
-        }
-
-        return updatedReview;
+        
+        return reviewRepository.save(existingReview);
     }
 
     public Review getReviewById(Long id) {
         Optional<Review> reviewOpt = reviewRepository.findById(id);
         if (!reviewOpt.isPresent()) {
-            throw new RuntimeException("Không tìm thấy đánh giá với ID: " + id);
+            throw new RuntimeException("Không tìm thấy đánh giá");
         }
-        Review review = reviewOpt.get();
-
-        // Kiểm tra các foreign key
-        if (review.getBooking() != null && !bookingRepository.existsById(review.getBooking().getId())) {
-            throw new RuntimeException("Booking không tồn tại cho đánh giá ID: " + id);
-        }
-        if (review.getHomestay() != null && !homestayRepository.existsById(review.getHomestay().getId())) {
-            throw new RuntimeException("Homestay không tồn tại cho đánh giá ID: " + id);
-        }
-
-        return review;
+        return reviewOpt.get();
     }
 
     /**
@@ -126,22 +111,7 @@ public class ReviewService {
         if (!reviewOpt.isPresent()) {
             throw new RuntimeException("Không tìm thấy đánh giá");
         }
-        Review review = reviewOpt.get();
-
-        reviewRepository.delete(review);
-        updateServiceRating(review);
-    }
-
-    private void validateReview(Review review) {
-        if (review.getUser() == null) {
-            throw new RuntimeException("Người dùng không được để trống");
-        }
-        if (review.getBooking() == null) {
-            throw new RuntimeException("Booking không được để trống");
-        }
-        if (review.getRating() == null || review.getRating() < 1 || review.getRating() > 5) {
-            throw new RuntimeException("Điểm đánh giá phải từ 1 đến 5");
-        }
+        reviewRepository.delete(reviewOpt.get());
     }
 
     private void updateServiceRating(Review review) {
@@ -479,5 +449,65 @@ public class ReviewService {
         } else {
             return user != null && "ADMIN".equals(user.getRole());
         }
+    }
+
+    @Transactional
+    public Review saveReview(Review review) {
+        return reviewRepository.save(review);
+    }
+
+    @Transactional
+    public void reportReview(Long reviewId, String username, String reason) {
+        Optional<Review> reviewOpt = reviewRepository.findById(reviewId);
+        if (!reviewOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy đánh giá");
+        }
+        
+        Review review = reviewOpt.get();
+        Set<String> reportedBy = review.getReportedBy();
+        if (reportedBy.contains(username)) {
+            throw new RuntimeException("Bạn đã báo cáo đánh giá này rồi");
+        }
+        
+        reportedBy.add(username);
+        review.setReportedBy(reportedBy);
+        review.setReportReason(reason);
+        reviewRepository.save(review);
+    }
+
+    @Transactional
+    public boolean toggleLikeReview(Long reviewId, String username) {
+        Optional<Review> reviewOpt = reviewRepository.findById(reviewId);
+        if (!reviewOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy đánh giá");
+        }
+        
+        Review review = reviewOpt.get();
+        Set<String> likedBy = review.getLikedBy();
+        boolean isLiked;
+        
+        if (likedBy.contains(username)) {
+            likedBy.remove(username);
+            isLiked = false;
+        } else {
+            likedBy.add(username);
+            isLiked = true;
+        }
+        
+        review.setLikedBy(likedBy);
+        reviewRepository.save(review);
+        return isLiked;
+    }
+
+    public String getUsername(Review review) {
+        if (review == null || review.getUser() == null) {
+            return null;
+        }
+        return review.getUser().getUsername();
+    }
+
+    private Review findReviewById(Long reviewId) {
+        Optional<Review> reviewOpt = reviewRepository.findById(reviewId);
+        return reviewOpt.orElse(null);
     }
 }

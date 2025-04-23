@@ -76,4 +76,36 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 
     // Optional: Add a method to count available travels
     long countByIsAvailableTrue();
+
+    @Query("SELECT t FROM Travel t WHERE " +
+           "(:search IS NULL OR :search = '' OR LOWER(t.tourName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "(:location IS NULL OR :location = '' OR LOWER(t.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
+           "(:minPrice IS NULL OR t.price >= :minPrice) AND " +
+           "(:maxPrice IS NULL OR t.price <= :maxPrice) AND " +
+           "(:duration IS NULL OR t.durationDays = :duration) AND " +
+           "(:minRating IS NULL OR t.rating >= :minRating) " +
+           "ORDER BY " +
+           "CASE WHEN :sortBy IS NULL THEN t.createdAt END DESC, " +
+           "CASE WHEN :sortBy = 'price' AND :sortOrder = 'asc' THEN t.price END ASC, " +
+           "CASE WHEN :sortBy = 'price' AND :sortOrder = 'desc' THEN t.price END DESC, " +
+           "CASE WHEN :sortBy = 'rating' AND :sortOrder = 'asc' THEN t.rating END ASC, " +
+           "CASE WHEN :sortBy = 'rating' AND :sortOrder = 'desc' THEN t.rating END DESC, " +
+           "CASE WHEN :sortBy = 'duration' AND :sortOrder = 'asc' THEN t.durationDays END ASC, " +
+           "CASE WHEN :sortBy = 'duration' AND :sortOrder = 'desc' THEN t.durationDays END DESC")
+    List<Travel> searchAndFilterTravels(
+            @Param("search") String search,
+            @Param("location") String location,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("duration") Integer duration,
+            @Param("minRating") Double minRating,
+            @Param("sortBy") String sortBy,
+            @Param("sortOrder") String sortOrder);
+
+    @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END " +
+           "FROM Travel t JOIN t.wishlistUsers w " +
+           "WHERE t.id = :travelId AND w = :username")
+    boolean existsByWishlistUsersUsernameAndId(@Param("username") String username, 
+                                             @Param("travelId") Long travelId);
 }
