@@ -38,7 +38,9 @@ public class Travel {
     @NotBlank(message = "Lịch trình không được để trống")
     private String itinerary;
 
-    // Đã loại bỏ trường guide
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guide_id")
+    private User guide;
 
     @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>();
