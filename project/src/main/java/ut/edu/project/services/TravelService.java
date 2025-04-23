@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -451,5 +453,81 @@ public class TravelService {
             log.error("Error deleting image: {}", filename, e);
             // Không throw exception để tránh làm gian đoạn quá trình cập nhật
         }
+    }
+
+    public List<Travel> searchAndFilterTravels(
+            String search,
+            String location,
+            Double minPrice,
+            Double maxPrice,
+            Integer duration,
+            Double minRating,
+            String sortBy,
+            String sortOrder) {
+        return travelRepository.searchAndFilterTravels(search, location, minPrice, maxPrice, 
+                                                     duration, minRating, sortBy, sortOrder);
+    }
+
+    public boolean isTravelInWishlist(String username, Long travelId) {
+        return travelRepository.existsByWishlistUsersUsernameAndId(username, travelId);
+    }
+
+    @Transactional
+    public boolean toggleWishlist(String username, Long travelId) {
+        Optional<Travel> travelOpt = travelRepository.findById(travelId);
+        if (!travelOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy tour");
+        }
+        
+        Travel travel = travelOpt.get();
+        Set<String> wishlistUsers = travel.getWishlistUsers();
+        boolean isAdded;
+        
+        if (wishlistUsers.contains(username)) {
+            wishlistUsers.remove(username);
+            isAdded = false;
+        } else {
+            wishlistUsers.add(username);
+            isAdded = true;
+        }
+        
+        travel.setWishlistUsers(wishlistUsers);
+        travelRepository.save(travel);
+        return isAdded;
+    }
+
+    public List<Travel> getTravelsByIds(List<Long> ids) {
+        return travelRepository.findAllById(ids);
+    }
+
+    @Transactional
+    public void shareTravel(Long travelId, String email) {
+        Optional<Travel> travelOpt = travelRepository.findById(travelId);
+        if (!travelOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy tour");
+        }
+        
+        Travel travel = travelOpt.get();
+        Set<String> sharedBy = travel.getSharedBy();
+        sharedBy.add(email);
+        travel.setSharedBy(sharedBy);
+        travel.setShareCount(travel.getShareCount() + 1);
+        travelRepository.save(travel);
+    }
+
+    public int getShareCount(Long travelId) {
+        Optional<Travel> travelOpt = travelRepository.findById(travelId);
+        if (!travelOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy tour");
+        }
+        return travelOpt.get().getShareCount();
+    }
+
+    public Set<String> getSharedBy(Long travelId) {
+        Optional<Travel> travelOpt = travelRepository.findById(travelId);
+        if (!travelOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy tour");
+        }
+        return travelOpt.get().getSharedBy();
     }
 }

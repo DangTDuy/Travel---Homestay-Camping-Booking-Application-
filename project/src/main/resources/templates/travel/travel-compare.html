@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>So sánh tour - Travel-Homestay-Camping</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="/" title="Về trang chủ">
+                    <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Logo" class="h-10 w-10"/>
+                </a>
+                <span class="text-2xl font-serif font-bold text-primary">Travel<span class="text-secondary">Homestay</span>Camping</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold text-dark mb-6">So sánh tour</h1>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiêu chí</th>
+                            <th th:each="travel : ${travels}" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex flex-col items-center">
+                                    <img th:src="${travel.imageUrl}" alt="Travel image" class="h-32 w-full object-cover rounded-lg mb-2">
+                                    <span th:text="${travel.name}" class="font-bold"></span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Địa điểm</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${travel.location}"></td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Thời gian</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${travel.duration} + ' ngày'"></td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Giá</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${travel.price} + ' VNĐ'"></td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Đánh giá</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                    <span th:text="${travel.averageRating} + ' (' + ${travel.reviewCount} + ' đánh giá)'"></span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Số người tối đa</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${travel.maxParticipants} + ' người'"></td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Dịch vụ bao gồm</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 text-sm text-gray-500">
+                                <ul class="list-disc list-inside">
+                                    <li th:each="service : ${travel.includedServices}" th:text="${service}"></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Yêu cầu</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 text-sm text-gray-500">
+                                <ul class="list-disc list-inside">
+                                    <li th:each="requirement : ${travel.requirements}" th:text="${requirement}"></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Thao tác</td>
+                            <td th:each="travel : ${travels}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <a th:href="@{/travels/{id}(id=${travel.id})}" 
+                                   class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition duration-150">
+                                    Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Travel-Homestay-Camping</h3>
+                    <p class="text-gray-400">Khám phá những điểm đến tuyệt vời cùng chúng tôi.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Liên hệ</h3>
+                    <p class="text-gray-400">Email: info@travelhomestaycamping.com</p>
+                    <p class="text-gray-400">Điện thoại: +84 123 456 789</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Theo dõi chúng tôi</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Travel-Homestay-Camping. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

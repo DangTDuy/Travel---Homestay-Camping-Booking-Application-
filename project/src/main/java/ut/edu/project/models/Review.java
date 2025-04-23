@@ -6,6 +6,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -63,6 +65,18 @@ public class Review {
     @Column(name = "owner_reply_date")
     private LocalDateTime ownerReplyDate;
 
+    @ElementCollection
+    @CollectionTable(name = "review_likes", joinColumns = @JoinColumn(name = "review_id"))
+    @Column(name = "username")
+    private Set<String> likedBy = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "review_reports", joinColumns = @JoinColumn(name = "review_id"))
+    @Column(name = "username")
+    private Set<String> reportedBy = new HashSet<>();
+
+    private String reportReason;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -94,5 +108,43 @@ public class Review {
         if (camping != null) return camping.getName();
         if (travel != null) return travel.getTourName();
         return null;
+    }
+
+    public void setTravelId(Long travelId) {
+        if (this.travel == null) {
+            this.travel = new Travel();
+        }
+        this.travel.setId(travelId);
+    }
+
+    public void setUsername(String username) {
+        if (this.user == null) {
+            this.user = new User();
+        }
+        this.user.setUsername(username);
+    }
+
+    public Set<String> getLikedBy() {
+        return likedBy;
+    }
+
+    public void setLikedBy(Set<String> likedBy) {
+        this.likedBy = likedBy;
+    }
+
+    public Set<String> getReportedBy() {
+        return reportedBy;
+    }
+
+    public void setReportedBy(Set<String> reportedBy) {
+        this.reportedBy = reportedBy;
+    }
+
+    public String getReportReason() {
+        return reportReason;
+    }
+
+    public void setReportReason(String reportReason) {
+        this.reportReason = reportReason;
     }
 }
